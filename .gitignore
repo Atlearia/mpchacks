@@ -1,4 +1,27 @@
+# Environment & secrets (NEVER commit real credentials)
 .env
-.venv/
+.env.local
+.env.*.local
+*.pem
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/node_modules/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

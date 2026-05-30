@@ -1,23 +1,28 @@
-import { DEPARTMENTS } from "./data/generate";
-
-// One stable accent color per department, reused across 3D + 2D views.
+// Accent palette reused across the 3D + 2D views.
 const PALETTE = [
-  "#6ea8fe", // Engineering - blue
-  "#f5a97f", // Sales - orange
-  "#f38ba8", // Marketing - pink
-  "#a6da95", // Operations - green
-  "#eed49f", // Finance - amber
-  "#8bd5ca", // Customer Success - teal
-  "#c6a0f6", // Product - violet
-  "#f0c6c6", // People Ops - rose
+  "#6ea8fe", // blue
+  "#f5a97f", // orange
+  "#f38ba8", // pink
+  "#a6da95", // green
+  "#eed49f", // amber
+  "#8bd5ca", // teal
+  "#c6a0f6", // violet
+  "#f0c6c6", // rose
 ];
 
-export const DEPT_COLORS: Record<string, string> = Object.fromEntries(
-  DEPARTMENTS.map((d, i) => [d, PALETTE[i % PALETTE.length]])
-);
+// Hash the department name to a palette slot so every department keeps a
+// stable color regardless of when the (async) dataset finishes loading.
+function hashIndex(name: string, mod: number): number {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) {
+    h = (h * 31 + name.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h) % mod;
+}
 
 export function deptColor(dept: string): string {
-  return DEPT_COLORS[dept] ?? "#9aa5ce";
+  if (!dept) return "#9aa5ce";
+  return PALETTE[hashIndex(dept, PALETTE.length)];
 }
 
 export const fmtUSD = (n: number) =>

@@ -3,11 +3,12 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 
 from app.config import get_settings
 from app.main import limiter, store_job
 from app.models.schemas import IngestResponse
+from app.security import require_api_key
 from app.services import parser
 
 router = APIRouter(tags=["ingest"])
@@ -34,7 +35,11 @@ async def _read_limited(file: UploadFile, max_bytes: int) -> bytes:
 
 @router.post("/ingest", response_model=IngestResponse, status_code=status.HTTP_200_OK)
 @limiter.limit(get_settings().RATE_LIMIT_INGEST)
-async def ingest(request: Request, file: UploadFile = File(...)) -> IngestResponse:
+async def ingest(
+    request: Request,
+    file: UploadFile = File(...),
+    caller: str = Depends(require_api_key),
+) -> IngestResponse:
     settings = get_settings()
 
     raw = await _read_limited(file, settings.max_file_size_bytes)
@@ -47,6 +52,7 @@ async def ingest(request: Request, file: UploadFile = File(...)) -> IngestRespon
     store_job(
         job_id,
         {
+            "owner": caller,
             "data": text,
             "chunks": chunks,
             "metadata": {

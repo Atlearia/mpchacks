@@ -49,3 +49,42 @@ class QueryResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str = "ok"
     timestamp: str
+
+
+class Employee(BaseModel):
+    id: str
+    name: str
+    department: str
+    title: str
+    email: str
+    location: str
+    joinedDate: str
+    cardLast4: str
+    monthlyLimit: float
+    avatarHue: int
+
+
+class Transaction(BaseModel):
+    id: str
+    transactionCode: str
+    transactionCategory: str
+    postingDate: str
+    transactionDate: str
+    merchantName: str
+    amount: float
+    debitOrCredit: str
+    merchantCategoryCode: str
+    merchantCity: str
+    merchantCountry: str
+    merchantPostalCode: str
+    merchantState: str
+    conversionRate: float
+    department: str
+    employeeId: str
+    employeeName: str
+    spendCategory: str
+
+
+class DatasetResponse(BaseModel):
+    employees: list[Employee]
+    transactions: list[Transaction]

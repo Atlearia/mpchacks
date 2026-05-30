@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import logging
+from datetime import datetime, timezone
 from typing import Any
 
 import google.generativeai as genai
+from fastapi import HTTPException, status
 from google.api_core import exceptions as google_exceptions
 from tenacity import (
     retry,
@@ -13,6 +16,8 @@ from tenacity import (
 )
 
 from app.config import get_settings
+
+logger = logging.getLogger("app")
 
 MODEL_NAME: str = "gemini-1.5-pro"
 
@@ -30,6 +35,29 @@ _RETRYABLE_EXCEPTIONS = (
 _settings = get_settings()
 if _settings.GEMINI_API_KEY:
     genai.configure(api_key=_settings.GEMINI_API_KEY)
+
+# Process-wide daily usage counter (UTC). A simple in-memory backstop; replace
+# with a shared store (e.g. Redis) if running multiple workers.
+_usage: dict[str, Any] = {"day": "", "count": 0}
+
+
+def enforce_daily_budget() -> None:
+    """Reject the call once the configured per-day Gemini budget is reached."""
+    limit = get_settings().GEMINI_DAILY_LIMIT
+    if limit <= 0:
+        return  # No cap configured.
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if _usage["day"] != today:
+        _usage["day"] = today
+        _usage["count"] = 0
+
+    if _usage["count"] >= limit:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Daily query budget exhausted. Try again tomorrow.",
+        )
+    _usage["count"] += 1
 
 
 def build_user_prompt(chunk: str, question: str) -> str:
@@ -71,7 +99,10 @@ async def query_gemini(chunk: str, question: str) -> dict[str, Any]:
     try:
         parsed = json.loads(raw)
     except (json.JSONDecodeError, TypeError):
-        return {"error": "parse_failed", "raw": raw}
+        # Log the raw output server-side for debugging, but do not echo it back
+        # to the client (avoids leaking model internals / unexpected content).
+        logger.warning("Gemini returned non-JSON output (%d chars)", len(raw))
+        return {"error": "parse_failed"}
 
     if isinstance(parsed, dict):
         return parsed

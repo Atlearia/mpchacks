@@ -18,8 +18,29 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     MAX_FILE_SIZE_MB: int = 50
 
+    # Shared secret required (via the X-API-Key header) to reach the write/paid
+    # endpoints. Empty is allowed only in development; production fails closed.
+    API_KEY: str = ""
+
+    # MongoDB connection. Loaded from the environment so the credential never
+    # lives in source control or reaches the browser.
+    MONGODB_URI: str = ""
+    MONGODB_DB: str = "brim"
+
     # Comma-separated list of allowed CORS origins. Empty means no cross-origin access.
     ALLOWED_ORIGINS: str = ""
+
+    # Comma-separated allowed Host headers (e.g. api.example.com). Empty = allow any.
+    ALLOWED_HOSTS: str = ""
+
+    # Only trust X-Forwarded-For for the client IP when running behind a known,
+    # trusted reverse proxy. Leaving this false prevents clients from spoofing
+    # their source IP to evade rate limits.
+    TRUST_PROXY_FORWARDED: bool = False
+
+    # Hard ceiling on paid Gemini calls per UTC day across all clients (0 = no
+    # cap). A backstop against runaway cost even if rate limits are bypassed.
+    GEMINI_DAILY_LIMIT: int = 0
 
     # Per-client request budgets (slowapi syntax).
     RATE_LIMIT_INGEST: str = "10/minute"
@@ -46,6 +67,10 @@ class Settings(BaseSettings):
     @property
     def allowed_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def allowed_hosts_list(self) -> list[str]:
+        return [host.strip() for host in self.ALLOWED_HOSTS.split(",") if host.strip()]
 
     @property
     def is_production(self) -> bool:

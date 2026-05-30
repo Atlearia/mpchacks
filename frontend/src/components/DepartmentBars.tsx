@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { deptTotalsForMonth } from "../data/selectors";
-import { MONTH_LABELS, MONTH_STARTS } from "../data/generate";
+import { MONTH_LABELS, MONTH_STARTS } from "../data/dataset";
 import { deptColor, fmtUSD } from "../theme";
 import { useNav } from "../state/store";
 
