@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePolicy } from "../data/policy";
 import { DEPARTMENTS, TRANSACTIONS } from "../data/dataset";
@@ -215,7 +215,6 @@ function ViolationsTab() {
   const [filter, setFilter] = useState<Severity | "all">("all");
   const [brief, setBrief] = useState<PolicyBrief | null>(null);
   const [briefLoading, setBriefLoading] = useState(false);
-  const [briefError, setBriefError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const violations = useMemo(() => policyViolations(config), [config]);
@@ -231,7 +230,6 @@ function ViolationsTab() {
 
   const handleBrief = async () => {
     setBriefLoading(true);
-    setBriefError(null);
     try {
       const top = violations.slice(0, 30).map((v) => ({
         type: v.type,
@@ -246,18 +244,11 @@ function ViolationsTab() {
       const result = await fetchPolicyBrief(top);
       setBrief(result);
     } catch {
-      setBriefError("Policy analysis unavailable — check that the backend is running.");
+      /* brief unavailable — user can retry via Generate Policy Brief */
     } finally {
       setBriefLoading(false);
     }
   };
-
-  // Auto-generate the policy brief on mount
-  useEffect(() => {
-    if (!brief && !briefLoading && !briefError && violations.length > 0) {
-      handleBrief();
-    }
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const riskColors: Record<string, string> = {
     critical: "var(--bad)",
@@ -326,13 +317,6 @@ function ViolationsTab() {
           <span style={{ marginLeft: 12, fontSize: 13, color: "var(--text-dim)" }}>
             Analyzing {stats.total} violations…
           </span>
-        </div>
-      )}
-
-      {briefError && (
-        <div className="ai-brief-panel error">
-          <span>{briefError}</span>
-          <button className="chip on" onClick={handleBrief} style={{ marginLeft: 12 }}>Retry</button>
         </div>
       )}
 
