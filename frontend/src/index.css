@@ -1447,6 +1447,58 @@ body {
    POLICY
    =========================================================================== */
 
+/* Constrain policy view to viewport — scroll inside panels, not the page */
+.view-policy {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.view-policy .view-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.view-policy .policy-tab-bar {
+  flex-shrink: 0;
+}
+.view-policy .policy-body,
+.view-policy .policy-violations {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.view-policy .policy-violations .kpi-row {
+  flex-shrink: 0;
+  margin-bottom: 14px;
+}
+.view-policy .policy-layout {
+  flex: 1;
+  min-height: 0;
+}
+.view-policy .policy-main-col,
+.view-policy .policy-side-col {
+  min-height: 0;
+  height: 100%;
+}
+.view-policy .policy-side-col {
+  position: static;
+}
+.view-policy .viol-panel,
+.view-policy .offender-panel {
+  min-height: 0;
+  height: 100%;
+}
+.view-policy .policy-rules {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 /* ── Segmented tab bar ── */
 .policy-tab-bar {
   display: inline-flex;
@@ -1869,8 +1921,9 @@ body {
   min-width: 0;
 }
 .policy-side-col {
-  position: sticky;
-  top: 26px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .policy-toolbar {
@@ -1886,7 +1939,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 340px);
+  min-height: 0;
 }
 .viol-panel { padding: 20px; }
 

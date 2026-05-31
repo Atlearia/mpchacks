@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePolicy } from "../data/policy";
-import { DEPARTMENTS, TRANSACTIONS } from "../data/dataset";
+import { DEPARTMENTS } from "../data/dataset";
 import {
   policyViolations,
   repeatOffenders,
@@ -9,11 +9,10 @@ import {
   type Severity,
   type Violation,
 } from "../data/intelligence";
-import { fetchPolicyBrief, type PolicyBrief } from "../data/ai";
 import { employeeById } from "../data/selectors";
 import { fmtUSD } from "../theme";
-import { Avatar, SeverityBadge, StatCard } from "../components/charts";
-import { AlertIcon, DocIcon, ShieldIcon, SparkIcon } from "../components/icons";
+import { Avatar, SeverityBadge } from "../components/charts";
+import { AlertIcon, DocIcon, ShieldIcon } from "../components/icons";
 
 function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label?: string }) {
   return (
@@ -27,15 +26,6 @@ function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; labe
       <div className="knob" />
     </button>
   );
-}
-
-function topMerchants(n = 14): string[] {
-  const map = new Map<string, number>();
-  for (const t of TRANSACTIONS) {
-    if (t.debitOrCredit !== "Debit") continue;
-    map.set(t.merchantName, (map.get(t.merchantName) ?? 0) + t.amount);
-  }
-  return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([m]) => m);
 }
 
 function SettingField({
@@ -78,25 +68,9 @@ function RulesTab() {
   const setDepartmentBudget = usePolicy((s) => s.setDepartmentBudget);
   const setCategoryLimit = usePolicy((s) => s.setCategoryLimit);
   const toggleCategoryLimit = usePolicy((s) => s.toggleCategoryLimit);
-  const toggleAllowedCategory = usePolicy((s) => s.toggleAllowedCategory);
-  const toggleRestrictedMerchant = usePolicy((s) => s.toggleRestrictedMerchant);
   const reset = usePolicy((s) => s.reset);
 
-  const merchants = useMemo(() => topMerchants(), []);
-  const [merchantQuery, setMerchantQuery] = useState("");
-  const [categoryQuery, setCategoryQuery] = useState("");
-
-  const filteredMerchants = merchants.filter((m) =>
-    m.toLowerCase().includes(merchantQuery.toLowerCase())
-  );
-  const filteredCategories = config.categoryLimits.filter((c) =>
-    c.category.toLowerCase().includes(categoryQuery.toLowerCase())
-  );
-
-  const activeRules =
-    config.categoryLimits.filter((c) => c.enabled).length +
-    config.allowedCategories.length +
-    config.restrictedMerchants.length;
+  const activeRules = config.categoryLimits.filter((c) => c.enabled).length;
 
   return (
     <div className="policy-rules">
@@ -117,14 +91,6 @@ function RulesTab() {
         <div className="policy-rules-stat">
           <span className="policy-rules-stat-val">{activeRules}</span>
           <span className="policy-rules-stat-lbl">Active rules</span>
-        </div>
-        <div className="policy-rules-stat">
-          <span className="policy-rules-stat-val">{config.allowedCategories.length}</span>
-          <span className="policy-rules-stat-lbl">Allowed categories</span>
-        </div>
-        <div className="policy-rules-stat">
-          <span className="policy-rules-stat-val">{config.restrictedMerchants.length}</span>
-          <span className="policy-rules-stat-lbl">Blocked merchants</span>
         </div>
         <div className="policy-rules-stat">
           <span className="policy-rules-stat-val">{DEPARTMENTS.length}</span>
@@ -229,68 +195,6 @@ function RulesTab() {
             ))}
           </div>
         </div>
-
-        <div className="panel policy-rules-panel">
-          <div className="panel-h">
-            <div className="panel-h-left">
-              <h3>Allowed Categories</h3>
-            </div>
-            <span className="panel-sub">{config.allowedCategories.length} enabled</span>
-          </div>
-          <input
-            type="search"
-            className="policy-search"
-            placeholder="Search categories…"
-            value={categoryQuery}
-            onChange={(e) => setCategoryQuery(e.target.value)}
-          />
-          <div className="chip-set">
-            {filteredCategories.map((c) => {
-              const on = config.allowedCategories.includes(c.category);
-              return (
-                <button
-                  type="button"
-                  className={`chip ${on ? "on" : ""}`}
-                  key={c.category}
-                  onClick={() => toggleAllowedCategory(c.category)}
-                >
-                  {c.category}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="panel policy-rules-panel">
-          <div className="panel-h">
-            <div className="panel-h-left">
-              <h3>Restricted Merchants</h3>
-            </div>
-            <span className="panel-sub">{config.restrictedMerchants.length} blocked</span>
-          </div>
-          <input
-            type="search"
-            className="policy-search"
-            placeholder="Search merchants…"
-            value={merchantQuery}
-            onChange={(e) => setMerchantQuery(e.target.value)}
-          />
-          <div className="chip-set">
-            {filteredMerchants.map((m) => {
-              const on = config.restrictedMerchants.includes(m);
-              return (
-                <button
-                  type="button"
-                  className={`chip danger ${on ? "on" : ""}`}
-                  key={m}
-                  onClick={() => toggleRestrictedMerchant(m)}
-                >
-                  {m}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -305,7 +209,6 @@ const FILTERS: { id: Severity | "all"; label: string; color?: string }[] = [
 ];
 
 const TYPE_META: Record<string, { label: string; tone: "bad" | "warn" | "neutral" }> = {
-  split_transaction: { label: "Split", tone: "warn" },
   restricted_merchant: { label: "Blocked", tone: "bad" },
   disallowed_category: { label: "Category", tone: "bad" },
   over_limit: { label: "Over cap", tone: "warn" },
@@ -314,6 +217,7 @@ const TYPE_META: Record<string, { label: string; tone: "bad" | "warn" | "neutral
 };
 
 function ViolationTypeBadge({ type }: { type: string }) {
+  if (type === "split_transaction") return null;
   const meta = TYPE_META[type] ?? { label: "Flag", tone: "neutral" as const };
   return <span className={`viol-type-badge tone-${meta.tone}`}>{meta.label}</span>;
 }
@@ -322,8 +226,6 @@ function ViolationsTab() {
   const config = usePolicy((s) => s.config);
   const [filter, setFilter] = useState<Severity | "all">("all");
   const [search, setSearch] = useState("");
-  const [brief, setBrief] = useState<PolicyBrief | null>(null);
-  const [briefLoading, setBriefLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const violations = useMemo(() => policyViolations(config), [config]);
@@ -345,35 +247,6 @@ function ViolationsTab() {
     return list;
   }, [violations, filter, search]);
 
-  const handleBrief = async () => {
-    setBriefLoading(true);
-    try {
-      const top = violations.slice(0, 30).map((v) => ({
-        type: v.type,
-        severity: v.severity,
-        employeeName: v.employeeName,
-        department: v.department,
-        amount: v.amount,
-        merchantName: v.merchantName,
-        title: v.title,
-        detail: v.detail,
-      }));
-      const result = await fetchPolicyBrief(top);
-      setBrief(result);
-    } catch {
-      /* brief unavailable */
-    } finally {
-      setBriefLoading(false);
-    }
-  };
-
-  const riskColors: Record<string, string> = {
-    critical: "var(--bad)",
-    elevated: "var(--warn)",
-    moderate: "#c9920a",
-    healthy: "var(--good)",
-  };
-
   const sevCounts: Record<string, number> = {
     all: violations.length,
     critical: stats.bySeverity.critical,
@@ -383,98 +256,7 @@ function ViolationsTab() {
   };
 
   return (
-    <>
-      <div className="kpi-row">
-        <StatCard
-          label="Critical"
-          value={stats.bySeverity.critical}
-          sub="Immediate action required"
-          accent="var(--bad)"
-          icon={<AlertIcon size={18} />}
-        />
-        <StatCard
-          label="High Priority"
-          value={stats.bySeverity.high}
-          sub="Review within 48 hours"
-          accent="var(--warn)"
-          icon={<AlertIcon size={18} />}
-        />
-        <StatCard
-          label="Total Violations"
-          value={stats.total}
-          sub={`${stats.bySeverity.medium} medium · ${stats.bySeverity.low} low`}
-        />
-        <StatCard
-          label="Flagged Amount"
-          value={fmtUSD(stats.flaggedAmount)}
-          sub="Combined value at risk"
-          accent="var(--accent)"
-        />
-      </div>
-
-      {!brief && !briefLoading && (
-        <motion.button
-          type="button"
-          className="ai-brief-btn"
-          onClick={handleBrief}
-          whileHover={{ scale: 1.005 }}
-          whileTap={{ scale: 0.995 }}
-        >
-          <SparkIcon size={16} />
-          Generate AI Policy Brief
-          <span className="ai-brief-badge">Crest AI</span>
-        </motion.button>
-      )}
-
-      {briefLoading && (
-        <div className="ai-brief-panel loading">
-          <div className="typing">
-            <span /><span /><span />
-          </div>
-          <span className="ai-brief-loading-text">
-            Analyzing {stats.total} violations…
-          </span>
-        </div>
-      )}
-
-      {brief && (
-        <motion.div
-          className="ai-brief-panel"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="brief-header">
-            <div className="brief-header-left">
-              <SparkIcon size={16} />
-              <span className="brief-title">Policy Brief</span>
-              <span
-                className="risk-badge"
-                style={{ background: riskColors[brief.riskLevel] ?? "var(--text-dim)" }}
-              >
-                {brief.riskLevel.toUpperCase()} RISK
-              </span>
-            </div>
-          </div>
-          <div className="brief-headline">{brief.headline}</div>
-          <div className="brief-narrative">{brief.narrative}</div>
-          {brief.topActions.length > 0 && (
-            <div className="brief-actions">
-              <div className="brief-actions-title">Priority Actions</div>
-              {brief.topActions.map((a, i) => (
-                <div className="brief-action" key={i}>
-                  <span className="brief-action-num">{a.priority}</span>
-                  <div>
-                    <div className="brief-action-text">{a.action}</div>
-                    <div className="brief-action-impact">{a.impact}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {brief.trendInsight && <div className="brief-trend">{brief.trendInsight}</div>}
-        </motion.div>
-      )}
-
+    <div className="policy-violations">
       <div className="policy-layout">
         <div className="policy-main-col">
           <div className="panel viol-panel">
@@ -646,7 +428,7 @@ function ViolationsTab() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -665,7 +447,7 @@ export default function PolicyView() {
   const violationCount = useMemo(() => policyViolations(config).length, [config]);
 
   return (
-    <div className="view">
+    <div className="view view-policy">
       <div className="view-inner">
         <div className="policy-tab-bar" role="tablist">
           <button
@@ -691,7 +473,9 @@ export default function PolicyView() {
           </button>
         </div>
 
-        {tab === "rules" ? <RulesTab /> : <ViolationsTab />}
+        <div className="policy-body">
+          {tab === "rules" ? <RulesTab /> : <ViolationsTab />}
+        </div>
       </div>
     </div>
   );
