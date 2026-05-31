@@ -305,7 +305,7 @@ export default function AskFAB() {
             <div className="ask-panel-header">
               <div className="ask-panel-title">
                 <SparkIcon size={15} />
-                <span>Brim AI</span>
+                <span>Crest AI</span>
                 <span className="ai-model-tag">Gemini 3.1 Pro</span>
               </div>
               <button className="ask-panel-close" onClick={() => { setMode("idle"); setContext(null); setMessages([]); }}>

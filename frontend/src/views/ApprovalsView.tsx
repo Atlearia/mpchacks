@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { usePolicy } from "../data/policy";
 import { approvalQueue, type ApprovalRequest } from "../data/intelligence";
@@ -9,6 +9,14 @@ import { Avatar, BarChart, BudgetGauge } from "../components/charts";
 import { CheckCircleIcon, SparkIcon } from "../components/icons";
 
 type Decision = "approved" | "denied";
+
+interface PastDecision {
+  id: string;
+  title: string;
+  employeeName: string;
+  amount: number;
+  decision: Decision;
+}
 
 const REC_LABEL = { approve: "Recommend approve", deny: "Recommend deny", review: "Needs review" };
 const REC_CLASS = { approve: "rec-approve", deny: "rec-deny", review: "rec-review" };
@@ -187,27 +195,66 @@ export default function ApprovalsView() {
   const queue = useMemo(() => approvalQueue(config), [config]);
   const [selected, setSelected] = useState<string | null>(queue[0]?.id ?? null);
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
+  const [dismissing, setDismissing] = useState<Set<string>>(new Set());
+  const [pastDecisions, setPastDecisions] = useState<PastDecision[]>([]);
+  const [showPast, setShowPast] = useState(false);
 
   const active = queue.find((q) => q.id === selected) ?? null;
-  const pending = queue.filter((q) => !decisions[q.id]).length;
+  const pendingQueue = queue.filter((q) => !decisions[q.id] && !dismissing.has(q.id));
+  const pending = pendingQueue.length;
+
+  const handleDecide = (d: Decision) => {
+    if (!active) return;
+    const id = active.id;
+
+    // Record the decision
+    setDecisions((prev) => ({ ...prev, [id]: d }));
+
+    // Start dismiss animation
+    setDismissing((prev) => new Set(prev).add(id));
+
+    // After the animation completes (450ms), move to past decisions
+    setTimeout(() => {
+      setDismissing((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+
+      // Add to past decisions
+      setPastDecisions((prev) => [
+        { id, title: active.title, employeeName: active.employeeName, amount: active.amount, decision: d },
+        ...prev,
+      ]);
+
+      // Auto-select next pending item
+      const nextPending = queue.find((q) => q.id !== id && !decisions[q.id]);
+      setSelected(nextPending?.id ?? null);
+    }, 480);
+  };
 
   return (
     <div className="view">
       <div className="view-inner">
         <div className="approvals-split">
           <div className="queue-list">
-            <div className="panel-h" style={{ marginBottom: 4 }}>
+            <div className="panel-h" style={{ marginBottom: 4, flexShrink: 0 }}>
               <h3>Pending Requests</h3>
               <span className="panel-sub">{pending} awaiting</span>
             </div>
             {queue.map((req) => {
               const emp = employeeById(req.employeeId);
               const done = decisions[req.id];
+              const isDismissing = dismissing.has(req.id);
+
+              // Don't render items that have completed their dismiss animation
+              if (done && !isDismissing) return null;
+
               return (
                 <div
                   key={req.id}
-                  className={`queue-card ${selected === req.id ? "active" : ""} ${done ? "done" : ""}`}
-                  onClick={() => setSelected(req.id)}
+                  className={`queue-card ${selected === req.id ? "active" : ""} ${done ? "done" : ""} ${isDismissing ? "dismissing" : ""}`}
+                  onClick={() => !isDismissing && setSelected(req.id)}
                 >
                   <div className="queue-top">
                     <Avatar name={req.employeeName} hue={emp?.avatarHue ?? 220} size={36} />
@@ -233,17 +280,50 @@ export default function ApprovalsView() {
                 </div>
               );
             })}
+
+            {/* Past Decisions bucket */}
+            {pastDecisions.length > 0 && (
+              <div className="past-decisions-bucket">
+                <div
+                  className={`past-decisions-toggle ${showPast ? "open" : ""}`}
+                  onClick={() => setShowPast(!showPast)}
+                >
+                  <span className="pd-icon">▸</span>
+                  <span>Past Decisions</span>
+                  <span className="nav-badge" style={{ marginLeft: "auto", background: "var(--accent)", color: "#fff", fontSize: 10, minWidth: 18, height: 18 }}>
+                    {pastDecisions.length}
+                  </span>
+                </div>
+                {showPast && (
+                  <div className="past-decisions-list">
+                    {pastDecisions.map((pd) => (
+                      <div className="past-decision-item" key={pd.id}>
+                        <span className={`rec-tag ${pd.decision === "approved" ? "rec-approve" : "rec-deny"}`} style={{ fontSize: 9, padding: "2px 6px" }}>
+                          {pd.decision === "approved" ? "✓" : "✕"}
+                        </span>
+                        <span className="pd-title">{pd.title}</span>
+                        <span className="pd-amt">{fmtUSD(pd.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
-            {active ? (
+            {active && !dismissing.has(active.id) ? (
               <Detail
                 req={active}
                 decision={decisions[active.id]}
-                onDecide={(d) => setDecisions((prev) => ({ ...prev, [active.id]: d }))}
+                onDecide={handleDecide}
               />
             ) : (
-              <div className="empty-detail">Select a request to review</div>
+              <div className="empty-detail">
+                {pending === 0 && pastDecisions.length > 0
+                  ? "All requests have been reviewed 🎉"
+                  : "Select a request to review"}
+              </div>
             )}
           </div>
         </div>

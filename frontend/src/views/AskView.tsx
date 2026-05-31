@@ -131,7 +131,7 @@ export default function AskView() {
                 <Avatar name="AI" hue={214} size={34} />
                 <div className="bubble">
                   <div className="ai-head">
-                    <SparkIcon size={13} /> Brim AI
+                    <SparkIcon size={13} /> Crest AI
                     {msg.answer?.isLive && (
                       <span className="ai-model-tag">Gemini 3.5 Flash</span>
                     )}

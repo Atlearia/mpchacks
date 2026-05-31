@@ -16,7 +16,7 @@ const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? "";
 const GEMINI_MODEL = "gemini-3.1-pro-preview";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-const SYSTEM_PROMPT = `You are Brim AI, an expert CFO assistant for a mid-size company.
+const SYSTEM_PROMPT = `You are Crest AI, an expert CFO assistant for a mid-size company.
 You answer questions about the company's expense data with precision and conversational warmth.
 
 You MUST respond with valid JSON matching this schema:

@@ -89,6 +89,7 @@ function Detail({
           <h3 style={{ fontSize: 13 }}>Line Items</h3>
           <span className="panel-sub">{report.lineItems.length} transactions</span>
         </div>
+        <div style={{ maxHeight: 320, overflowY: "auto" }}>
         {report.lineItems.map((li) => (
           <div className="line-item" key={li.txn.id}>
             <span className="li-date">{li.txn.transactionDate}</span>
@@ -110,6 +111,7 @@ function Detail({
             <span className="li-amt">{fmtUSDc(li.txn.amount)}</span>
           </div>
         ))}
+        </div>
       </div>
 
       <div className="report-approve-bar">

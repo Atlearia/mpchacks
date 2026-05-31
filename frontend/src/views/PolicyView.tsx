@@ -349,6 +349,7 @@ function ViolationsTab() {
               <h3>Repeat Offenders</h3>
               <span className="panel-sub">Ranked by risk</span>
             </div>
+            <div style={{ maxHeight: "calc(100vh - 380px)", minHeight: 150, overflowY: "auto" }}>
             {offenders.map((o, i) => (
               <div className="offender-row" key={o.employeeId}>
                 <div className="offender-rank">{i + 1}</div>
@@ -361,6 +362,7 @@ function ViolationsTab() {
                 <div className="offender-score">{o.riskScore}</div>
               </div>
             ))}
+            </div>
           </div>
         </div>
 
@@ -401,6 +403,7 @@ function ViolationsTab() {
                 </span>
               ))}
             </div>
+            <div style={{ maxHeight: "calc(100vh - 520px)", minHeight: 200, overflowY: "auto" }}>
             {filtered.slice(0, 60).map((v) => (
               <div className="violation-row" key={v.id}>
                 <SeverityBadge severity={v.severity} />
@@ -415,6 +418,7 @@ function ViolationsTab() {
                 <div className="v-amt">{fmtUSD(v.amount)}</div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>

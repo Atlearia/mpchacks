@@ -65,9 +65,9 @@ export default function App() {
     <div className="shell">
       <nav className="nav-rail">
         <div className="nav-brand">
-          <div className="logo" />
+          <img src="/crest-logo.png" alt="Crest" className="logo" />
           <div>
-            <div className="title">Brim</div>
+            <div className="title">Crest</div>
             <div className="sub">Expense Intelligence</div>
           </div>
         </div>
@@ -96,9 +96,9 @@ export default function App() {
         })}
 
         <div className="nav-foot">
-          <Avatar name="Dana Reyes" hue={214} size={34} />
+          <Avatar name="Ning Ye" hue={214} size={34} />
           <div className="who">
-            <div className="n">Dana Reyes</div>
+            <div className="n">Ning Ye</div>
             <div className="r">CFO</div>
           </div>
         </div>
