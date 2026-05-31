@@ -2405,6 +2405,21 @@ body {
 .past-decisions-toggle.open .pd-icon {
   transform: rotate(90deg);
 }
+.past-decisions-toggle .pd-count {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
 .past-decisions-list {
   display: flex;
   flex-direction: column;

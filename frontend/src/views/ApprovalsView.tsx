@@ -290,9 +290,7 @@ export default function ApprovalsView() {
                 >
                   <span className="pd-icon">▸</span>
                   <span>Past Decisions</span>
-                  <span className="nav-badge" style={{ marginLeft: "auto", background: "var(--accent)", color: "#fff", fontSize: 10, minWidth: 18, height: 18 }}>
-                    {pastDecisions.length}
-                  </span>
+                  <span className="pd-count">{pastDecisions.length}</span>
                 </div>
                 {showPast && (
                   <div className="past-decisions-list">
