@@ -12,7 +12,7 @@ import { deptColor } from "../theme";
 // Gemini API key for direct browser calls when backend is unavailable.
 // In production this should be server-side only; for the hackathon demo this
 // lets the AI work without the Python backend running.
-const GEMINI_API_KEY = "REDACTED_KEY";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? "";
 const GEMINI_MODEL = "gemini-3.1-pro";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
