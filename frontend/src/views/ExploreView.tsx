@@ -5,12 +5,10 @@ import EmployeeBreakdown from "../components/EmployeeBreakdown";
 import EmployeeProfile from "../components/EmployeeProfile";
 import { useNav } from "../state/store";
 import { employeeById } from "../data/selectors";
-import { MONTH_LABELS, MONTH_STARTS } from "../data/dataset";
 
 function Breadcrumb() {
-  const { view, monthStart, department, employeeId, backToGalaxy, backToMonth, backToDept } =
+  const { view, department, employeeId, backToDept } =
     useNav();
-  const monthLabel = monthStart ? MONTH_LABELS[MONTH_STARTS.indexOf(monthStart)] : null;
   const emp = employeeId ? employeeById(employeeId) : null;
 
   // Don't show breadcrumb in galaxy view — it's just the 3D scene
@@ -18,20 +16,8 @@ function Breadcrumb() {
 
   return (
     <div className="breadcrumb">
-      <span className="crumb" onClick={backToGalaxy}>
-        ← Galaxy
-      </span>
-      {monthLabel && (
-        <>
-          <span className="sep">›</span>
-          <span className={`crumb ${view === "month" ? "active" : ""}`} onClick={backToMonth}>
-            {monthLabel}
-          </span>
-        </>
-      )}
       {department && (
         <>
-          <span className="sep">›</span>
           <span className={`crumb ${view === "dept" ? "active" : ""}`} onClick={backToDept}>
             {department}
           </span>
@@ -39,7 +25,7 @@ function Breadcrumb() {
       )}
       {emp && (
         <>
-          <span className="sep">›</span>
+          {department && <span className="sep">›</span>}
           <span className="crumb active">{emp.name}</span>
         </>
       )}
@@ -47,11 +33,7 @@ function Breadcrumb() {
   );
 }
 
-const HINTS: Record<string, string> = {
-  month: "Click a department bar to break it down by employee",
-  dept: "Click an employee card to open their full profile",
-  employee: "This person's spend profile · use the breadcrumb to zoom back out",
-};
+const HINTS: Record<string, string> = {};
 
 export default function ExploreView() {
   const view = useNav((s) => s.view);
