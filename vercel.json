@@ -18,8 +18,8 @@
     { "src": "/health", "dest": "app/main.py" },
     { "src": "/ingest", "dest": "app/main.py" },
     { "src": "/query", "dest": "app/main.py" },
-    { "src": "/assets/(.*)", "dest": "frontend/dist/assets/$1" },
-    { "src": "/index.html", "dest": "frontend/dist/index.html" },
-    { "src": "/(.*)", "dest": "frontend/dist/index.html" }
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/index.html", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
