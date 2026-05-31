@@ -18,6 +18,7 @@ venv/
 node_modules/
 frontend/dist/
 frontend/node_modules/
+public/
 *.log
 
 # OS / editor
@@ -25,3 +26,4 @@ frontend/node_modules/
 Thumbs.db
 .idea/
 .vscode/
+.vercel

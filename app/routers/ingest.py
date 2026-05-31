@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 
@@ -37,7 +38,7 @@ async def _read_limited(file: UploadFile, max_bytes: int) -> bytes:
 @limiter.limit(get_settings().RATE_LIMIT_INGEST)
 async def ingest(
     request: Request,
-    file: UploadFile = File(...),
+    file: Annotated[UploadFile, File()],
     caller: str = Depends(require_api_key),
 ) -> IngestResponse:
     settings = get_settings()
