@@ -2,9 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  // @vercel/static-build serves this app's dist output under "/frontend/"
-  // (the directory of frontend/package.json), so asset URLs must use that base.
-  base: "/frontend/",
+  // Vercel serves frontend/dist at the site root (outputDirectory), so assets
+  // resolve from "/". API calls are proxied to the backend via vercel.json
+  // rewrites, so the browser stays same-origin (no CORS / mixed content).
+  base: "/",
   plugins: [react()],
   server: {
     port: 5173,

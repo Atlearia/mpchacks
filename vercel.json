@@ -1,24 +1,12 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "app/main.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "app/main.py" },
-    { "src": "/health", "dest": "app/main.py" },
-    { "src": "/ingest", "dest": "app/main.py" },
-    { "src": "/query", "dest": "app/main.py" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/frontend/index.html" }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm --prefix frontend ci && npm --prefix frontend run build",
+  "installCommand": "npm --prefix frontend ci",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "http://149.248.54.32/api/:path*" },
+    { "source": "/health", "destination": "http://149.248.54.32/health" },
+    { "source": "/ingest", "destination": "http://149.248.54.32/ingest" },
+    { "source": "/query", "destination": "http://149.248.54.32/query" }
   ]
 }

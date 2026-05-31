@@ -26,10 +26,10 @@ from pymongo import ASCENDING, MongoClient, UpdateOne
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------- 
 # Deterministic PRNG (mulberry32, same as the seed script) so a given run
 # reproduces the same department/employee assignment.
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------- 
 
 _MASK = 0xFFFFFFFF
 
