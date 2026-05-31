@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Any
 
@@ -19,7 +20,68 @@ from app.config import get_settings
 
 logger = logging.getLogger("app")
 
-MODEL_NAME: str = "gemini-3.5-flash"
+MODEL_NAME: str = "gemini-2.5-flash"
+
+
+def _configure_genai() -> None:
+    """Configure the Gemini SDK using service account (ADC) or API key.
+
+    Priority:
+    1. GOOGLE_APPLICATION_CREDENTIALS_JSON — full service account JSON as a
+       string env var (works on Vercel / any platform with no filesystem).
+    2. GOOGLE_APPLICATION_CREDENTIALS — path to a local service account file
+       (works locally).
+    3. GEMINI_API_KEY — plain API key fallback.
+    """
+    # --- Option 1: JSON string in env var (Vercel-friendly) ---
+    sa_json_str = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON", "").strip()
+    if sa_json_str:
+        try:
+            from google.oauth2 import service_account as _sa
+
+            sa_info = json.loads(sa_json_str)
+            credentials = _sa.Credentials.from_service_account_info(
+                sa_info,
+                scopes=["https://www.googleapis.com/auth/generative-language"],
+            )
+            genai.configure(credentials=credentials)
+            logger.info("[Gemini] Authenticated via service account JSON env var.")
+            return
+        except Exception as exc:
+            logger.warning(
+                "[Gemini] GOOGLE_APPLICATION_CREDENTIALS_JSON parse failed (%s); trying file path.", exc
+            )
+
+    # --- Option 2: Local file path (local dev) ---
+    sa_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+    if sa_path and os.path.isfile(sa_path):
+        try:
+            from google.oauth2 import service_account as _sa
+
+            credentials = _sa.Credentials.from_service_account_file(
+                sa_path,
+                scopes=["https://www.googleapis.com/auth/generative-language"],
+            )
+            genai.configure(credentials=credentials)
+            logger.info("[Gemini] Authenticated via service account file: %s", os.path.basename(sa_path))
+            return
+        except Exception as exc:
+            logger.warning(
+                "[Gemini] Service account file auth failed (%s); falling back to API key.", exc
+            )
+
+    # --- Option 3: Plain API key ---
+    api_key = get_settings().GEMINI_API_KEY
+    if api_key:
+        genai.configure(api_key=api_key)
+        logger.info("[Gemini] Authenticated via API key.")
+    else:
+        logger.warning("[Gemini] No Gemini credentials configured — AI calls will fail.")
+
+
+_configure_genai()
+
+
 
 # ---------------------------------------------------------------------------
 # System prompts for each AI capability
