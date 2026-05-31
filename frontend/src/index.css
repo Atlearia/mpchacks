@@ -1,18 +1,22 @@
 :root {
-  --bg: #07080f;
-  --bg-soft: #0d1020;
-  --panel: rgba(22, 26, 46, 0.62);
-  --panel-solid: #12152a;
-  --border: rgba(140, 160, 220, 0.14);
-  --border-strong: rgba(140, 160, 220, 0.28);
-  --text: #e6eaff;
-  --text-dim: #9aa5ce;
-  --text-faint: #5e688f;
-  --accent: #6ea8fe;
-  --accent-2: #c6a0f6;
-  --good: #a6da95;
-  --warn: #eed49f;
-  --bad: #f38ba8;
+  /* Brim — institutional finance palette: deep navy surfaces, a confident
+     trust-blue primary, and white type. Color psychology: blue = trust,
+     stability, security; reserved warm hues only for risk signaling. */
+  --bg: #061027;
+  --bg-soft: #0b1a3a;
+  --panel: rgba(16, 32, 64, 0.66);
+  --panel-solid: #0f1f42;
+  --border: rgba(128, 162, 224, 0.16);
+  --border-strong: rgba(128, 162, 224, 0.32);
+  --text: #f3f7ff;
+  --text-dim: #a6b8dd;
+  --text-faint: #6076a0;
+  --navy: #0a1f47;
+  --accent: #2f6bff;
+  --accent-2: #7eb3ff;
+  --good: #34c79a;
+  --warn: #f0b64e;
+  --bad: #f4708a;
   --radius: 16px;
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -31,8 +35,8 @@ body,
 
 body {
   background:
-    radial-gradient(1200px 700px at 80% -10%, rgba(110, 168, 254, 0.12), transparent 60%),
-    radial-gradient(900px 600px at 0% 110%, rgba(198, 160, 246, 0.1), transparent 55%),
+    radial-gradient(1200px 700px at 80% -10%, rgba(47, 107, 255, 0.12), transparent 60%),
+    radial-gradient(900px 600px at 0% 110%, rgba(126, 179, 255, 0.1), transparent 55%),
     var(--bg);
   color: var(--text);
   overflow: hidden;
@@ -69,7 +73,7 @@ body {
   height: 30px;
   border-radius: 9px;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 22px rgba(110, 168, 254, 0.55);
+  box-shadow: 0 0 22px rgba(47, 107, 255, 0.55);
 }
 .brand .title {
   font-weight: 700;
@@ -104,7 +108,7 @@ body {
 .breadcrumb .crumb.active {
   color: var(--text);
   border-color: var(--border-strong);
-  background: rgba(110, 168, 254, 0.12);
+  background: rgba(47, 107, 255, 0.12);
 }
 .breadcrumb .sep {
   color: var(--text-faint);
@@ -209,7 +213,7 @@ body {
   transition: all 0.15s ease;
 }
 .back-btn:hover {
-  background: rgba(110, 168, 254, 0.16);
+  background: rgba(47, 107, 255, 0.16);
 }
 
 .view-title {
@@ -479,7 +483,7 @@ body {
 .spark .col .b {
   width: 70%;
   border-radius: 6px 6px 2px 2px;
-  background: linear-gradient(180deg, var(--accent), rgba(110, 168, 254, 0.25));
+  background: linear-gradient(180deg, var(--accent), rgba(47, 107, 255, 0.25));
 }
 .spark .col .m {
   font-size: 10px;
@@ -593,8 +597,8 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 22px rgba(110, 168, 254, 0.55);
+  background: linear-gradient(140deg, var(--navy), var(--accent) 55%, #eaf2ff);
+  box-shadow: 0 0 22px rgba(47, 107, 255, 0.55);
   flex-shrink: 0;
 }
 .nav-brand .title {
@@ -635,7 +639,7 @@ body {
 }
 .nav-item.active {
   color: var(--text);
-  background: rgba(110, 168, 254, 0.14);
+  background: rgba(47, 107, 255, 0.14);
   border-color: var(--border-strong);
 }
 .nav-item.active::before {
@@ -767,11 +771,11 @@ body {
 }
 .trend-pill.up {
   color: var(--good);
-  background: rgba(166, 218, 149, 0.13);
+  background: rgba(52, 199, 154, 0.13);
 }
 .trend-pill.down {
   color: var(--bad);
-  background: rgba(243, 139, 168, 0.13);
+  background: rgba(244, 112, 138, 0.13);
 }
 
 .sev-badge {
@@ -786,8 +790,8 @@ body {
 }
 .sev-critical {
   color: #ffd9e2;
-  background: rgba(243, 139, 168, 0.22);
-  border: 1px solid rgba(243, 139, 168, 0.5);
+  background: rgba(244, 112, 138, 0.22);
+  border: 1px solid rgba(244, 112, 138, 0.5);
 }
 .sev-high {
   color: #ffe0c4;
@@ -796,8 +800,8 @@ body {
 }
 .sev-medium {
   color: #f6e6b8;
-  background: rgba(238, 212, 159, 0.18);
-  border: 1px solid rgba(238, 212, 159, 0.4);
+  background: rgba(240, 182, 78, 0.18);
+  border: 1px solid rgba(240, 182, 78, 0.4);
 }
 .sev-low {
   color: var(--text-dim);
@@ -1127,11 +1131,11 @@ body {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  background: rgba(243, 139, 168, 0.14);
+  background: rgba(244, 112, 138, 0.14);
   color: var(--bad);
 }
 .alert-icon.warn {
-  background: rgba(238, 212, 159, 0.14);
+  background: rgba(240, 182, 78, 0.14);
   color: var(--warn);
 }
 .alert-body {
@@ -1158,7 +1162,7 @@ body {
   gap: 14px;
   padding: 16px;
   border-radius: 12px;
-  background: linear-gradient(120deg, rgba(110, 168, 254, 0.12), rgba(198, 160, 246, 0.1));
+  background: linear-gradient(120deg, rgba(47, 107, 255, 0.12), rgba(126, 179, 255, 0.1));
   border: 1px solid var(--border-strong);
 }
 .consolidation-callout .save {
@@ -1220,8 +1224,8 @@ body {
   justify-content: flex-end;
 }
 .msg.user .bubble {
-  background: rgba(110, 168, 254, 0.16);
-  border-color: rgba(110, 168, 254, 0.3);
+  background: rgba(47, 107, 255, 0.16);
+  border-color: rgba(47, 107, 255, 0.3);
   max-width: 70%;
 }
 .bubble {
@@ -1269,7 +1273,7 @@ body {
 .followup-chip:hover {
   color: var(--text);
   border-color: var(--accent);
-  background: rgba(110, 168, 254, 0.12);
+  background: rgba(47, 107, 255, 0.12);
 }
 .typing {
   display: flex;
@@ -1378,7 +1382,7 @@ body {
   font-size: 11px;
   padding: 1px 7px;
   border-radius: 999px;
-  background: rgba(243, 139, 168, 0.2);
+  background: rgba(244, 112, 138, 0.2);
   color: var(--bad);
 }
 
@@ -1442,7 +1446,7 @@ input[type="range"] {
   flex-shrink: 0;
 }
 .toggle.on {
-  background: rgba(110, 168, 254, 0.5);
+  background: rgba(47, 107, 255, 0.5);
 }
 .toggle .knob {
   position: absolute;
@@ -1475,11 +1479,11 @@ input[type="range"] {
 .chip.on {
   color: var(--text);
   border-color: var(--accent);
-  background: rgba(110, 168, 254, 0.14);
+  background: rgba(47, 107, 255, 0.14);
 }
 .chip.danger.on {
   border-color: var(--bad);
-  background: rgba(243, 139, 168, 0.16);
+  background: rgba(244, 112, 138, 0.16);
   color: #ffd9e2;
 }
 
@@ -1524,8 +1528,8 @@ input[type="range"] {
   flex-wrap: wrap;
 }
 .spotlight {
-  border: 1px solid rgba(243, 139, 168, 0.45);
-  background: linear-gradient(120deg, rgba(243, 139, 168, 0.1), transparent);
+  border: 1px solid rgba(244, 112, 138, 0.45);
+  background: linear-gradient(120deg, rgba(244, 112, 138, 0.1), transparent);
 }
 .offender-row {
   display: flex;
@@ -1588,7 +1592,7 @@ input[type="range"] {
 }
 .queue-card.active {
   border-color: var(--accent);
-  background: rgba(110, 168, 254, 0.08);
+  background: rgba(47, 107, 255, 0.08);
 }
 .queue-card.done {
   opacity: 0.5;
@@ -1630,15 +1634,15 @@ input[type="range"] {
 }
 .rec-approve {
   color: var(--good);
-  background: rgba(166, 218, 149, 0.16);
+  background: rgba(52, 199, 154, 0.16);
 }
 .rec-deny {
   color: var(--bad);
-  background: rgba(243, 139, 168, 0.16);
+  background: rgba(244, 112, 138, 0.16);
 }
 .rec-review {
   color: var(--warn);
-  background: rgba(238, 212, 159, 0.16);
+  background: rgba(240, 182, 78, 0.16);
 }
 
 .detail-hero {
@@ -1666,7 +1670,7 @@ input[type="range"] {
   border-radius: 14px;
   padding: 18px;
   border: 1px solid var(--border-strong);
-  background: linear-gradient(120deg, rgba(198, 160, 246, 0.1), rgba(110, 168, 254, 0.07));
+  background: linear-gradient(120deg, rgba(126, 179, 255, 0.1), rgba(47, 107, 255, 0.07));
   margin-bottom: 16px;
 }
 .rec-card .rec-head {
@@ -1722,20 +1726,20 @@ input[type="range"] {
   border-color: var(--accent);
 }
 .btn.approve {
-  background: rgba(166, 218, 149, 0.16);
-  border-color: rgba(166, 218, 149, 0.5);
+  background: rgba(52, 199, 154, 0.16);
+  border-color: rgba(52, 199, 154, 0.5);
   color: var(--good);
 }
 .btn.approve:hover {
-  background: rgba(166, 218, 149, 0.26);
+  background: rgba(52, 199, 154, 0.26);
 }
 .btn.deny {
-  background: rgba(243, 139, 168, 0.14);
-  border-color: rgba(243, 139, 168, 0.45);
+  background: rgba(244, 112, 138, 0.14);
+  border-color: rgba(244, 112, 138, 0.45);
   color: var(--bad);
 }
 .btn.deny:hover {
-  background: rgba(243, 139, 168, 0.24);
+  background: rgba(244, 112, 138, 0.24);
 }
 .decided-banner {
   padding: 14px 18px;
@@ -1747,11 +1751,11 @@ input[type="range"] {
   gap: 10px;
 }
 .decided-banner.approved {
-  background: rgba(166, 218, 149, 0.14);
+  background: rgba(52, 199, 154, 0.14);
   color: var(--good);
 }
 .decided-banner.denied {
-  background: rgba(243, 139, 168, 0.14);
+  background: rgba(244, 112, 138, 0.14);
   color: var(--bad);
 }
 .empty-detail {
@@ -1785,7 +1789,7 @@ input[type="range"] {
 }
 .report-card.active {
   border-color: var(--accent);
-  background: rgba(110, 168, 254, 0.08);
+  background: rgba(47, 107, 255, 0.08);
 }
 .report-card .rc-title {
   font-size: 14px;
@@ -1819,15 +1823,15 @@ input[type="range"] {
 }
 .status-draft {
   color: var(--warn);
-  background: rgba(238, 212, 159, 0.16);
+  background: rgba(240, 182, 78, 0.16);
 }
 .status-ready {
   color: var(--accent);
-  background: rgba(110, 168, 254, 0.16);
+  background: rgba(47, 107, 255, 0.16);
 }
 .status-approved {
   color: var(--good);
-  background: rgba(166, 218, 149, 0.16);
+  background: rgba(52, 199, 154, 0.16);
 }
 .line-item {
   display: grid;

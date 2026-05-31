@@ -1,14 +1,16 @@
-// Accent palette reused across the 3D + 2D views.
+// Department palette — kept within Brim's navy-to-white range: a cohesive
+// family of blues, steels and teals so the data reads as one institutional
+// brand. Warm hues are reserved for risk signaling elsewhere.
 const PALETTE = [
-  "#6ea8fe", // blue
-  "#f5a97f", // orange
-  "#f38ba8", // pink
-  "#a6da95", // green
-  "#eed49f", // amber
-  "#8bd5ca", // teal
-  "#c6a0f6", // violet
-  "#f0c6c6", // rose
-  "#7dc4e4", // sky
+  "#4f8df0", // azure
+  "#7eb3ff", // sky
+  "#2f6bff", // brand blue
+  "#3fb6d8", // cyan
+  "#8da6e0", // steel
+  "#46c7a8", // teal
+  "#5fa0e8", // cornflower
+  "#a7c4f5", // pale blue
+  "#356fd6", // royal navy
 ];
 
 // Hash the department name to a palette slot so every department keeps a

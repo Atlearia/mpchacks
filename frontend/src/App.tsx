@@ -98,7 +98,7 @@ export default function App() {
         })}
 
         <div className="nav-foot">
-          <Avatar name="Dana Reyes" hue={265} size={34} />
+          <Avatar name="Dana Reyes" hue={214} size={34} />
           <div className="who">
             <div className="n">Dana Reyes</div>
             <div className="r">CFO</div>

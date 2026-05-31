@@ -235,7 +235,7 @@ function Scene() {
     <>
       <ambientLight intensity={0.55} />
       <pointLight position={[20, 25, 20]} intensity={1.3} />
-      <pointLight position={[-15, 5, -15]} intensity={0.4} color="#c6a0f6" />
+      <pointLight position={[-15, 5, -15]} intensity={0.4} color="#7eb3ff" />
       <directionalLight position={[0, 30, 0]} intensity={0.3} />
 
       {/* Center the plot so it orbits around its visual center (half height) */}
@@ -287,8 +287,8 @@ export default function Scatter3D() {
       dpr={[1, 2]}
       gl={{ preserveDrawingBuffer: true, antialias: true }}
     >
-      <color attach="background" args={["#07080f"]} />
-      <fog attach="fog" args={["#07080f", 65, 120]} />
+      <color attach="background" args={["#061027"]} />
+      <fog attach="fog" args={["#061027", 65, 120]} />
       <Suspense fallback={null}>
         <Scene />
       </Suspense>

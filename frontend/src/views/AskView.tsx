@@ -104,7 +104,7 @@ export default function AskView() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Avatar name="AI" hue={265} size={34} />
+                <Avatar name="AI" hue={214} size={34} />
                 <div className="bubble">
                   <div className="ai-head">
                     <SparkIcon size={13} /> Brim AI
