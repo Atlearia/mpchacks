@@ -1,4 +1,4 @@
-# Security Review — Data Ingestion & Gemini Query Service
+# Security Review — Crest Expense Intelligence API
 
 **Date:** 2026-05-30
 **Scope:** FastAPI backend (`app/`), seed script (`scripts/`), React/Vite frontend (`frontend/src/`), Docker, repo hygiene.
@@ -10,9 +10,9 @@
 
 ## Executive Summary
 
-Secret handling is fundamentally sound: the Gemini API key and the MongoDB URI live only in `.env` (gitignored, and **never present in git history**), are loaded server-side via `pydantic-settings`, and are **never sent to the browser** — the frontend only calls `/api/dataset` through a Vite proxy. Good defenses already exist: opaque 500 handler, streaming upload size cap, TLS to Mongo, input validation, rate limiting, and a non-root Docker user.
+Secret handling is fundamentally sound: the AI API key and the MongoDB URI live only in `.env` (gitignored, and **never present in git history**), are loaded server-side via `pydantic-settings`, and are **never sent to the browser** — the frontend only calls `/api/dataset` through a Vite proxy. Good defenses already exist: opaque 500 handler, streaming upload size cap, TLS to Mongo, input validation, rate limiting, and a non-root Docker user.
 
-The most material gaps are **(1) the complete absence of authentication on all endpoints** — including the one that spends money on the Gemini API and the one that returns employee PII — and **(2) IP-only rate limiting that is easy to bypass and misbehaves behind a proxy**. Separately, the entire `frontend/node_modules/` tree (9,495 files) is committed to git.
+The most material gaps are **(1) the complete absence of authentication on all endpoints** — including the one that spends money on the AI API and the one that returns employee PII — and **(2) IP-only rate limiting that is easy to bypass and misbehaves behind a proxy**. Separately, the entire `frontend/node_modules/` tree (9,495 files) is committed to git.
 
 | ID | Severity | Finding | Status |
 |----|----------|---------|--------|
@@ -38,18 +38,18 @@ The most material gaps are **(1) the complete absence of authentication on all e
 ## High
 
 ### H-1 — No authentication / authorization on any endpoint
-**Impact:** Anyone who can reach the service can dump all employee PII and run up unbounded Gemini API charges.
+**Impact:** Anyone who can reach the service can dump all employee PII and run up unbounded AI API charges.
 
 - `GET /api/dataset` returns every employee record — names, emails, `cardLast4`, `monthlyLimit` — and all transactions, with no auth.
   - `app/routers/dashboard.py:21-43`
-- `POST /query` invokes the **paid** Gemini API on attacker-supplied input with no auth.
+- `POST /query` invokes the **paid** AI API on attacker-supplied input with no auth.
   - `app/routers/query.py:13-28`
 - `POST /ingest` accepts arbitrary uploads from anyone.
   - `app/routers/ingest.py:35-64`
 
-The only control is per-IP rate limiting (see M-1), which does not stop a distributed or IP-rotating caller from draining your Gemini quota/budget or scraping the dataset.
+The only control is per-IP rate limiting (see M-1), which does not stop a distributed or IP-rotating caller from draining your AI API quota/budget or scraping the dataset.
 
-**Recommendation:** Put every data/AI endpoint behind an auth check. For a service-to-service or single-tenant setup, a static API key in an `Authorization`/`X-API-Key` header compared with `secrets.compare_digest` is the minimum. For multi-user, use real sessions/JWT. Keep `/health` public. Consider a hard global daily cap on Gemini calls as a budget backstop.
+**Recommendation:** Put every data/AI endpoint behind an auth check. For a service-to-service or single-tenant setup, a static API key in an `Authorization`/`X-API-Key` header compared with `secrets.compare_digest` is the minimum. For multi-user, use real sessions/JWT. Keep `/health` public. Consider a hard global daily cap on AI API calls as a budget backstop.
 
 ### H-2 — `node_modules/` is committed to git
 **Impact:** Repo bloat, slow clones, and a large unaudited supply-chain surface baked into history; raises the chance of accidentally shipping/committing local artifacts.
@@ -118,7 +118,7 @@ The app does not validate the `Host` header. Low risk for an API, but cheap to a
 ## I-1 — Done well (keep these)
 
 - **Secrets never committed:** `.env` is gitignored (`.gitignore:1-5`) and absent from all git history; only `.env.example` (placeholders) is tracked.
-- **Secrets stay server-side:** Gemini key and Mongo URI loaded via `pydantic-settings` (`app/config.py`); the browser only ever calls `/api/dataset` (`frontend/src/data/dataset.ts:35`). No `VITE_`-exposed secrets, no client-side keys.
+- **Secrets stay server-side:** AI API key and Mongo URI loaded via `pydantic-settings` (`app/config.py`); the browser only ever calls `/api/dataset` (`frontend/src/data/dataset.ts:35`). No `VITE_`-exposed secrets, no client-side keys.
 - **No stack-trace leakage:** opaque 500 handler (`app/main.py:57-64`).
 - **TLS to MongoDB** with `certifi` CA bundle (`app/db.py:24-29`, `scripts/seed_mongo.py:320`).
 - **Upload size cap** via incremental read (`app/routers/ingest.py:19-32`).
@@ -130,7 +130,7 @@ The app does not validate the `Host` header. Low risk for an API, but cheap to a
 ---
 
 ## Suggested remediation order
-1. **H-1** — add auth to `/ingest`, `/query`, `/api/dataset` + a global Gemini budget cap.
+1. **H-1** — add auth to `/ingest`, `/query`, `/api/dataset` + a global AI API budget cap.
 2. **M-1** — rate-limit per auth key and fix proxy/IP handling.
 3. **H-2** — untrack `node_modules`.
 4. **M-2 / M-3 / L-2** — quick hardening (CORS flag, upload limits, hide raw output).

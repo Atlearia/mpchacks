@@ -1,0 +1,709 @@
+- generic [ref=e5]:
+  - navigation [ref=e6]:
+    - generic [ref=e7]:
+      - img "Crest" [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]: Crest
+        - generic [ref=e11]: Expense Intelligence
+    - generic [ref=e12]: Workspace
+    - generic [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+      - generic [ref=e19]: Overview
+    - generic [ref=e20] [cursor=pointer]:
+      - img [ref=e21]
+      - generic [ref=e24]: Explore
+    - generic [ref=e25] [cursor=pointer]:
+      - img [ref=e26]
+      - generic [ref=e29]: Policy
+      - generic [ref=e30]: "196"
+    - generic [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - generic [ref=e35]: Approvals
+      - generic [ref=e36]: "6"
+    - generic [ref=e37] [cursor=pointer]:
+      - img [ref=e38]
+      - generic [ref=e41]: Reports
+    - generic [ref=e42]:
+      - generic [ref=e43]: NY
+      - generic [ref=e44]:
+        - generic [ref=e45]: Ning Ye
+        - generic [ref=e46]: CFO
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Policy Compliance" [level=1] [ref=e413]
+        - paragraph [ref=e51]: Rules, violations, and repeat offenders
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]: $3,188,853
+          - generic [ref=e55]: Total spend
+        - generic [ref=e56]:
+          - generic [ref=e57]: 3,143
+          - generic [ref=e58]: Transactions
+        - generic [ref=e59]:
+          - generic [ref=e60]: "45"
+          - generic [ref=e61]: Employees
+        - generic [ref=e62]:
+          - generic [ref=e63]: "9"
+          - generic [ref=e64]: Departments
+    - generic [ref=e415]:
+      - generic [ref=e416]:
+        - generic [ref=e417] [cursor=pointer]: Violations1634
+        - generic [ref=e418] [cursor=pointer]: Policy Rules
+      - generic [ref=e419]:
+        - generic [ref=e420]:
+          - generic [ref=e421]: Total Violations
+          - generic [ref=e422]: "1634"
+        - generic [ref=e423]:
+          - generic [ref=e424]: Critical
+          - generic [ref=e425]: "1"
+        - generic [ref=e426]:
+          - generic [ref=e427]: High
+          - generic [ref=e428]: "195"
+        - generic [ref=e429]:
+          - generic [ref=e430]: Flagged Amount
+          - generic [ref=e431]: $2,409,612
+      - button "Generate AI Policy Brief Gemini 3.5 Flash" [ref=e432] [cursor=pointer]:
+        - img [ref=e433]
+        - text: Generate AI Policy Brief
+        - generic [ref=e435]: Gemini 3.5 Flash
+      - generic [ref=e436]:
+        - generic [ref=e438]:
+          - generic [ref=e439]:
+            - heading "Repeat Offenders" [level=3] [ref=e440]
+            - generic [ref=e441]: Ranked by risk
+          - generic [ref=e442]:
+            - generic [ref=e443]:
+              - generic [ref=e444]: "1"
+              - generic [ref=e445]:
+                - generic [ref=e446]: Scarlett Adams
+                - generic [ref=e447]: R&D · 47 flags · mostly Missing approval
+              - generic [ref=e448]: "81"
+            - generic [ref=e449]:
+              - generic [ref=e450]: "2"
+              - generic [ref=e451]:
+                - generic [ref=e452]: James Martinez
+                - generic [ref=e453]: Engineering · 46 flags · mostly Missing receipt
+              - generic [ref=e454]: "78"
+            - generic [ref=e455]:
+              - generic [ref=e456]: "3"
+              - generic [ref=e457]:
+                - generic [ref=e458]: Henry Brown
+                - generic [ref=e459]: Marketing · 47 flags · mostly Over category limit
+              - generic [ref=e460]: "77"
+            - generic [ref=e461]:
+              - generic [ref=e462]: "4"
+              - generic [ref=e463]:
+                - generic [ref=e464]: Mason Hall
+                - generic [ref=e465]: Finance · 45 flags · mostly Missing approval
+              - generic [ref=e466]: "76"
+            - generic [ref=e467]:
+              - generic [ref=e468]: "5"
+              - generic [ref=e469]:
+                - generic [ref=e470]: Zoey Lee
+                - generic [ref=e471]: Sales · 39 flags · mostly Missing approval
+              - generic [ref=e472]: "75"
+            - generic [ref=e473]:
+              - generic [ref=e474]: "6"
+              - generic [ref=e475]:
+                - generic [ref=e476]: Sophia Patel
+                - generic [ref=e477]: Supply Chain · 44 flags · mostly Over category limit
+              - generic [ref=e478]: "71"
+            - generic [ref=e479]:
+              - generic [ref=e480]: "7"
+              - generic [ref=e481]:
+                - generic [ref=e482]: Benjamin Clark
+                - generic [ref=e483]: Supply Chain · 40 flags · mostly Missing approval
+              - generic [ref=e484]: "70"
+            - generic [ref=e485]:
+              - generic [ref=e486]: "8"
+              - generic [ref=e487]:
+                - generic [ref=e488]: James Patel
+                - generic [ref=e489]: HR · 43 flags · mostly Over category limit
+              - generic [ref=e490]: "70"
+            - generic [ref=e491]:
+              - generic [ref=e492]: "9"
+              - generic [ref=e493]:
+                - generic [ref=e494]: Henry Moore
+                - generic [ref=e495]: Customer Service · 40 flags · mostly Missing approval
+              - generic [ref=e496]: "69"
+            - generic [ref=e497]:
+              - generic [ref=e498]: "10"
+              - generic [ref=e499]:
+                - generic [ref=e500]: Daniel Taylor
+                - generic [ref=e501]: Finance · 39 flags · mostly Missing receipt
+              - generic [ref=e502]: "68"
+            - generic [ref=e503]:
+              - generic [ref=e504]: "11"
+              - generic [ref=e505]:
+                - generic [ref=e506]: Jack Adams
+                - generic [ref=e507]: Sales · 38 flags · mostly Missing approval
+              - generic [ref=e508]: "68"
+            - generic [ref=e509]:
+              - generic [ref=e510]: "12"
+              - generic [ref=e511]:
+                - generic [ref=e512]: Owen Martinez
+                - generic [ref=e513]: Marketing · 36 flags · mostly Over category limit
+              - generic [ref=e514]: "68"
+        - generic [ref=e515]:
+          - generic [ref=e516]:
+            - generic [ref=e517]:
+              - heading "Split-Transaction Spotlight" [level=3] [ref=e518]:
+                - img [ref=e519]
+                - text: Split-Transaction Spotlight
+              - generic [ref=e522]: Critical
+            - generic [ref=e523]: 2 charges split to dodge $500 approval
+            - generic [ref=e524]: Daniel Taylor ran 2 charges at Office Depot on 2026-01-13 totaling $723 — each under the $500 approval threshold.
+          - generic [ref=e525]:
+            - generic [ref=e526]:
+              - heading "Flagged Transactions" [level=3] [ref=e527]
+              - generic [ref=e528]: 1634 shown
+            - generic [ref=e529]:
+              - generic [ref=e530] [cursor=pointer]: All
+              - generic [ref=e531] [cursor=pointer]: Critical
+              - generic [ref=e532] [cursor=pointer]: High
+              - generic [ref=e533] [cursor=pointer]: Medium
+              - generic [ref=e534] [cursor=pointer]: Low
+            - generic [ref=e535]:
+              - generic [ref=e536] [cursor=pointer]:
+                - generic [ref=e537]: Critical
+                - generic [ref=e538]:
+                  - generic [ref=e539]: 2 charges split to dodge $500 approval
+                  - generic [ref=e540]: Daniel Taylor ran 2 charges at Office Depot on 2026-01-13 totaling $723 — each under the $500 approval threshold.
+                - generic [ref=e541]:
+                  - text: Daniel Taylor
+                  - generic [ref=e542]: Finance
+                - generic [ref=e543]: $723
+              - generic [ref=e544] [cursor=pointer]:
+                - generic [ref=e545]: High
+                - generic [ref=e546]:
+                  - generic [ref=e547]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e548]: Leo Lee spent $7782 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e549]:
+                  - text: Leo Lee
+                  - generic [ref=e550]: Engineering
+                - generic [ref=e551]: $7,782
+              - generic [ref=e552] [cursor=pointer]:
+                - generic [ref=e553]: High
+                - generic [ref=e554]:
+                  - generic [ref=e555]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e556]: Zoey Lee spent $7103 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e557]:
+                  - text: Zoey Lee
+                  - generic [ref=e558]: Sales
+                - generic [ref=e559]: $7,103
+              - generic [ref=e560] [cursor=pointer]:
+                - generic [ref=e561]: High
+                - generic [ref=e562]:
+                  - generic [ref=e563]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e564]: Victoria Brown spent $7094 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e565]:
+                  - text: Victoria Brown
+                  - generic [ref=e566]: R&D
+                - generic [ref=e567]: $7,094
+              - generic [ref=e568] [cursor=pointer]:
+                - generic [ref=e569]: High
+                - generic [ref=e570]:
+                  - generic [ref=e571]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e572]: Evelyn Thompson spent $6701 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e573]:
+                  - text: Evelyn Thompson
+                  - generic [ref=e574]: Legal
+                - generic [ref=e575]: $6,701
+              - generic [ref=e576] [cursor=pointer]:
+                - generic [ref=e577]: High
+                - generic [ref=e578]:
+                  - generic [ref=e579]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e580]: Owen Taylor spent $6698 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e581]:
+                  - text: Owen Taylor
+                  - generic [ref=e582]: Engineering
+                - generic [ref=e583]: $6,698
+              - generic [ref=e584] [cursor=pointer]:
+                - generic [ref=e585]: High
+                - generic [ref=e586]:
+                  - generic [ref=e587]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e588]: Mason Hall spent $6020 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e589]:
+                  - text: Mason Hall
+                  - generic [ref=e590]: Finance
+                - generic [ref=e591]: $6,020
+              - generic [ref=e592] [cursor=pointer]:
+                - generic [ref=e593]: High
+                - generic [ref=e594]:
+                  - generic [ref=e595]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e596]: Scarlett Adams spent $5980 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e597]:
+                  - text: Scarlett Adams
+                  - generic [ref=e598]: R&D
+                - generic [ref=e599]: $5,980
+              - generic [ref=e600] [cursor=pointer]:
+                - generic [ref=e601]: High
+                - generic [ref=e602]:
+                  - generic [ref=e603]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e604]: Lily Santos spent $5952 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e605]:
+                  - text: Lily Santos
+                  - generic [ref=e606]: R&D
+                - generic [ref=e607]: $5,952
+              - generic [ref=e608] [cursor=pointer]:
+                - generic [ref=e609]: High
+                - generic [ref=e610]:
+                  - generic [ref=e611]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e612]: Jack Adams spent $4924 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e613]:
+                  - text: Jack Adams
+                  - generic [ref=e614]: Sales
+                - generic [ref=e615]: $4,924
+              - generic [ref=e616] [cursor=pointer]:
+                - generic [ref=e617]: High
+                - generic [ref=e618]:
+                  - generic [ref=e619]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e620]: Owen Martinez spent $4368 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e621]:
+                  - text: Owen Martinez
+                  - generic [ref=e622]: Marketing
+                - generic [ref=e623]: $4,368
+              - generic [ref=e624] [cursor=pointer]:
+                - generic [ref=e625]: High
+                - generic [ref=e626]:
+                  - generic [ref=e627]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e628]: Grace Santos spent $4358 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e629]:
+                  - text: Grace Santos
+                  - generic [ref=e630]: Sales
+                - generic [ref=e631]: $4,358
+              - generic [ref=e632] [cursor=pointer]:
+                - generic [ref=e633]: High
+                - generic [ref=e634]:
+                  - generic [ref=e635]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e636]: Isabella Clark spent $4177 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e637]:
+                  - text: Isabella Clark
+                  - generic [ref=e638]: Legal
+                - generic [ref=e639]: $4,177
+              - generic [ref=e640] [cursor=pointer]:
+                - generic [ref=e641]: High
+                - generic [ref=e642]:
+                  - generic [ref=e643]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e644]: Penelope Taylor spent $4012 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e645]:
+                  - text: Penelope Taylor
+                  - generic [ref=e646]: HR
+                - generic [ref=e647]: $4,012
+              - generic [ref=e648] [cursor=pointer]:
+                - generic [ref=e649]: High
+                - generic [ref=e650]:
+                  - generic [ref=e651]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e652]: Sebastian Garcia spent $3942 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e653]:
+                  - text: Sebastian Garcia
+                  - generic [ref=e654]: Engineering
+                - generic [ref=e655]: $3,942
+              - generic [ref=e656] [cursor=pointer]:
+                - generic [ref=e657]: High
+                - generic [ref=e658]:
+                  - generic [ref=e659]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e660]: Ian Baker spent $3705 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e661]:
+                  - text: Ian Baker
+                  - generic [ref=e662]: Customer Service
+                - generic [ref=e663]: $3,705
+              - generic [ref=e664] [cursor=pointer]:
+                - generic [ref=e665]: High
+                - generic [ref=e666]:
+                  - generic [ref=e667]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e668]: Lucas Evans spent $3703 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e669]:
+                  - text: Lucas Evans
+                  - generic [ref=e670]: R&D
+                - generic [ref=e671]: $3,703
+              - generic [ref=e672] [cursor=pointer]:
+                - generic [ref=e673]: High
+                - generic [ref=e674]:
+                  - generic [ref=e675]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e676]: Ava Baker spent $3494 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e677]:
+                  - text: Ava Baker
+                  - generic [ref=e678]: Marketing
+                - generic [ref=e679]: $3,494
+              - generic [ref=e680] [cursor=pointer]:
+                - generic [ref=e681]: High
+                - generic [ref=e682]:
+                  - generic [ref=e683]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e684]: Lily Santos spent $3360 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e685]:
+                  - text: Lily Santos
+                  - generic [ref=e686]: R&D
+                - generic [ref=e687]: $3,360
+              - generic [ref=e688] [cursor=pointer]:
+                - generic [ref=e689]: High
+                - generic [ref=e690]:
+                  - generic [ref=e691]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e692]: Amelia O'Brien spent $3288 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e693]:
+                  - text: Amelia O'Brien
+                  - generic [ref=e694]: Legal
+                - generic [ref=e695]: $3,288
+              - generic [ref=e696] [cursor=pointer]:
+                - generic [ref=e697]: High
+                - generic [ref=e698]:
+                  - generic [ref=e699]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e700]: Grace Santos spent $3274 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e701]:
+                  - text: Grace Santos
+                  - generic [ref=e702]: Sales
+                - generic [ref=e703]: $3,274
+              - generic [ref=e704] [cursor=pointer]:
+                - generic [ref=e705]: High
+                - generic [ref=e706]:
+                  - generic [ref=e707]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e708]: Leo Lee spent $3095 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e709]:
+                  - text: Leo Lee
+                  - generic [ref=e710]: Engineering
+                - generic [ref=e711]: $3,095
+              - generic [ref=e712] [cursor=pointer]:
+                - generic [ref=e713]: High
+                - generic [ref=e714]:
+                  - generic [ref=e715]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e716]: Daniel Taylor spent $3089 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e717]:
+                  - text: Daniel Taylor
+                  - generic [ref=e718]: Finance
+                - generic [ref=e719]: $3,089
+              - generic [ref=e720] [cursor=pointer]:
+                - generic [ref=e721]: High
+                - generic [ref=e722]:
+                  - generic [ref=e723]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e724]: Sophia Patel spent $2982 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e725]:
+                  - text: Sophia Patel
+                  - generic [ref=e726]: Supply Chain
+                - generic [ref=e727]: $2,982
+              - generic [ref=e728] [cursor=pointer]:
+                - generic [ref=e729]: High
+                - generic [ref=e730]:
+                  - generic [ref=e731]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e732]: Benjamin Clark spent $2967 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e733]:
+                  - text: Benjamin Clark
+                  - generic [ref=e734]: Supply Chain
+                - generic [ref=e735]: $2,967
+              - generic [ref=e736] [cursor=pointer]:
+                - generic [ref=e737]: High
+                - generic [ref=e738]:
+                  - generic [ref=e739]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e740]: Penelope Taylor spent $2747 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e741]:
+                  - text: Penelope Taylor
+                  - generic [ref=e742]: HR
+                - generic [ref=e743]: $2,747
+              - generic [ref=e744] [cursor=pointer]:
+                - generic [ref=e745]: High
+                - generic [ref=e746]:
+                  - generic [ref=e747]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e748]: Sebastian Adams spent $2691 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e749]:
+                  - text: Sebastian Adams
+                  - generic [ref=e750]: Marketing
+                - generic [ref=e751]: $2,691
+              - generic [ref=e752] [cursor=pointer]:
+                - generic [ref=e753]: High
+                - generic [ref=e754]:
+                  - generic [ref=e755]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e756]: Sophia Patel spent $2661 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e757]:
+                  - text: Sophia Patel
+                  - generic [ref=e758]: Supply Chain
+                - generic [ref=e759]: $2,661
+              - generic [ref=e760] [cursor=pointer]:
+                - generic [ref=e761]: High
+                - generic [ref=e762]:
+                  - generic [ref=e763]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e764]: Olivia Thompson spent $2628 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e765]:
+                  - text: Olivia Thompson
+                  - generic [ref=e766]: Finance
+                - generic [ref=e767]: $2,628
+              - generic [ref=e768] [cursor=pointer]:
+                - generic [ref=e769]: High
+                - generic [ref=e770]:
+                  - generic [ref=e771]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e772]: Scarlett Adams spent $2546 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e773]:
+                  - text: Scarlett Adams
+                  - generic [ref=e774]: R&D
+                - generic [ref=e775]: $2,546
+              - generic [ref=e776] [cursor=pointer]:
+                - generic [ref=e777]: High
+                - generic [ref=e778]:
+                  - generic [ref=e779]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e780]: Owen Taylor spent $2466 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e781]:
+                  - text: Owen Taylor
+                  - generic [ref=e782]: Engineering
+                - generic [ref=e783]: $2,466
+              - generic [ref=e784] [cursor=pointer]:
+                - generic [ref=e785]: High
+                - generic [ref=e786]:
+                  - generic [ref=e787]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e788]: Ethan Young spent $2373 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e789]:
+                  - text: Ethan Young
+                  - generic [ref=e790]: Supply Chain
+                - generic [ref=e791]: $2,373
+              - generic [ref=e792] [cursor=pointer]:
+                - generic [ref=e793]: High
+                - generic [ref=e794]:
+                  - generic [ref=e795]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e796]: Penelope Taylor spent $2340 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e797]:
+                  - text: Penelope Taylor
+                  - generic [ref=e798]: HR
+                - generic [ref=e799]: $2,340
+              - generic [ref=e800] [cursor=pointer]:
+                - generic [ref=e801]: High
+                - generic [ref=e802]:
+                  - generic [ref=e803]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e804]: Amelia Evans spent $2334 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e805]:
+                  - text: Amelia Evans
+                  - generic [ref=e806]: Customer Service
+                - generic [ref=e807]: $2,334
+              - generic [ref=e808] [cursor=pointer]:
+                - generic [ref=e809]: High
+                - generic [ref=e810]:
+                  - generic [ref=e811]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e812]: Lucas Evans spent $2318 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e813]:
+                  - text: Lucas Evans
+                  - generic [ref=e814]: R&D
+                - generic [ref=e815]: $2,318
+              - generic [ref=e816] [cursor=pointer]:
+                - generic [ref=e817]: High
+                - generic [ref=e818]:
+                  - generic [ref=e819]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e820]: Olivia Rodriguez spent $2220 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e821]:
+                  - text: Olivia Rodriguez
+                  - generic [ref=e822]: Engineering
+                - generic [ref=e823]: $2,220
+              - generic [ref=e824] [cursor=pointer]:
+                - generic [ref=e825]: High
+                - generic [ref=e826]:
+                  - generic [ref=e827]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e828]: Benjamin Clark spent $2205 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e829]:
+                  - text: Benjamin Clark
+                  - generic [ref=e830]: Supply Chain
+                - generic [ref=e831]: $2,205
+              - generic [ref=e832] [cursor=pointer]:
+                - generic [ref=e833]: High
+                - generic [ref=e834]:
+                  - generic [ref=e835]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e836]: Zoey Lee spent $2136 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e837]:
+                  - text: Zoey Lee
+                  - generic [ref=e838]: Sales
+                - generic [ref=e839]: $2,136
+              - generic [ref=e840] [cursor=pointer]:
+                - generic [ref=e841]: High
+                - generic [ref=e842]:
+                  - generic [ref=e843]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e844]: Nora Wright spent $2051 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e845]:
+                  - text: Nora Wright
+                  - generic [ref=e846]: R&D
+                - generic [ref=e847]: $2,051
+              - generic [ref=e848] [cursor=pointer]:
+                - generic [ref=e849]: High
+                - generic [ref=e850]:
+                  - generic [ref=e851]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e852]: Nora Wright spent $2028 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e853]:
+                  - text: Nora Wright
+                  - generic [ref=e854]: R&D
+                - generic [ref=e855]: $2,028
+              - generic [ref=e856] [cursor=pointer]:
+                - generic [ref=e857]: High
+                - generic [ref=e858]:
+                  - generic [ref=e859]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e860]: Mason Hall spent $1982 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e861]:
+                  - text: Mason Hall
+                  - generic [ref=e862]: Finance
+                - generic [ref=e863]: $1,982
+              - generic [ref=e864] [cursor=pointer]:
+                - generic [ref=e865]: High
+                - generic [ref=e866]:
+                  - generic [ref=e867]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e868]: Mason Clark spent $1874 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e869]:
+                  - text: Mason Clark
+                  - generic [ref=e870]: Marketing
+                - generic [ref=e871]: $1,874
+              - generic [ref=e872] [cursor=pointer]:
+                - generic [ref=e873]: High
+                - generic [ref=e874]:
+                  - generic [ref=e875]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e876]: Daniel Taylor spent $1862 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e877]:
+                  - text: Daniel Taylor
+                  - generic [ref=e878]: Finance
+                - generic [ref=e879]: $1,862
+              - generic [ref=e880] [cursor=pointer]:
+                - generic [ref=e881]: High
+                - generic [ref=e882]:
+                  - generic [ref=e883]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e884]: Ethan Young spent $1807 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e885]:
+                  - text: Ethan Young
+                  - generic [ref=e886]: Supply Chain
+                - generic [ref=e887]: $1,807
+              - generic [ref=e888] [cursor=pointer]:
+                - generic [ref=e889]: High
+                - generic [ref=e890]:
+                  - generic [ref=e891]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e892]: Evelyn Thompson spent $1777 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e893]:
+                  - text: Evelyn Thompson
+                  - generic [ref=e894]: Legal
+                - generic [ref=e895]: $1,777
+              - generic [ref=e896] [cursor=pointer]:
+                - generic [ref=e897]: High
+                - generic [ref=e898]:
+                  - generic [ref=e899]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e900]: Chloe Green spent $1667 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e901]:
+                  - text: Chloe Green
+                  - generic [ref=e902]: Supply Chain
+                - generic [ref=e903]: $1,667
+              - generic [ref=e904] [cursor=pointer]:
+                - generic [ref=e905]: High
+                - generic [ref=e906]:
+                  - generic [ref=e907]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e908]: Owen Martinez spent $1606 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e909]:
+                  - text: Owen Martinez
+                  - generic [ref=e910]: Marketing
+                - generic [ref=e911]: $1,606
+              - generic [ref=e912] [cursor=pointer]:
+                - generic [ref=e913]: High
+                - generic [ref=e914]:
+                  - generic [ref=e915]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e916]: Grace Santos spent $1476 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e917]:
+                  - text: Grace Santos
+                  - generic [ref=e918]: Sales
+                - generic [ref=e919]: $1,476
+              - generic [ref=e920] [cursor=pointer]:
+                - generic [ref=e921]: High
+                - generic [ref=e922]:
+                  - generic [ref=e923]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e924]: Henry Moore spent $1449 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e925]:
+                  - text: Henry Moore
+                  - generic [ref=e926]: Customer Service
+                - generic [ref=e927]: $1,449
+              - generic [ref=e928] [cursor=pointer]:
+                - generic [ref=e929]: High
+                - generic [ref=e930]:
+                  - generic [ref=e931]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e932]: Ella Baker spent $1414 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e933]:
+                  - text: Ella Baker
+                  - generic [ref=e934]: HR
+                - generic [ref=e935]: $1,414
+              - generic [ref=e936] [cursor=pointer]:
+                - generic [ref=e937]: High
+                - generic [ref=e938]:
+                  - generic [ref=e939]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e940]: Nora Wright spent $1326 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e941]:
+                  - text: Nora Wright
+                  - generic [ref=e942]: R&D
+                - generic [ref=e943]: $1,326
+              - generic [ref=e944] [cursor=pointer]:
+                - generic [ref=e945]: High
+                - generic [ref=e946]:
+                  - generic [ref=e947]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e948]: Daniel Taylor spent $1320 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e949]:
+                  - text: Daniel Taylor
+                  - generic [ref=e950]: Finance
+                - generic [ref=e951]: $1,320
+              - generic [ref=e952] [cursor=pointer]:
+                - generic [ref=e953]: High
+                - generic [ref=e954]:
+                  - generic [ref=e955]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e956]: Penelope Taylor spent $1213 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e957]:
+                  - text: Penelope Taylor
+                  - generic [ref=e958]: HR
+                - generic [ref=e959]: $1,213
+              - generic [ref=e960] [cursor=pointer]:
+                - generic [ref=e961]: High
+                - generic [ref=e962]:
+                  - generic [ref=e963]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e964]: Amelia Evans spent $1187 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e965]:
+                  - text: Amelia Evans
+                  - generic [ref=e966]: Customer Service
+                - generic [ref=e967]: $1,187
+              - generic [ref=e968] [cursor=pointer]:
+                - generic [ref=e969]: High
+                - generic [ref=e970]:
+                  - generic [ref=e971]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e972]: Owen Taylor spent $1146 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e973]:
+                  - text: Owen Taylor
+                  - generic [ref=e974]: Engineering
+                - generic [ref=e975]: $1,146
+              - generic [ref=e976] [cursor=pointer]:
+                - generic [ref=e977]: High
+                - generic [ref=e978]:
+                  - generic [ref=e979]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e980]: Scarlett Adams spent $1130 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e981]:
+                  - text: Scarlett Adams
+                  - generic [ref=e982]: R&D
+                - generic [ref=e983]: $1,130
+              - generic [ref=e984] [cursor=pointer]:
+                - generic [ref=e985]: High
+                - generic [ref=e986]:
+                  - generic [ref=e987]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e988]: Christian Anderson spent $1073 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e989]:
+                  - text: Christian Anderson
+                  - generic [ref=e990]: Customer Service
+                - generic [ref=e991]: $1,073
+              - generic [ref=e992] [cursor=pointer]:
+                - generic [ref=e993]: High
+                - generic [ref=e994]:
+                  - generic [ref=e995]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e996]: Nora Wright spent $1000 at Hilton Hotels, which is on the restricted-merchant list.
+                - generic [ref=e997]:
+                  - text: Nora Wright
+                  - generic [ref=e998]: R&D
+                - generic [ref=e999]: $1,000
+              - generic [ref=e1000] [cursor=pointer]:
+                - generic [ref=e1001]: High
+                - generic [ref=e1002]:
+                  - generic [ref=e1003]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e1004]: Chloe Green spent $890 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e1005]:
+                  - text: Chloe Green
+                  - generic [ref=e1006]: Supply Chain
+                - generic [ref=e1007]: $890
+              - generic [ref=e1008] [cursor=pointer]:
+                - generic [ref=e1009]: High
+                - generic [ref=e1010]:
+                  - generic [ref=e1011]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e1012]: Zoey Green spent $866 at Slack Technologies, which is on the restricted-merchant list.
+                - generic [ref=e1013]:
+                  - text: Zoey Green
+                  - generic [ref=e1014]: Customer Service
+                - generic [ref=e1015]: $866
+  - button [ref=e272] [cursor=pointer]:
+    - img [ref=e273]

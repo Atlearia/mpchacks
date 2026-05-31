@@ -1,0 +1,168 @@
+- generic [ref=e5]:
+  - navigation [ref=e6]:
+    - generic [ref=e7]:
+      - img "Crest" [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]: Crest
+        - generic [ref=e11]: Expense Intelligence
+    - generic [ref=e12]: Workspace
+    - generic [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+      - generic [ref=e19]: Overview
+    - generic [ref=e20] [cursor=pointer]:
+      - img [ref=e21]
+      - generic [ref=e24]: Explore
+    - generic [ref=e25] [cursor=pointer]:
+      - img [ref=e26]
+      - generic [ref=e29]: Policy
+      - generic [ref=e30]: "196"
+    - generic [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - generic [ref=e35]: Approvals
+      - generic [ref=e36]: "6"
+    - generic [ref=e37] [cursor=pointer]:
+      - img [ref=e38]
+      - generic [ref=e41]: Reports
+    - generic [ref=e42]:
+      - generic [ref=e43]: NY
+      - generic [ref=e44]:
+        - generic [ref=e45]: Ning Ye
+        - generic [ref=e46]: CFO
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Pre-Approval Queue" [level=1] [ref=e878]
+        - paragraph [ref=e51]: AI-assisted spend approvals
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]: $3,188,853
+          - generic [ref=e55]: Total spend
+        - generic [ref=e56]:
+          - generic [ref=e57]: 3,143
+          - generic [ref=e58]: Transactions
+        - generic [ref=e59]:
+          - generic [ref=e60]: "45"
+          - generic [ref=e61]: Employees
+        - generic [ref=e62]:
+          - generic [ref=e63]: "9"
+          - generic [ref=e64]: Departments
+    - generic [ref=e881]:
+      - generic [ref=e882]:
+        - generic [ref=e883]:
+          - heading "Pending Requests" [level=3] [ref=e884]
+          - generic [ref=e885]: 6 awaiting
+        - generic [ref=e886] [cursor=pointer]:
+          - generic [ref=e887]:
+            - generic [ref=e888]: OR
+            - generic [ref=e889]:
+              - generic [ref=e890]: Conference registration
+              - generic [ref=e891]: Olivia Rodriguez · Engineering
+          - generic [ref=e892]:
+            - generic [ref=e893]: $1,200
+            - generic [ref=e894]: approve
+        - generic [ref=e895] [cursor=pointer]:
+          - generic [ref=e896]:
+            - generic [ref=e897]: LL
+            - generic [ref=e898]:
+              - generic [ref=e899]: Annual software license
+              - generic [ref=e900]: Leo Lee · Engineering
+          - generic [ref=e901]:
+            - generic [ref=e902]: $2,450
+            - generic [ref=e903]: approve
+        - generic [ref=e904] [cursor=pointer]:
+          - generic [ref=e905]:
+            - generic [ref=e906]: JM
+            - generic [ref=e907]:
+              - generic [ref=e908]: Client dinner (team of 6)
+              - generic [ref=e909]: James Martinez · Engineering
+          - generic [ref=e910]:
+            - generic [ref=e911]: $740
+            - generic [ref=e912]: approve
+        - generic [ref=e913] [cursor=pointer]:
+          - generic [ref=e914]:
+            - generic [ref=e915]: SG
+            - generic [ref=e916]:
+              - generic [ref=e917]: Standing desk + monitor
+              - generic [ref=e918]: Sebastian Garcia · Engineering
+          - generic [ref=e919]:
+            - generic [ref=e920]: $1,030
+            - generic [ref=e921]: approve
+        - generic [ref=e922] [cursor=pointer]:
+          - generic [ref=e923]:
+            - generic [ref=e924]: OT
+            - generic [ref=e925]:
+              - generic [ref=e926]: Quarterly ad campaign
+              - generic [ref=e927]: Owen Taylor · Engineering
+          - generic [ref=e928]:
+            - generic [ref=e929]: $3,700
+            - generic [ref=e930]: approve
+        - generic [ref=e931] [cursor=pointer]:
+          - generic [ref=e932]:
+            - generic [ref=e933]: CG
+            - generic [ref=e934]:
+              - generic [ref=e935]: Team offsite venue deposit
+              - generic [ref=e936]: Chloe Green · Supply Chain
+          - generic [ref=e937]:
+            - generic [ref=e938]: $1,500
+            - generic [ref=e939]: approve
+      - generic [ref=e941]:
+        - generic [ref=e942]:
+          - generic [ref=e943]: OR
+          - generic [ref=e944]:
+            - generic [ref=e945]: Conference registration
+            - generic [ref=e946]: Olivia Rodriguez · Engineering · TechSummit
+          - generic [ref=e947]:
+            - generic [ref=e948]: $1,200
+            - generic [ref=e949]: Travel & Events
+        - generic [ref=e950]:
+          - generic [ref=e951]:
+            - heading "Department Budget" [level=3] [ref=e953]
+            - generic [ref=e954]: $42,119 remaining · request is within budget
+          - generic [ref=e958]:
+            - generic [ref=e959]:
+              - heading "Spend History" [level=3] [ref=e960]
+              - generic [ref=e961]: 0 prior similar
+            - generic [ref=e962]:
+              - 'generic "Sep 2025: $9,347" [ref=e963]':
+                - generic [ref=e964]: $9,347
+                - generic [ref=e967]: Sep 2025
+              - 'generic "Oct 2025: $7,677" [ref=e968]':
+                - generic [ref=e969]: $7,677
+                - generic [ref=e972]: Oct 2025
+              - 'generic "Nov 2025: $11,532" [ref=e973]':
+                - generic [ref=e974]: $11,532
+                - generic [ref=e977]: Nov 2025
+              - 'generic "Dec 2025: $5,527" [ref=e978]':
+                - generic [ref=e979]: $5,527
+                - generic [ref=e982]: Dec 2025
+              - 'generic "Jan 2026: $15,489" [ref=e983]':
+                - generic [ref=e984]: $15,489
+                - generic [ref=e987]: Jan 2026
+              - 'generic "Feb 2026: $19,866" [ref=e988]':
+                - generic [ref=e989]: $19,866
+                - generic [ref=e992]: Feb 2026
+              - 'generic "Mar 2026: $12,381" [ref=e993]':
+                - generic [ref=e994]: $12,381
+                - generic [ref=e997]: Mar 2026
+        - generic [ref=e998]:
+          - generic [ref=e999]:
+            - img [ref=e1000]
+            - generic [ref=e1002]: AI Recommendation
+            - generic [ref=e1003]: Recommend approve
+            - generic [ref=e1004]: 78% confidence
+            - generic [ref=e1005]: Local engine
+          - generic [ref=e1006]:
+            - generic [ref=e1007]:
+              - generic [ref=e1008]: •
+              - text: Within Engineering's remaining budget ($42,119 left this period).
+            - generic [ref=e1009]:
+              - generic [ref=e1010]: •
+              - text: No prior travel & events spend for Olivia Rodriguez; first of its kind.
+            - generic [ref=e1011]:
+              - generic [ref=e1012]: •
+              - text: Above the $500 approval threshold, so sign-off is required.
+        - generic [ref=e1013]:
+          - button "Approve $1,200" [ref=e1014] [cursor=pointer]
+          - button "Deny" [ref=e1015] [cursor=pointer]
+  - button [ref=e272] [cursor=pointer]:
+    - img [ref=e273]

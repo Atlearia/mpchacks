@@ -1,0 +1,84 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - img "Crest" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: Crest
+        - generic [ref=e9]: Expense Intelligence
+    - generic [ref=e10]: Workspace
+    - generic [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+      - generic [ref=e17]: Overview
+    - generic [ref=e18] [cursor=pointer]:
+      - img [ref=e19]
+      - generic [ref=e22]: Explore
+    - generic [ref=e23] [cursor=pointer]:
+      - img [ref=e24]
+      - generic [ref=e27]: Policy
+      - generic [ref=e28]: "196"
+    - generic [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+      - generic [ref=e33]: Approvals
+      - generic [ref=e34]: "6"
+    - generic [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - generic [ref=e39]: Reports
+    - generic [ref=e40]:
+      - generic [ref=e41]: NY
+      - generic [ref=e42]:
+        - generic [ref=e43]: Ning Ye
+        - generic [ref=e44]: CFO
+  - generic [ref=e265]:
+    - generic:
+      - generic:
+        - img
+        - generic: Orbit
+        - generic: ·
+        - img
+        - generic: Zoom
+        - generic: ·
+        - img
+        - generic: Select a point to explore
+    - generic [ref=e267]:
+      - generic [ref=e270]:
+        - generic: R&D
+      - generic [ref=e271]:
+        - generic: Finance
+      - generic [ref=e272]:
+        - generic: Customer Service
+      - generic [ref=e273]:
+        - generic: Legal
+      - generic [ref=e274]:
+        - generic: Sales
+      - generic [ref=e275]:
+        - generic: Engineering
+      - generic [ref=e276]:
+        - generic: Marketing
+      - generic [ref=e277]:
+        - generic: Supply Chain
+      - generic [ref=e278]:
+        - generic: HR
+      - generic [ref=e279]:
+        - generic: Sep 2025
+      - generic [ref=e280]:
+        - generic: Oct 2025
+      - generic [ref=e281]:
+        - generic: Nov 2025
+      - generic [ref=e282]:
+        - generic: Dec 2025
+      - generic [ref=e283]:
+        - generic: Jan 2026
+      - generic [ref=e284]:
+        - generic: Feb 2026
+      - generic [ref=e285]:
+        - generic: Mar 2026
+      - generic [ref=e286]:
+        - generic: $20,888
+      - generic [ref=e287]:
+        - generic: $41,776
+      - generic [ref=e288]:
+        - generic: $62,664
+      - generic [ref=e289]:
+        - generic: $83,552
+  - button [ref=e261] [cursor=pointer]:
+    - img [ref=e262]

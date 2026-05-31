@@ -1,0 +1,163 @@
+- generic [ref=e5]:
+  - navigation [ref=e6]:
+    - generic [ref=e7]:
+      - img "Crest" [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]: Crest
+        - generic [ref=e11]: Expense Intelligence
+    - generic [ref=e12]: Workspace
+    - generic [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+      - generic [ref=e19]: Overview
+    - generic [ref=e20] [cursor=pointer]:
+      - img [ref=e21]
+      - generic [ref=e24]: Explore
+    - generic [ref=e25] [cursor=pointer]:
+      - img [ref=e26]
+      - generic [ref=e29]: Policy
+      - generic [ref=e30]: "196"
+    - generic [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - generic [ref=e35]: Approvals
+      - generic [ref=e36]: "6"
+    - generic [ref=e37] [cursor=pointer]:
+      - img [ref=e38]
+      - generic [ref=e41]: Reports
+    - generic [ref=e42]:
+      - generic [ref=e43]: NY
+      - generic [ref=e44]:
+        - generic [ref=e45]: Ning Ye
+        - generic [ref=e46]: CFO
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Pre-Approval Queue" [level=1] [ref=e878]
+        - paragraph [ref=e51]: AI-assisted spend approvals
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]: $3,188,853
+          - generic [ref=e55]: Total spend
+        - generic [ref=e56]:
+          - generic [ref=e57]: 3,143
+          - generic [ref=e58]: Transactions
+        - generic [ref=e59]:
+          - generic [ref=e60]: "45"
+          - generic [ref=e61]: Employees
+        - generic [ref=e62]:
+          - generic [ref=e63]: "9"
+          - generic [ref=e64]: Departments
+    - generic [ref=e881]:
+      - generic [ref=e882]:
+        - generic [ref=e883]:
+          - heading "Pending Requests" [level=3] [ref=e884]
+          - generic [ref=e885]: 5 awaiting
+        - generic [ref=e895] [cursor=pointer]:
+          - generic [ref=e896]:
+            - generic [ref=e897]: LL
+            - generic [ref=e898]:
+              - generic [ref=e899]: Annual software license
+              - generic [ref=e900]: Leo Lee · Engineering
+          - generic [ref=e901]:
+            - generic [ref=e902]: $2,450
+            - generic [ref=e903]: approve
+        - generic [ref=e904] [cursor=pointer]:
+          - generic [ref=e905]:
+            - generic [ref=e906]: JM
+            - generic [ref=e907]:
+              - generic [ref=e908]: Client dinner (team of 6)
+              - generic [ref=e909]: James Martinez · Engineering
+          - generic [ref=e910]:
+            - generic [ref=e911]: $740
+            - generic [ref=e912]: approve
+        - generic [ref=e913] [cursor=pointer]:
+          - generic [ref=e914]:
+            - generic [ref=e915]: SG
+            - generic [ref=e916]:
+              - generic [ref=e917]: Standing desk + monitor
+              - generic [ref=e918]: Sebastian Garcia · Engineering
+          - generic [ref=e919]:
+            - generic [ref=e920]: $1,030
+            - generic [ref=e921]: approve
+        - generic [ref=e922] [cursor=pointer]:
+          - generic [ref=e923]:
+            - generic [ref=e924]: OT
+            - generic [ref=e925]:
+              - generic [ref=e926]: Quarterly ad campaign
+              - generic [ref=e927]: Owen Taylor · Engineering
+          - generic [ref=e928]:
+            - generic [ref=e929]: $3,700
+            - generic [ref=e930]: approve
+        - generic [ref=e931] [cursor=pointer]:
+          - generic [ref=e932]:
+            - generic [ref=e933]: CG
+            - generic [ref=e934]:
+              - generic [ref=e935]: Team offsite venue deposit
+              - generic [ref=e936]: Chloe Green · Supply Chain
+          - generic [ref=e937]:
+            - generic [ref=e938]: $1,500
+            - generic [ref=e939]: approve
+        - generic [ref=e1017] [cursor=pointer]:
+          - generic [ref=e1018]: ▸
+          - generic [ref=e1019]: Past Decisions
+          - generic [ref=e1020]: "1"
+      - generic [ref=e1021]:
+        - generic [ref=e1022]:
+          - generic [ref=e1023]: LL
+          - generic [ref=e1024]:
+            - generic [ref=e1025]: Annual software license
+            - generic [ref=e1026]: Leo Lee · Engineering · Atlassian
+          - generic [ref=e1027]:
+            - generic [ref=e1028]: $2,450
+            - generic [ref=e1029]: Software
+        - generic [ref=e1030]:
+          - generic [ref=e1031]:
+            - heading "Department Budget" [level=3] [ref=e1033]
+            - generic [ref=e1034]: $33,504 remaining · request is within budget
+          - generic [ref=e1038]:
+            - generic [ref=e1039]:
+              - heading "Spend History" [level=3] [ref=e1040]
+              - generic [ref=e1041]: 0 prior similar
+            - generic [ref=e1042]:
+              - 'generic "Sep 2025: $10,709" [ref=e1043]':
+                - generic [ref=e1044]: $10,709
+                - generic [ref=e1047]: Sep 2025
+              - 'generic "Oct 2025: $5,149" [ref=e1048]':
+                - generic [ref=e1049]: $5,149
+                - generic [ref=e1052]: Oct 2025
+              - 'generic "Nov 2025: $7,406" [ref=e1053]':
+                - generic [ref=e1054]: $7,406
+                - generic [ref=e1057]: Nov 2025
+              - 'generic "Dec 2025: $8,517" [ref=e1058]':
+                - generic [ref=e1059]: $8,517
+                - generic [ref=e1062]: Dec 2025
+              - 'generic "Jan 2026: $7,634" [ref=e1063]':
+                - generic [ref=e1064]: $7,634
+                - generic [ref=e1067]: Jan 2026
+              - 'generic "Feb 2026: $12,394" [ref=e1068]':
+                - generic [ref=e1069]: $12,394
+                - generic [ref=e1072]: Feb 2026
+              - 'generic "Mar 2026: $20,996" [ref=e1073]':
+                - generic [ref=e1074]: $20,996
+                - generic [ref=e1077]: Mar 2026
+        - generic [ref=e1078]:
+          - generic [ref=e1079]:
+            - img [ref=e1080]
+            - generic [ref=e1082]: AI Recommendation
+            - generic [ref=e1083]: Recommend approve
+            - generic [ref=e1084]: 93% confidence
+            - generic [ref=e1085]: Local engine
+          - generic [ref=e1086]:
+            - generic [ref=e1087]:
+              - generic [ref=e1088]: •
+              - text: Within Engineering's remaining budget ($33,504 left this period).
+            - generic [ref=e1089]:
+              - generic [ref=e1090]: •
+              - text: No prior software spend for Leo Lee; first of its kind.
+            - generic [ref=e1091]:
+              - generic [ref=e1092]: •
+              - text: Above the $500 approval threshold, so sign-off is required.
+        - generic [ref=e1093]:
+          - button "Approve $2,450" [ref=e1094] [cursor=pointer]
+          - button "Deny" [ref=e1095] [cursor=pointer]
+  - button [ref=e272] [cursor=pointer]:
+    - img [ref=e273]

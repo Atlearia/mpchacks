@@ -71,7 +71,7 @@ export default function AskView() {
       }));
 
     try {
-      // Try the real Gemini API first
+      // Try the live AI API first
       const answer = await askGemini(q, history);
       setIsLive(true);
       setMessages((m) =>
@@ -110,7 +110,7 @@ export default function AskView() {
               </p>
               {isLive !== null && (
                 <div className={`ai-mode-badge ${isLive ? "live" : "offline"}`}>
-                  {isLive ? "✦ Powered by Gemini 3.5 Flash" : "⚡ Offline mode (local engine)"}
+                  {isLive ? "✦ Live analysis" : "⚡ Offline mode (local engine)"}
                 </div>
               )}
             </div>
@@ -132,9 +132,7 @@ export default function AskView() {
                 <div className="bubble">
                   <div className="ai-head">
                     <SparkIcon size={13} /> Crest AI
-                    {msg.answer?.isLive && (
-                      <span className="ai-model-tag">Gemini 3.5 Flash</span>
-                    )}
+
                   </div>
                   {msg.pending ? (
                     <div className="typing">
@@ -197,7 +195,7 @@ export default function AskView() {
           </form>
           {isLive !== null && !empty && (
             <div className="composer-status">
-              {isLive ? "✦ Gemini 3.5 Flash" : "⚡ Local engine (backend unavailable)"}
+              {isLive ? "✦ Live analysis" : "⚡ Local engine (backend unavailable)"}
             </div>
           )}
         </div>

@@ -1,0 +1,283 @@
+- generic [ref=e5]:
+  - navigation [ref=e6]:
+    - generic [ref=e7]:
+      - img "Crest" [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]: Crest
+        - generic [ref=e11]: Expense Intelligence
+    - generic [ref=e12]: Workspace
+    - generic [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+      - generic [ref=e19]: Overview
+    - generic [ref=e20] [cursor=pointer]:
+      - img [ref=e21]
+      - generic [ref=e24]: Explore
+    - generic [ref=e25] [cursor=pointer]:
+      - img [ref=e26]
+      - generic [ref=e29]: Policy
+      - generic [ref=e30]: "196"
+    - generic [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - generic [ref=e35]: Approvals
+      - generic [ref=e36]: "6"
+    - generic [ref=e37] [cursor=pointer]:
+      - img [ref=e38]
+      - generic [ref=e41]: Reports
+    - generic [ref=e42]:
+      - generic [ref=e43]: NY
+      - generic [ref=e44]:
+        - generic [ref=e45]: Ning Ye
+        - generic [ref=e46]: CFO
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Expense Reports" [level=1] [ref=e1101]
+        - paragraph [ref=e51]: Auto-generated, policy-checked, approval-ready
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]: $3,188,853
+          - generic [ref=e55]: Total spend
+        - generic [ref=e56]:
+          - generic [ref=e57]: 3,143
+          - generic [ref=e58]: Transactions
+        - generic [ref=e59]:
+          - generic [ref=e60]: "45"
+          - generic [ref=e61]: Employees
+        - generic [ref=e62]:
+          - generic [ref=e63]: "9"
+          - generic [ref=e64]: Departments
+    - generic [ref=e1104]:
+      - generic [ref=e1105]:
+        - generic [ref=e1106]:
+          - heading "Generated Reports" [level=3] [ref=e1107]
+          - generic [ref=e1108]: 14 auto-grouped
+        - generic [ref=e1109] [cursor=pointer]:
+          - generic [ref=e1111]:
+            - generic [ref=e1112]: SP
+            - text: Chicago trip
+          - generic [ref=e1113]: Sophia Patel · 6 items · 2026-03-22
+          - generic [ref=e1114]:
+            - generic [ref=e1115]: $2,761
+            - generic [ref=e1116]: ready
+        - generic [ref=e1117] [cursor=pointer]:
+          - generic [ref=e1119]:
+            - generic [ref=e1120]: HM
+            - text: Atlanta trip
+          - generic [ref=e1121]: Henry Moore · 3 items · 2026-03-27
+          - generic [ref=e1122]:
+            - generic [ref=e1123]: $7,208
+            - generic [ref=e1124]: ready
+        - generic [ref=e1125] [cursor=pointer]:
+          - generic [ref=e1127]:
+            - generic [ref=e1128]: CA
+            - text: Miami trip
+          - generic [ref=e1129]: Christian Anderson · 3 items · 2026-03-27
+          - generic [ref=e1130]:
+            - generic [ref=e1131]: $4,561
+            - generic [ref=e1132]: ready
+        - generic [ref=e1133] [cursor=pointer]:
+          - generic [ref=e1134]:
+            - generic [ref=e1135]:
+              - generic [ref=e1136]: DY
+              - text: Chicago trip
+            - img [ref=e1137]
+          - generic [ref=e1140]: Daniel Young · 3 items · 2026-03-24
+          - generic [ref=e1141]:
+            - generic [ref=e1142]: $1,445
+            - generic [ref=e1143]: draft
+        - generic [ref=e1144] [cursor=pointer]:
+          - generic [ref=e1145]:
+            - generic [ref=e1146]:
+              - generic [ref=e1147]: SG
+              - text: Chicago trip
+            - img [ref=e1148]
+          - generic [ref=e1151]: Sebastian Garcia · 3 items · 2026-03-26
+          - generic [ref=e1152]:
+            - generic [ref=e1153]: $985
+            - generic [ref=e1154]: draft
+        - generic [ref=e1155] [cursor=pointer]:
+          - generic [ref=e1156]:
+            - generic [ref=e1157]:
+              - generic [ref=e1158]: OT
+              - text: Chicago trip
+            - img [ref=e1159]
+          - generic [ref=e1162]: Owen Taylor · 3 items · 2026-03-25
+          - generic [ref=e1163]:
+            - generic [ref=e1164]: $3,304
+            - generic [ref=e1165]: draft
+        - generic [ref=e1166] [cursor=pointer]:
+          - generic [ref=e1168]:
+            - generic [ref=e1169]: CH
+            - text: Chicago trip
+          - generic [ref=e1170]: Christian Hall · 4 items · 2026-03-22
+          - generic [ref=e1171]:
+            - generic [ref=e1172]: $3,759
+            - generic [ref=e1173]: ready
+        - generic [ref=e1174] [cursor=pointer]:
+          - generic [ref=e1176]:
+            - generic [ref=e1177]: PT
+            - text: New York trip
+          - generic [ref=e1178]: Penelope Taylor · 5 items · 2026-03-19
+          - generic [ref=e1179]:
+            - generic [ref=e1180]: $7,816
+            - generic [ref=e1181]: ready
+        - generic [ref=e1182] [cursor=pointer]:
+          - generic [ref=e1183]:
+            - generic [ref=e1184]:
+              - generic [ref=e1185]: JM
+              - text: Austin trip
+            - img [ref=e1186]
+          - generic [ref=e1189]: James Martinez · 4 items · 2026-03-23
+          - generic [ref=e1190]:
+            - generic [ref=e1191]: $2,319
+            - generic [ref=e1192]: draft
+        - generic [ref=e1193] [cursor=pointer]:
+          - generic [ref=e1195]:
+            - generic [ref=e1196]: AO
+            - text: San Francisco trip
+          - generic [ref=e1197]: Amelia O'Brien · 3 items · 2026-03-23
+          - generic [ref=e1198]:
+            - generic [ref=e1199]: $710
+            - generic [ref=e1200]: ready
+        - generic [ref=e1201] [cursor=pointer]:
+          - generic [ref=e1202]:
+            - generic [ref=e1203]:
+              - generic [ref=e1204]: EB
+              - text: Denver trip
+            - img [ref=e1205]
+          - generic [ref=e1208]: Ella Baker · 3 items · 2026-03-24
+          - generic [ref=e1209]:
+            - generic [ref=e1210]: $2,577
+            - generic [ref=e1211]: draft
+        - generic [ref=e1212] [cursor=pointer]:
+          - generic [ref=e1214]:
+            - generic [ref=e1215]: OR
+            - text: Boston trip
+          - generic [ref=e1216]: Olivia Rodriguez · 5 items · 2026-03-23
+          - generic [ref=e1217]:
+            - generic [ref=e1218]: $7,967
+            - generic [ref=e1219]: ready
+        - generic [ref=e1220] [cursor=pointer]:
+          - generic [ref=e1222]:
+            - generic [ref=e1223]: CG
+            - text: Boston trip
+          - generic [ref=e1224]: Chloe Green · 4 items · 2026-03-21
+          - generic [ref=e1225]:
+            - generic [ref=e1226]: $1,862
+            - generic [ref=e1227]: ready
+        - generic [ref=e1228] [cursor=pointer]:
+          - generic [ref=e1230]:
+            - generic [ref=e1231]: GS
+            - text: Denver trip
+          - generic [ref=e1232]: Grace Santos · 8 items · 2026-03-14
+          - generic [ref=e1233]:
+            - generic [ref=e1234]: $3,491
+            - generic [ref=e1235]: ready
+      - generic [ref=e1237]:
+        - generic [ref=e1238]:
+          - generic [ref=e1239]: SP
+          - generic [ref=e1240]:
+            - generic [ref=e1241]: Chicago trip
+            - generic [ref=e1242]: Sophia Patel · Supply Chain · 2026-03-22 → 2026-03-28
+          - generic [ref=e1243]:
+            - generic [ref=e1244]: $2,761
+            - text: ready
+        - generic [ref=e1245]:
+          - generic [ref=e1246]:
+            - img [ref=e1247]
+            - generic [ref=e1249]: AI Summary
+          - generic [ref=e1250]: 6 transactions from 2026-03-22 to 2026-03-28, grouped into "Chicago trip". Largest category is Conferences ($1,581). All line items are within policy.
+        - generic [ref=e1251]:
+          - generic [ref=e1252]:
+            - heading "Categories" [level=3] [ref=e1254]
+            - generic [ref=e1255]:
+              - generic [ref=e1257]:
+                - generic [ref=e1258]: $2,761
+                - generic [ref=e1259]: total
+              - generic [ref=e1260]:
+                - generic [ref=e1261]:
+                  - generic [ref=e1263]: Conferences
+                  - generic [ref=e1264]: $1,581
+                - generic [ref=e1265]:
+                  - generic [ref=e1267]: Training
+                  - generic [ref=e1268]: $445
+                - generic [ref=e1269]:
+                  - generic [ref=e1271]: Telecommunications
+                  - generic [ref=e1272]: $409
+                - generic [ref=e1273]:
+                  - generic [ref=e1275]: Equipment
+                  - generic [ref=e1276]: $272
+                - generic [ref=e1277]:
+                  - generic [ref=e1279]: Professional Services
+                  - generic [ref=e1280]: $54
+          - generic [ref=e1281]:
+            - heading "Policy Check" [level=3] [ref=e1283]
+            - generic [ref=e1284]:
+              - generic [ref=e1285]:
+                - img [ref=e1286]
+                - text: All 6 items in policy
+              - generic [ref=e1289]: Receipts matched · spend categories assigned · totals reconciled.
+        - generic [ref=e1290]:
+          - generic [ref=e1291]:
+            - heading "Line Items" [level=3] [ref=e1292]
+            - generic [ref=e1293]: 6 transactions
+          - generic [ref=e1294]:
+            - generic [ref=e1295]:
+              - generic [ref=e1296]: 2026-03-22
+              - generic [ref=e1297]:
+                - text: WeWork
+                - generic [ref=e1298]: Conferences
+              - generic [ref=e1299]:
+                - img [ref=e1300]
+                - text: In policy
+              - generic [ref=e1303]: $1,581.18
+            - generic [ref=e1304]:
+              - generic [ref=e1305]: 2026-03-23
+              - generic [ref=e1306]:
+                - text: Apple Store
+                - generic [ref=e1307]: Training
+              - generic [ref=e1308]:
+                - img [ref=e1309]
+                - text: In policy
+              - generic [ref=e1312]: $302.30
+            - generic [ref=e1313]:
+              - generic [ref=e1314]: 2026-03-24
+              - generic [ref=e1315]:
+                - text: Office Depot
+                - generic [ref=e1316]: Training
+              - generic [ref=e1317]:
+                - img [ref=e1318]
+                - text: In policy
+              - generic [ref=e1321]: $142.74
+            - generic [ref=e1322]:
+              - generic [ref=e1323]: 2026-03-24
+              - generic [ref=e1324]:
+                - text: The Ritz-Carlton
+                - generic [ref=e1325]: Equipment
+              - generic [ref=e1326]:
+                - img [ref=e1327]
+                - text: In policy
+              - generic [ref=e1330]: $272.03
+            - generic [ref=e1331]:
+              - generic [ref=e1332]: 2026-03-25
+              - generic [ref=e1333]:
+                - text: Starbucks
+                - generic [ref=e1334]: Professional Services
+              - generic [ref=e1335]:
+                - img [ref=e1336]
+                - text: In policy
+              - generic [ref=e1339]: $53.62
+            - generic [ref=e1340]:
+              - generic [ref=e1341]: 2026-03-28
+              - generic [ref=e1342]:
+                - text: Starbucks
+                - generic [ref=e1343]: Telecommunications
+              - generic [ref=e1344]:
+                - img [ref=e1345]
+                - text: In policy
+              - generic [ref=e1348]: $409.36
+        - generic [ref=e1349]:
+          - generic [ref=e1350]: Reviewed against the active expense policy and ready for CFO sign-off.
+          - button "Approve Report" [ref=e1351] [cursor=pointer]
+  - button [ref=e272] [cursor=pointer]:
+    - img [ref=e273]

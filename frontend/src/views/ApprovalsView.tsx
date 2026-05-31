@@ -136,7 +136,7 @@ function Detail({
                 {REC_LABEL[recommendation as keyof typeof REC_LABEL] ?? "Needs review"}
               </span>
               <span className="conf">{confidence}% confidence</span>
-              {aiResult && <span className="ai-model-tag" style={{ marginLeft: "auto" }}>Gemini 3.5 Flash</span>}
+              {aiResult && <span className="ai-model-tag" style={{ marginLeft: "auto" }}>Crest AI</span>}
               {aiError && <span className="ai-model-tag" style={{ marginLeft: "auto", opacity: 0.6 }}>Local engine</span>}
             </>
           )}
@@ -145,7 +145,7 @@ function Detail({
           {aiLoading ? (
             <div className="rec-reason" style={{ color: "var(--text-dim)" }}>
               <span className="dot">•</span>
-              Generating contextual recommendation with Gemini 3.5 Flash…
+              Generating contextual recommendation…
             </div>
           ) : (
             reasoning.map((r, i) => (

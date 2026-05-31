@@ -1,0 +1,193 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - img "Crest" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: Crest
+        - generic [ref=e9]: Expense Intelligence
+    - generic [ref=e10]: Workspace
+    - generic [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+      - generic [ref=e17]: Overview
+    - generic [ref=e18] [cursor=pointer]:
+      - img [ref=e19]
+      - generic [ref=e22]: Explore
+    - generic [ref=e23] [cursor=pointer]:
+      - img [ref=e24]
+      - generic [ref=e27]: Policy
+      - generic [ref=e28]: "196"
+    - generic [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+      - generic [ref=e33]: Approvals
+      - generic [ref=e34]: "6"
+    - generic [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - generic [ref=e39]: Reports
+    - generic [ref=e40]:
+      - generic [ref=e41]: NY
+      - generic [ref=e42]:
+        - generic [ref=e43]: Ning Ye
+        - generic [ref=e44]: CFO
+  - generic [ref=e45]:
+    - banner [ref=e46]:
+      - generic [ref=e47]:
+        - heading "Executive Overview" [level=1] [ref=e48]
+        - paragraph [ref=e49]: Company-wide spend health at a glance
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: $3,188,853
+          - generic [ref=e53]: Total spend
+        - generic [ref=e54]:
+          - generic [ref=e55]: 3,143
+          - generic [ref=e56]: Transactions
+        - generic [ref=e57]:
+          - generic [ref=e58]: "45"
+          - generic [ref=e59]: Employees
+        - generic [ref=e60]:
+          - generic [ref=e61]: "9"
+          - generic [ref=e62]: Departments
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - generic [ref=e69]: Total Spend
+            - img [ref=e71]
+          - generic [ref=e74]: $3,188,853
+          - generic [ref=e75]: Avg ticket $1,086
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]: Open Violations
+            - img [ref=e80]
+          - generic [ref=e83]: "196"
+          - generic [ref=e84]: 1 critical · 195 high
+        - generic [ref=e85]:
+          - generic [ref=e87]: Budgets At Risk
+          - generic [ref=e88]: "4"
+          - generic [ref=e89]: of 9 departments
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]: Potential Savings
+            - img [ref=e94]
+          - generic [ref=e96]: $215,515
+          - generic [ref=e97]: via vendor consolidation
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - heading "Department Budget Tracking" [level=3] [ref=e101]
+            - generic [ref=e102]: Current month vs. monthly ceiling
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]: R&D
+              - generic [ref=e106]: $45,403 / $61,000
+            - generic [ref=e109]: On track · 74% of budget used
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - generic [ref=e112]: Finance
+              - generic [ref=e113]: $57,687 / $59,000
+            - generic [ref=e116]:
+              - img [ref=e117]
+              - text: Projected to exceed budget — trending to $57,668 next month
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - generic [ref=e122]: Customer Service
+              - generic [ref=e123]: $59,377 / $59,000
+            - generic [ref=e126]:
+              - img [ref=e127]
+              - text: Over budget by $377 this month
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: Legal
+              - generic [ref=e133]: $35,562 / $54,500
+            - generic [ref=e136]: On track · 65% of budget used
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - generic [ref=e139]: Sales
+              - generic [ref=e140]: $27,523 / $55,500
+            - generic [ref=e143]: On track · 50% of budget used
+          - generic [ref=e144]:
+            - generic [ref=e145]:
+              - generic [ref=e146]: Engineering
+              - generic [ref=e147]: $62,421 / $54,500
+            - generic [ref=e150]:
+              - img [ref=e151]
+              - text: Over budget by $7,921 this month
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - generic [ref=e156]: Marketing
+              - generic [ref=e157]: $38,156 / $55,000
+            - generic [ref=e160]: On track · 69% of budget used
+          - generic [ref=e161]:
+            - generic [ref=e162]:
+              - generic [ref=e163]: Supply Chain
+              - generic [ref=e164]: $38,973 / $52,000
+            - generic [ref=e167]: On track · 75% of budget used
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - generic [ref=e170]: HR
+              - generic [ref=e171]: $44,762 / $50,500
+            - generic [ref=e174]:
+              - img [ref=e175]
+              - text: Projected to exceed budget — trending to $48,392 next month
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - generic [ref=e180]:
+              - heading "Top Policy Alerts" [level=3] [ref=e181]
+              - generic [ref=e182] [cursor=pointer]: View all →
+            - generic [ref=e183]:
+              - generic [ref=e184] [cursor=pointer]:
+                - img [ref=e186]
+                - generic [ref=e189]:
+                  - generic [ref=e190]: 2 charges split to dodge $500 approval
+                  - generic [ref=e191]: Daniel Taylor · Finance · $723
+                - generic [ref=e192]: Critical
+              - generic [ref=e193] [cursor=pointer]:
+                - img [ref=e195]
+                - generic [ref=e198]:
+                  - generic [ref=e199]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e200]: Leo Lee · Engineering · $7,782
+                - generic [ref=e201]: High
+              - generic [ref=e202] [cursor=pointer]:
+                - img [ref=e204]
+                - generic [ref=e207]:
+                  - generic [ref=e208]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e209]: Zoey Lee · Sales · $7,103
+                - generic [ref=e210]: High
+              - generic [ref=e211] [cursor=pointer]:
+                - img [ref=e213]
+                - generic [ref=e216]:
+                  - generic [ref=e217]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e218]: Victoria Brown · R&D · $7,094
+                - generic [ref=e219]: High
+              - generic [ref=e220] [cursor=pointer]:
+                - img [ref=e222]
+                - generic [ref=e225]:
+                  - generic [ref=e226]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e227]: Evelyn Thompson · Legal · $6,701
+                - generic [ref=e228]: High
+              - generic [ref=e229] [cursor=pointer]:
+                - img [ref=e231]
+                - generic [ref=e234]:
+                  - generic [ref=e235]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e236]: Owen Taylor · Engineering · $6,698
+                - generic [ref=e237]: High
+          - generic [ref=e238]:
+            - generic [ref=e239]:
+              - heading "Anomalies Detected" [level=3] [ref=e240]
+              - generic [ref=e241]: 1 flagged
+            - generic [ref=e243] [cursor=pointer]:
+              - img [ref=e245]
+              - generic [ref=e247]:
+                - generic [ref=e248]: Round-number charge $1000
+                - generic [ref=e249]: Nora Wright logged an exact $1000 at Hilton Hotels — round amounts can indicate estimates rather than receipts.
+              - generic [ref=e250]: Round number
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - generic [ref=e253]: $215,515
+              - generic [ref=e254]: estimated annual savings
+            - generic [ref=e255]:
+              - text: You're paying
+              - generic [ref=e256]: 33 vendors
+              - text: for Cloud Infrastructure ($1,166,003). Consolidating to a preferred vendor could save $93,280.
+            - img [ref=e257]
+  - button [ref=e261] [cursor=pointer]:
+    - img [ref=e262]

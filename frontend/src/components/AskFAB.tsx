@@ -245,9 +245,9 @@ export default function AskFAB() {
       );
     } catch (err) {
       console.error("[AskFAB] AI error:", err);
-      setIsLive(true); // still show Gemini badge — it was attempted
+      setIsLive(true); // still show AI badge — it was attempted
       const errorAnswer: AiAnswer = {
-        summary: "I'm having trouble connecting to Gemini right now. Please try again in a moment.",
+        summary: "I'm having trouble connecting right now. Please try again in a moment.",
         followups: ["Try again"],
         focus: {},
       };
@@ -306,7 +306,7 @@ export default function AskFAB() {
               <div className="ask-panel-title">
                 <SparkIcon size={15} />
                 <span>Crest AI</span>
-                <span className="ai-model-tag">Gemini 3.1 Pro</span>
+                <span className="ai-model-tag">Crest AI</span>
               </div>
               <button className="ask-panel-close" onClick={() => { setMode("idle"); setContext(null); setMessages([]); }}>
                 ✕

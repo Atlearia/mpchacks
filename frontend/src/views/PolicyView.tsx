@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { usePolicy } from "../data/policy";
 import { DEPARTMENTS, TRANSACTIONS } from "../data/dataset";
@@ -232,11 +232,18 @@ function ViolationsTab() {
       const result = await fetchPolicyBrief(top);
       setBrief(result);
     } catch {
-      setBriefError("AI analysis unavailable — check that the backend is running.");
+      setBriefError("Policy analysis unavailable — check that the backend is running.");
     } finally {
       setBriefLoading(false);
     }
   };
+
+  // Auto-generate the policy brief on mount
+  useEffect(() => {
+    if (!brief && !briefLoading && !briefError && violations.length > 0) {
+      handleBrief();
+    }
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const riskColors: Record<string, string> = {
     critical: "var(--bad)",
@@ -278,8 +285,7 @@ function ViolationsTab() {
           whileTap={{ scale: 0.98 }}
         >
           <SparkIcon size={16} />
-          Generate AI Policy Brief
-          <span className="ai-brief-badge">Gemini 3.5 Flash</span>
+          Generate Policy Brief
         </motion.button>
       )}
 
@@ -289,7 +295,7 @@ function ViolationsTab() {
             <span /><span /><span />
           </div>
           <span style={{ marginLeft: 12, fontSize: 13, color: "var(--text-dim)" }}>
-            Analyzing {stats.total} violations with Gemini 3.5 Flash…
+            Analyzing {stats.total} violations…
           </span>
         </div>
       )}
@@ -310,7 +316,7 @@ function ViolationsTab() {
           <div className="brief-header">
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SparkIcon size={16} />
-              <span className="brief-title">AI Policy Brief</span>
+              <span className="brief-title">Policy Brief</span>
               <span
                 className="risk-badge"
                 style={{ background: riskColors[brief.riskLevel] ?? "var(--text-dim)" }}
@@ -318,7 +324,6 @@ function ViolationsTab() {
                 {brief.riskLevel.toUpperCase()} RISK
               </span>
             </div>
-            <span className="ai-model-tag">Gemini 3.5 Flash</span>
           </div>
           <div className="brief-headline">{brief.headline}</div>
           <div className="brief-narrative">{brief.narrative}</div>

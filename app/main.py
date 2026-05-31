@@ -39,7 +39,7 @@ def store_job(job_id: str, entry: dict[str, Any]) -> None:
 limiter = Limiter(key_func=rate_limit_key, default_limits=[settings.RATE_LIMIT_DEFAULT])
 
 app = FastAPI(
-    title="Data Ingestion & Gemini Query Service",
+    title="Crest Expense Intelligence API",
     version="1.0.0",
 )
 

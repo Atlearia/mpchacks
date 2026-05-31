@@ -1,0 +1,102 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - img "Crest" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: Crest
+        - generic [ref=e9]: Expense Intelligence
+    - generic [ref=e10]: Workspace
+    - generic [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+      - generic [ref=e17]: Overview
+    - generic [ref=e18] [cursor=pointer]:
+      - img [ref=e19]
+      - generic [ref=e22]: Explore
+    - generic [ref=e23] [cursor=pointer]:
+      - img [ref=e24]
+      - generic [ref=e27]: Policy
+      - generic [ref=e28]: "196"
+    - generic [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+      - generic [ref=e33]: Approvals
+      - generic [ref=e34]: "6"
+    - generic [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - generic [ref=e39]: Reports
+    - generic [ref=e40]:
+      - generic [ref=e41]: NY
+      - generic [ref=e42]:
+        - generic [ref=e43]: Ning Ye
+        - generic [ref=e44]: CFO
+  - generic [ref=e45]:
+    - banner [ref=e46]:
+      - generic [ref=e47]:
+        - heading "Spend Explorer" [level=1] [ref=e273]
+        - paragraph [ref=e49]: 3D galaxy of department spend over time
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: $3,188,853
+          - generic [ref=e53]: Total spend
+        - generic [ref=e54]:
+          - generic [ref=e55]: 3,143
+          - generic [ref=e56]: Transactions
+        - generic [ref=e57]:
+          - generic [ref=e58]: "45"
+          - generic [ref=e59]: Employees
+        - generic [ref=e60]:
+          - generic [ref=e61]: "9"
+          - generic [ref=e62]: Departments
+    - generic [ref=e275]:
+      - generic:
+        - generic:
+          - img
+          - generic: Orbit
+          - generic: ·
+          - img
+          - generic: Zoom
+          - generic: ·
+          - img
+          - generic: Select a point to explore
+      - generic [ref=e277]:
+        - generic [ref=e280]:
+          - generic: R&D
+        - generic [ref=e281]:
+          - generic: Finance
+        - generic [ref=e282]:
+          - generic: Customer Service
+        - generic [ref=e283]:
+          - generic: Legal
+        - generic [ref=e284]:
+          - generic: Sales
+        - generic [ref=e285]:
+          - generic: Engineering
+        - generic [ref=e286]:
+          - generic: Marketing
+        - generic [ref=e287]:
+          - generic: Supply Chain
+        - generic [ref=e288]:
+          - generic: HR
+        - generic [ref=e289]:
+          - generic: Sep 2025
+        - generic [ref=e290]:
+          - generic: Oct 2025
+        - generic [ref=e291]:
+          - generic: Nov 2025
+        - generic [ref=e292]:
+          - generic: Dec 2025
+        - generic [ref=e293]:
+          - generic: Jan 2026
+        - generic [ref=e294]:
+          - generic: Feb 2026
+        - generic [ref=e295]:
+          - generic: Mar 2026
+        - generic [ref=e296]:
+          - generic: $20,888
+        - generic [ref=e297]:
+          - generic: $41,776
+        - generic [ref=e298]:
+          - generic: $62,664
+        - generic [ref=e299]:
+          - generic: $83,552
+  - button [ref=e270] [cursor=pointer]:
+    - img [ref=e271]
