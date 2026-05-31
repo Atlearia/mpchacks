@@ -1,7 +1,12 @@
-import { DEPARTMENTS, EMPLOYEES, MONTH_LABELS, MONTH_STARTS, TRANSACTIONS } from "./dataset";
+import { DEPARTMENTS, EMPLOYEES, MONTH_LABELS, MONTH_STARTS } from "./dataset";
 import type { DeptDatePoint, Employee, Transaction } from "./types";
+import { getValidTransactions } from "./validation";
 
 const signed = (t: Transaction) => (t.debitOrCredit === "Credit" ? -t.amount : t.amount);
+
+function validTxns(): Transaction[] {
+  return getValidTransactions();
+}
 
 /** Aggregate net spend per (department, month) — the source for the 3D scatter. */
 export function deptDatePoints(): DeptDatePoint[] {
@@ -18,7 +23,7 @@ export function deptDatePoints(): DeptDatePoint[] {
       });
     }
   }
-  for (const t of TRANSACTIONS) {
+  for (const t of validTxns()) {
     const monthStart = `${t.transactionDate.slice(0, 8)}01`;
     const key = `${t.department}|${monthStart}`;
     const point = map.get(key);
@@ -27,14 +32,16 @@ export function deptDatePoints(): DeptDatePoint[] {
       point.txnCount += 1;
     }
   }
-  return [...map.values()].map((p) => ({ ...p, total: Math.round(p.total) }));
+  return [...map.values()]
+    .map((p) => ({ ...p, total: Math.round(p.total) }))
+    .filter((p) => p.txnCount > 0 && p.total > 0);
 }
 
 /** Department totals for a single month — drives the 2D bar view. */
 export function deptTotalsForMonth(monthStart: string) {
   const totals = new Map<string, { total: number; count: number }>();
   for (const dept of DEPARTMENTS) totals.set(dept, { total: 0, count: 0 });
-  for (const t of TRANSACTIONS) {
+  for (const t of validTxns()) {
     if (`${t.transactionDate.slice(0, 8)}01` !== monthStart) continue;
     const entry = totals.get(t.department)!;
     entry.total += signed(t);
@@ -50,7 +57,7 @@ export function deptTotalsForMonth(monthStart: string) {
 /** Per-employee spend within a department for a month — the breakdown view. */
 export function employeeTotals(monthStart: string, department: string) {
   const totals = new Map<string, { total: number; count: number }>();
-  for (const t of TRANSACTIONS) {
+  for (const t of validTxns()) {
     if (t.department !== department) continue;
     if (`${t.transactionDate.slice(0, 8)}01` !== monthStart) continue;
     const cur = totals.get(t.employeeId) ?? { total: 0, count: 0 };
@@ -84,7 +91,7 @@ export function departmentManager(department: string): Employee | undefined {
 }
 
 export function employeeTransactions(id: string, monthStart?: string): Transaction[] {
-  return TRANSACTIONS.filter(
+  return validTxns().filter(
     (t) =>
       t.employeeId === id &&
       (!monthStart || `${t.transactionDate.slice(0, 8)}01` === monthStart)
@@ -93,16 +100,18 @@ export function employeeTransactions(id: string, monthStart?: string): Transacti
 
 export function employeeMonthlySeries(id: string) {
   return MONTH_STARTS.map((start, i) => {
-    const total = TRANSACTIONS.filter(
-      (t) => t.employeeId === id && `${t.transactionDate.slice(0, 8)}01` === start
-    ).reduce((sum, t) => sum + signed(t), 0);
+    const total = validTxns()
+      .filter(
+        (t) => t.employeeId === id && `${t.transactionDate.slice(0, 8)}01` === start
+      )
+      .reduce((sum, t) => sum + signed(t), 0);
     return { month: MONTH_LABELS[i], total: Math.round(total) };
   });
 }
 
 export function employeeCategoryBreakdown(id: string) {
   const map = new Map<string, number>();
-  for (const t of TRANSACTIONS) {
+  for (const t of validTxns()) {
     if (t.employeeId !== id) continue;
     map.set(t.spendCategory, (map.get(t.spendCategory) ?? 0) + signed(t));
   }
@@ -116,11 +125,12 @@ export function maxDeptMonthTotal(): number {
 }
 
 export function companyKpis() {
-  const debit = TRANSACTIONS.filter((t) => t.debitOrCredit === "Debit");
+  const txns = validTxns();
+  const debit = txns.filter((t) => t.debitOrCredit === "Debit");
   const total = debit.reduce((s, t) => s + t.amount, 0);
   return {
     totalSpend: Math.round(total),
-    txnCount: TRANSACTIONS.length,
+    txnCount: txns.length,
     employees: EMPLOYEES.length,
     departments: DEPARTMENTS.length,
     avgTicket: Math.round(total / debit.length),

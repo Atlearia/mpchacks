@@ -105,8 +105,24 @@ export default function OverviewDashboard() {
             ))}
           </div>
 
-          {/* RIGHT: alerts, anomalies, consolidation */}
+          {/* RIGHT: anomalies, alerts, consolidation */}
           <div className="row-gap">
+            <div className="panel anomaly-panel">
+              <div className="panel-h">
+                <div className="panel-h-left">
+                  <h3>Anomalies Detected</h3>
+                  <span className="panel-desc">Click a card for analyst detail</span>
+                </div>
+                <span className="panel-sub">
+                  {anomalySummary.total} flagged
+                  {anomalySummary.bySeverity.high > 0 && (
+                    <> · {anomalySummary.bySeverity.high} high</>
+                  )}
+                </span>
+              </div>
+              <AnomalyList items={anomalyList} limit={5} />
+            </div>
+
             <div className="panel">
               <div className="panel-h">
                 <h3>Top Policy Alerts</h3>
@@ -130,22 +146,6 @@ export default function OverviewDashboard() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div className="panel anomaly-panel">
-              <div className="panel-h">
-                <div className="panel-h-left">
-                  <h3>Anomalies Detected</h3>
-                  <span className="panel-desc">Click a card for analyst detail</span>
-                </div>
-                <span className="panel-sub">
-                  {anomalySummary.total} flagged
-                  {anomalySummary.bySeverity.high > 0 && (
-                    <> · {anomalySummary.bySeverity.high} high</>
-                  )}
-                </span>
-              </div>
-              <AnomalyList items={anomalyList} limit={5} />
             </div>
 
             {consolidation[0] && (

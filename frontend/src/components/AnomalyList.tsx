@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Anomaly } from "../data/intelligence";
-import { TRANSACTIONS } from "../data/dataset";
-import { employeeById } from "../data/selectors";
 import { fmtUSD } from "../theme";
-import { Avatar, SeverityBadge } from "./charts";
+import { SeverityBadge } from "./charts";
 import { ChevronDownIcon, SparkIcon } from "./icons";
 
 const TYPE_TONE: Record<string, string> = {
@@ -18,33 +16,27 @@ const TYPE_TONE: Record<string, string> = {
   "Month-end surge": "warn",
 };
 
+const DISPOSITION: Record<
+  Anomaly["severity"],
+  { label: string; className: string }
+> = {
+  critical: { label: "Escalate immediately", className: "rec-deny" },
+  high: { label: "Investigate", className: "rec-deny" },
+  medium: { label: "Manual review", className: "rec-review" },
+  low: { label: "Monitor", className: "rec-approve" },
+};
+
 function AnomalyTypeBadge({ label }: { label: string }) {
   const tone = TYPE_TONE[label] ?? "neutral";
   return <span className={`anomaly-type-badge tone-${tone}`}>{label}</span>;
 }
 
-function RelatedTxns({ ids }: { ids: string[] }) {
-  const txns = ids
-    .map((id) => TRANSACTIONS.find((t) => t.id === id))
-    .filter(Boolean)
-    .slice(0, 4);
-
-  if (txns.length === 0) return null;
-
-  return (
-    <div className="anomaly-txn-block">
-      <div className="anomaly-txn-label">Related transactions</div>
-      <div className="anomaly-txn-list">
-        {txns.map((t) => (
-          <div className="anomaly-txn-row" key={t!.id}>
-            <span className="anomaly-txn-date">{t!.transactionDate}</span>
-            <span className="anomaly-txn-merchant">{t!.merchantName}</span>
-            <span className="anomaly-txn-amt">{fmtUSD(t!.amount)}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function aiSummaryBullets(anomaly: Anomaly): string[] {
+  const bullets = [anomaly.detail];
+  for (const ind of anomaly.indicators.slice(0, 2)) {
+    bullets.push(`${ind.label}: ${ind.value}`);
+  }
+  return bullets;
 }
 
 function AnomalyCard({
@@ -56,7 +48,7 @@ function AnomalyCard({
   expanded: boolean;
   onToggle: () => void;
 }) {
-  const emp = employeeById(anomaly.employeeId);
+  const disposition = DISPOSITION[anomaly.severity];
 
   return (
     <motion.div
@@ -95,7 +87,6 @@ function AnomalyCard({
         </div>
         <div className="anomaly-card-right">
           <SeverityBadge severity={anomaly.severity} />
-          <span className="anomaly-risk-score">{anomaly.riskScore}</span>
           <ChevronDownIcon
             size={14}
             className={`anomaly-chevron ${expanded ? "open" : ""}`}
@@ -114,33 +105,31 @@ function AnomalyCard({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="anomaly-detail-inner">
-              <div className="anomaly-detail-hero">
-                <Avatar name={anomaly.employeeName} hue={emp?.avatarHue ?? 220} size={40} />
-                <div>
-                  <div className="anomaly-detail-who">{anomaly.employeeName}</div>
-                  <div className="anomaly-detail-sub">
-                    {anomaly.department} · {anomaly.merchantName}
-                  </div>
+              <div className="rec-card anomaly-rec-summary">
+                <div className="rec-head">
+                  <SparkIcon size={16} />
+                  <span className="lab">AI Summary</span>
+                  <span className="conf">Risk {anomaly.riskScore}/100</span>
                 </div>
-                <div className="anomaly-detail-amt">{fmtUSD(anomaly.amount)}</div>
+                <div className="rec-reasons">
+                  {aiSummaryBullets(anomaly).map((line, i) => (
+                    <div className="rec-reason" key={i}>
+                      <span className="dot">•</span>
+                      {line}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <p className="anomaly-detail-text">{anomaly.detail}</p>
-
-              <div className="anomaly-indicators">
-                {anomaly.indicators.map((ind) => (
-                  <div className="anomaly-indicator" key={ind.label}>
-                    <span className="anomaly-indicator-label">{ind.label}</span>
-                    <span className="anomaly-indicator-value">{ind.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              <RelatedTxns ids={anomaly.txnIds} />
-
-              <div className="anomaly-action-callout">
-                <strong>Recommended action</strong>
-                <p>{anomaly.recommendedAction}</p>
+              <div className="rec-card rec-card--action anomaly-rec-action">
+                <div className="rec-head">
+                  <SparkIcon size={16} />
+                  <span className="lab">Recommendation</span>
+                  <span className={`rec-tag ${disposition.className}`}>
+                    {disposition.label}
+                  </span>
+                </div>
+                <p className="anomaly-rec-text">{anomaly.recommendedAction}</p>
               </div>
             </div>
           </motion.div>

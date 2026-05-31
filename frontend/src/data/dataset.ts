@@ -1,4 +1,5 @@
 import type { Employee, Transaction } from "./types";
+import { invalidateValidationCache } from "./validation";
 
 // ---------------------------------------------------------------------------
 // Live dataset loaded from the Mongo-backed API (/api/dataset). These arrays
@@ -246,6 +247,7 @@ function populateFromPayload(data: DatasetPayload) {
   MONTH_STARTS.splice(0, MONTH_STARTS.length, ...starts);
   MONTH_LABELS.splice(0, MONTH_LABELS.length, ...starts.map(monthLabel));
 
+  invalidateValidationCache();
   loaded = true;
 }
 

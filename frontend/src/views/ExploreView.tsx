@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Scatter3D from "../components/Scatter3D";
+import DataQualityPanel from "../components/DataQualityPanel";
 import DepartmentBars from "../components/DepartmentBars";
 import EmployeeBreakdown from "../components/EmployeeBreakdown";
 import EmployeeProfile from "../components/EmployeeProfile";
@@ -56,6 +57,7 @@ export default function ExploreView() {
         style={{ pointerEvents: view === "galaxy" ? "auto" : "none" }}
       >
         <Scatter3D />
+        <DataQualityPanel />
       </motion.div>
 
       <AnimatePresence mode="wait">
