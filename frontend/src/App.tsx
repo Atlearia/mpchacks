@@ -1,139 +1,150 @@
-import { useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import Scatter3D from "./components/Scatter3D";
-import DepartmentBars from "./components/DepartmentBars";
-import EmployeeBreakdown from "./components/EmployeeBreakdown";
-import EmployeeProfile from "./components/EmployeeProfile";
-import { useNav } from "./state/store";
-import { companyKpis, employeeById } from "./data/selectors";
-import { MONTH_LABELS, MONTH_STARTS } from "./data/dataset";
+import { useEffect, useMemo } from "react";
+import { useNav, type Section } from "./state/store";
+import { usePolicy } from "./data/policy";
+import { companyKpis } from "./data/selectors";
+import { approvalQueue, policyViolations } from "./data/intelligence";
 import { fmtUSD } from "./theme";
+import { Avatar } from "./components/charts";
+import {
+  AlertIcon,
+  ChatIcon,
+  CheckCircleIcon,
+  CubeIcon,
+  DocIcon,
+  GridIcon,
+} from "./components/icons";
+import ExploreView from "./views/ExploreView";
+import OverviewDashboard from "./views/OverviewDashboard";
+import AskView from "./views/AskView";
+import PolicyView from "./views/PolicyView";
+import ApprovalsView from "./views/ApprovalsView";
+import ReportsView from "./views/ReportsView";
 
-function Breadcrumb() {
-  const { view, monthStart, department, employeeId, backToGalaxy, backToMonth, backToDept } = useNav();
-  const monthLabel = monthStart ? MONTH_LABELS[MONTH_STARTS.indexOf(monthStart)] : null;
-  const emp = employeeId ? employeeById(employeeId) : null;
-
-  return (
-    <div className="breadcrumb">
-      <span className={`crumb ${view === "galaxy" ? "active" : ""}`} onClick={backToGalaxy}>
-        All Departments
-      </span>
-      {monthLabel && (
-        <>
-          <span className="sep">›</span>
-          <span className={`crumb ${view === "month" ? "active" : ""}`} onClick={backToMonth}>
-            {monthLabel}
-          </span>
-        </>
-      )}
-      {department && (
-        <>
-          <span className="sep">›</span>
-          <span className={`crumb ${view === "dept" ? "active" : ""}`} onClick={backToDept}>
-            {department}
-          </span>
-        </>
-      )}
-      {emp && (
-        <>
-          <span className="sep">›</span>
-          <span className="crumb active">{emp.name}</span>
-        </>
-      )}
-    </div>
-  );
-}
-
-const HINTS: Record<string, string> = {
-  galaxy: "Drag to orbit · scroll to zoom · click a point to open that month",
-  month: "Click a department bar to break it down by employee",
-  dept: "Click an employee card to open their full profile",
-  employee: "This person's spend profile · use the breadcrumb to zoom back out",
+const SECTION_META: Record<Section, { title: string; sub: string }> = {
+  overview: { title: "Executive Overview", sub: "Company-wide spend health at a glance" },
+  explore: { title: "Spend Explorer", sub: "3D galaxy of department spend over time" },
+  ask: { title: "Ask Your Data", sub: "Conversational analytics across every transaction" },
+  policy: { title: "Policy Compliance", sub: "Rules, violations, and repeat offenders" },
+  approvals: { title: "Pre-Approval Queue", sub: "AI-assisted spend approvals" },
+  reports: { title: "Expense Reports", sub: "Auto-generated, policy-checked, approval-ready" },
 };
 
+interface NavDef {
+  id: Section;
+  label: string;
+  icon: React.ReactNode;
+}
+
 export default function App() {
-  const view = useNav((s) => s.view);
-  const goBack = useNav((s) => s.goBack);
+  const section = useNav((s) => s.section);
+  const setSection = useNav((s) => s.setSection);
+  const policyInit = usePolicy((s) => s.init);
+  const config = usePolicy((s) => s.config);
+
+  useEffect(() => {
+    policyInit();
+  }, [policyInit]);
+
   const kpis = useMemo(() => companyKpis(), []);
+  const openViolations = useMemo(() => {
+    const v = policyViolations(config);
+    return v.filter((x) => x.severity === "critical" || x.severity === "high").length;
+  }, [config]);
+  const pendingApprovals = useMemo(() => approvalQueue(config).length, [config]);
+
+  const navItems: NavDef[] = [
+    { id: "overview", label: "Overview", icon: <GridIcon /> },
+    { id: "explore", label: "Explore", icon: <CubeIcon /> },
+    { id: "ask", label: "Ask Your Data", icon: <ChatIcon /> },
+    { id: "policy", label: "Policy", icon: <AlertIcon /> },
+    { id: "approvals", label: "Approvals", icon: <CheckCircleIcon /> },
+    { id: "reports", label: "Reports", icon: <DocIcon /> },
+  ];
+
+  const meta = SECTION_META[section];
 
   return (
-    <div className="app">
-      <div className="topbar">
-        <div className="brand">
+    <div className="shell">
+      <nav className="nav-rail">
+        <div className="nav-brand">
           <div className="logo" />
           <div>
-            <div className="title">Brim · Expense Intelligence</div>
-            <div className="sub">CFO Cockpit</div>
+            <div className="title">Brim</div>
+            <div className="sub">Expense Intelligence</div>
           </div>
         </div>
-        <Breadcrumb />
-        <div className="kpis">
-          <div className="kpi"><div className="v">{fmtUSD(kpis.totalSpend)}</div><div className="l">Total spend</div></div>
-          <div className="kpi"><div className="v">{kpis.txnCount.toLocaleString()}</div><div className="l">Transactions</div></div>
-          <div className="kpi"><div className="v">{kpis.employees}</div><div className="l">Employees</div></div>
-          <div className="kpi"><div className="v">{kpis.departments}</div><div className="l">Departments</div></div>
+
+        <div className="nav-section-label">Workspace</div>
+        {navItems.map((item) => {
+          const badge =
+            item.id === "policy" && openViolations > 0
+              ? { n: openViolations, warn: false }
+              : item.id === "approvals" && pendingApprovals > 0
+                ? { n: pendingApprovals, warn: true }
+                : null;
+          return (
+            <div
+              key={item.id}
+              className={`nav-item ${section === item.id ? "active" : ""}`}
+              onClick={() => setSection(item.id)}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+              {badge && (
+                <span className={`nav-badge ${badge.warn ? "warn" : ""}`}>{badge.n}</span>
+              )}
+            </div>
+          );
+        })}
+
+        <div className="nav-foot">
+          <Avatar name="Dana Reyes" hue={265} size={34} />
+          <div className="who">
+            <div className="n">Dana Reyes</div>
+            <div className="r">CFO</div>
+          </div>
         </div>
-      </div>
+      </nav>
 
-      <div className="stage">
-        {view !== "galaxy" && (
-          <button className="back-btn" onClick={goBack}>
-            ‹ Back
-          </button>
-        )}
+      <div className="main">
+        <header className="main-top">
+          <div className="sec-title">
+            <h1>{meta.title}</h1>
+            <p>{meta.sub}</p>
+          </div>
+          <div className="kpis">
+            <div className="kpi">
+              <div className="v">{fmtUSD(kpis.totalSpend)}</div>
+              <div className="l">Total spend</div>
+            </div>
+            <div className="kpi">
+              <div className="v">{kpis.txnCount.toLocaleString()}</div>
+              <div className="l">Transactions</div>
+            </div>
+            <div className="kpi">
+              <div className="v">{kpis.employees}</div>
+              <div className="l">Employees</div>
+            </div>
+            <div className="kpi">
+              <div className="v">{kpis.departments}</div>
+              <div className="l">Departments</div>
+            </div>
+          </div>
+        </header>
 
-        {/* The 3D galaxy stays mounted so orbit state is preserved; we just
-            fade it under the 2D layers as the CFO zooms in. */}
-        <motion.div
-          className="layer"
-          animate={{ opacity: view === "galaxy" ? 1 : 0 }}
-          transition={{ duration: 0.4 }}
-          style={{ pointerEvents: view === "galaxy" ? "auto" : "none" }}
-        >
-          <Scatter3D />
-        </motion.div>
+        <div className="main-content">
+          {/* Explore stays mounted so the 3D orbit state survives section
+              switches; it is simply hidden when another section is active. */}
+          <div style={{ position: "absolute", inset: 0, display: section === "explore" ? "block" : "none" }}>
+            <ExploreView />
+          </div>
 
-        <AnimatePresence mode="wait">
-          {view === "month" && (
-            <motion.div
-              key="month"
-              className="layer"
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.35 }}
-            >
-              <DepartmentBars />
-            </motion.div>
-          )}
-          {view === "dept" && (
-            <motion.div
-              key="dept"
-              className="layer"
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.35 }}
-            >
-              <EmployeeBreakdown />
-            </motion.div>
-          )}
-          {view === "employee" && (
-            <motion.div
-              key="employee"
-              className="layer"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <EmployeeProfile />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="hint">{HINTS[view]}</div>
+          {section === "overview" && <OverviewDashboard />}
+          {section === "ask" && <AskView />}
+          {section === "policy" && <PolicyView />}
+          {section === "approvals" && <ApprovalsView />}
+          {section === "reports" && <ReportsView />}
+        </div>
       </div>
     </div>
   );
