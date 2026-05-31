@@ -1,14 +1,249 @@
-import { DEPARTMENTS, MONTH_LABELS, MONTH_STARTS, TRANSACTIONS } from "./dataset";
+import { DEPARTMENTS, EMPLOYEES, MONTH_LABELS, MONTH_STARTS, TRANSACTIONS } from "./dataset";
 import type { Transaction } from "./types";
 import { deptColor } from "../theme";
 
 // ---------------------------------------------------------------------------
-// "Talk to Your Data" engine. Two modes:
-//   1. LIVE MODE — calls the backend /api/ask endpoint which uses Gemini 3.5 Flash
-//      with the full dataset context and multi-turn conversation history.
-//   2. FALLBACK MODE — if the backend is unreachable, uses the local intent
-//      matcher (same logic as before) so the demo still works offline.
+// "Talk to Your Data" engine. Three-tier fallback:
+//   1. Backend /api/ask endpoint (Gemini + MongoDB, full server-side)
+//   2. Direct browser → Gemini REST API (client-side dataset summary)
+//   3. Local keyword matcher (fully offline, no AI)
 // ---------------------------------------------------------------------------
+
+// Gemini API key for direct browser calls when backend is unavailable.
+// In production this should be server-side only; for the hackathon demo this
+// lets the AI work without the Python backend running.
+const GEMINI_API_KEY = "REDACTED_KEY";
+const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+const SYSTEM_PROMPT = `You are Brim AI, an expert CFO assistant for a mid-size company.
+You answer questions about the company's expense data with precision and conversational warmth.
+
+You MUST respond with valid JSON matching this schema:
+{
+  "summary": "A 2-4 sentence natural-language answer. Be specific with dollar amounts and percentages. Sound like a smart colleague, not a report generator.",
+  "chartType": "bars" | "donut" | "table" | "stat" | "none",
+  "chartData": <depends on chartType — see below>,
+  "followups": ["suggested follow-up question 1", "question 2", "question 3"]
+}
+
+Chart data schemas by type:
+- "bars": [{"label": "...", "value": <number>}, ...]
+- "donut": [{"label": "...", "value": <number>}, ...]
+- "table": {"columns": ["col1", "col2"], "rows": [["val1", "val2"], ...]}
+- "stat": [{"label": "...", "value": "formatted string"}, ...]
+- "none": null
+
+Rules:
+- ALWAYS lead with a clear, conversational text answer in "summary". This is the most important part.
+- Only add a chart when it genuinely helps illustrate the answer. For simple questions, use "chartType": "none".
+- Format currency as whole dollars (no cents) in summaries.
+- Follow-ups should be natural conversational continuations.
+- If the user asks about something the data doesn't cover, say so honestly.
+- Remember prior conversation context for follow-up questions.
+`;
+
+// ---------------------------------------------------------------------------
+// Build a compact client-side dataset summary for the Gemini prompt
+// ---------------------------------------------------------------------------
+
+function buildClientSummary(): string {
+  const debits = TRANSACTIONS.filter((t) => t.debitOrCredit === "Debit");
+  const totalSpend = debits.reduce((s, t) => s + t.amount, 0);
+
+  // By department
+  const deptSpend: Record<string, number> = {};
+  for (const t of debits) deptSpend[t.department] = (deptSpend[t.department] ?? 0) + t.amount;
+
+  // By category
+  const catSpend: Record<string, number> = {};
+  for (const t of debits) catSpend[t.spendCategory] = (catSpend[t.spendCategory] ?? 0) + t.amount;
+
+  // By month
+  const monthSpend: Record<string, number> = {};
+  for (const t of debits) {
+    const m = t.transactionDate.slice(0, 7);
+    monthSpend[m] = (monthSpend[m] ?? 0) + t.amount;
+  }
+
+  // Top merchants
+  const merchantMap: Record<string, { spend: number; count: number }> = {};
+  for (const t of debits) {
+    if (!merchantMap[t.merchantName]) merchantMap[t.merchantName] = { spend: 0, count: 0 };
+    merchantMap[t.merchantName].spend += t.amount;
+    merchantMap[t.merchantName].count += 1;
+  }
+  const topMerchants = Object.entries(merchantMap)
+    .sort((a, b) => b[1].spend - a[1].spend)
+    .slice(0, 12)
+    .map(([name, { spend, count }]) => ({ name, spend: Math.round(spend), txns: count }));
+
+  // Top spenders
+  const empSpend: Record<string, { spend: number; count: number; dept: string }> = {};
+  for (const t of debits) {
+    if (!empSpend[t.employeeName]) empSpend[t.employeeName] = { spend: 0, count: 0, dept: t.department };
+    empSpend[t.employeeName].spend += t.amount;
+    empSpend[t.employeeName].count += 1;
+  }
+  const topSpenders = Object.entries(empSpend)
+    .sort((a, b) => b[1].spend - a[1].spend)
+    .slice(0, 15)
+    .map(([name, d]) => ({ name, spend: Math.round(d.spend), txns: d.count, dept: d.dept }));
+
+  // Dept x category
+  const deptCat: Record<string, Record<string, number>> = {};
+  for (const t of debits) {
+    if (!deptCat[t.department]) deptCat[t.department] = {};
+    deptCat[t.department][t.spendCategory] = (deptCat[t.department][t.spendCategory] ?? 0) + t.amount;
+  }
+
+  // Dept x month
+  const deptMonth: Record<string, Record<string, number>> = {};
+  for (const t of debits) {
+    const m = t.transactionDate.slice(0, 7);
+    if (!deptMonth[t.department]) deptMonth[t.department] = {};
+    deptMonth[t.department][m] = (deptMonth[t.department][m] ?? 0) + t.amount;
+  }
+
+  const summary = {
+    overview: { totalSpend: Math.round(totalSpend), txnCount: debits.length, employees: EMPLOYEES.length, departments: DEPARTMENTS.length },
+    byDepartment: Object.fromEntries(Object.entries(deptSpend).map(([k, v]) => [k, Math.round(v)]).sort((a, b) => (b[1] as number) - (a[1] as number))),
+    byCategory: Object.fromEntries(Object.entries(catSpend).map(([k, v]) => [k, Math.round(v)]).sort((a, b) => (b[1] as number) - (a[1] as number))),
+    byMonth: Object.fromEntries(Object.entries(monthSpend).sort()),
+    topMerchants,
+    topSpenders,
+    deptByCategory: Object.fromEntries(Object.entries(deptCat).map(([d, cats]) => [d, Object.fromEntries(Object.entries(cats).map(([c, v]) => [c, Math.round(v)]))])),
+    deptByMonth: Object.fromEntries(Object.entries(deptMonth).map(([d, ms]) => [d, Object.fromEntries(Object.entries(ms).map(([m, v]) => [m, Math.round(v)]))])),
+  };
+
+  return JSON.stringify(summary);
+}
+
+// ---------------------------------------------------------------------------
+// Direct Gemini API call from browser
+// ---------------------------------------------------------------------------
+
+async function askGeminiDirect(
+  question: string,
+  history: ApiMessage[],
+): Promise<AiAnswer> {
+  const dataSummary = buildClientSummary();
+
+  // Build conversation contents for the Gemini API
+  const contents: { role: string; parts: { text: string }[] }[] = [];
+
+  // System instruction with data context
+  contents.push({
+    role: "user",
+    parts: [{ text: `${SYSTEM_PROMPT}\n\nHere is the company's complete expense data:\n${dataSummary}` }],
+  });
+  contents.push({
+    role: "model",
+    parts: [{ text: '{"summary": "I have the expense data loaded and ready to analyze. What would you like to know?", "chartType": "none", "chartData": null, "followups": ["Show me spend by department", "Who are our top vendors?", "Monthly spending trend"]}' }],
+  });
+
+  // Prior conversation history
+  for (const msg of history) {
+    contents.push({
+      role: msg.role === "user" ? "user" : "model",
+      parts: [{ text: msg.content }],
+    });
+  }
+
+  // Current question
+  contents.push({
+    role: "user",
+    parts: [{ text: question }],
+  });
+
+  const res = await fetch(GEMINI_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents,
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("[Gemini direct] API error:", res.status, err);
+    throw new Error(`Gemini API error: ${res.status}`);
+  }
+
+  const json = await res.json();
+  const text = json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+  let parsed: any;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    // If Gemini didn't return valid JSON, wrap the raw text as summary
+    return {
+      summary: text || "I couldn't process that question. Try rephrasing it.",
+      followups: ["Show me spend by department", "Who are our top vendors?"],
+      focus: {},
+      isLive: true,
+      model: GEMINI_MODEL,
+    };
+  }
+
+  const spec = apiChartToSpec(parsed.chartType, parsed.chartData);
+  return {
+    summary: parsed.summary ?? "Here's what I found.",
+    spec,
+    followups: parsed.followups ?? [],
+    focus: {},
+    isLive: true,
+    model: GEMINI_MODEL,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Main ask function: backend → direct Gemini → local fallback
+// ---------------------------------------------------------------------------
+
+export async function askGemini(
+  question: string,
+  history: ApiMessage[],
+): Promise<AiAnswer> {
+  // Tier 1: Try the backend (has MongoDB + full context)
+  try {
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, history }),
+    });
+
+    if (res.ok) {
+      const data: ApiAskResponse = await res.json();
+      const spec = apiChartToSpec(data.chartType, data.chartData);
+      return {
+        summary: data.summary,
+        spec,
+        followups: data.followups ?? [],
+        focus: {},
+        model: data.model,
+        isLive: true,
+      };
+    }
+  } catch {
+    // Backend unreachable — fall through
+  }
+
+  // Tier 2: Call Gemini API directly from browser
+  try {
+    return await askGeminiDirect(question, history);
+  } catch (e) {
+    console.warn("[AI] Direct Gemini call failed, using local fallback:", e);
+  }
+
+  // Tier 3: Local keyword matcher (fully offline)
+  throw new Error("All AI backends unavailable");
+}
 
 export type ChartSpec =
   | { kind: "bars"; data: { label: string; value: number; color?: string }[] }
@@ -91,33 +326,6 @@ function apiChartToSpec(chartType: string, chartData: any): ChartSpec | undefine
   }
 
   return undefined;
-}
-
-export async function askGemini(
-  question: string,
-  history: ApiMessage[],
-): Promise<AiAnswer> {
-  const res = await fetch("/api/ask", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question, history }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status}`);
-  }
-
-  const data: ApiAskResponse = await res.json();
-  const spec = apiChartToSpec(data.chartType, data.chartData);
-
-  return {
-    summary: data.summary,
-    spec,
-    followups: data.followups ?? [],
-    focus: {},
-    model: data.model,
-    isLive: true,
-  };
 }
 
 // ---------------------------------------------------------------------------
