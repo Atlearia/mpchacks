@@ -1,4 +1,4 @@
-import { DEPARTMENTS, EMPLOYEES, MONTH_LABELS, MONTH_STARTS, TRANSACTIONS } from "./generate";
+import { DEPARTMENTS, EMPLOYEES, MONTH_LABELS, MONTH_STARTS, TRANSACTIONS } from "./dataset";
 import type { DeptDatePoint, Employee, Transaction } from "./types";
 
 const signed = (t: Transaction) => (t.debitOrCredit === "Credit" ? -t.amount : t.amount);

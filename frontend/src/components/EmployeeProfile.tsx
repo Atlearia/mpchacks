@@ -63,7 +63,7 @@ export default function EmployeeProfile() {
 
         <div>
           <div className="stat-grid">
-            <div className="stat"><div className="v">{fmtUSD(total)}</div><div className="l">6-mo spend</div></div>
+            <div className="stat"><div className="v">{fmtUSD(total)}</div><div className="l">Total spend</div></div>
             <div className="stat"><div className="v">{fmtUSD(avgMonthly)}</div><div className="l">Avg / month</div></div>
             <div className="stat"><div className="v">{txns.length}</div><div className="l">Transactions</div></div>
             <div className="stat">

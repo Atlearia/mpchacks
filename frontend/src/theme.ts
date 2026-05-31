@@ -8,6 +8,7 @@ const PALETTE = [
   "#8bd5ca", // teal
   "#c6a0f6", // violet
   "#f0c6c6", // rose
+  "#7dc4e4", // sky
 ];
 
 // Hash the department name to a palette slot so every department keeps a

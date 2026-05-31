@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Scatter3D from "./components/Scatter3D";
 import DepartmentBars from "./components/DepartmentBars";
@@ -5,10 +6,8 @@ import EmployeeBreakdown from "./components/EmployeeBreakdown";
 import EmployeeProfile from "./components/EmployeeProfile";
 import { useNav } from "./state/store";
 import { companyKpis, employeeById } from "./data/selectors";
-import { MONTH_LABELS, MONTH_STARTS } from "./data/generate";
+import { MONTH_LABELS, MONTH_STARTS } from "./data/dataset";
 import { fmtUSD } from "./theme";
-
-const kpis = companyKpis();
 
 function Breadcrumb() {
   const { view, monthStart, department, employeeId, backToGalaxy, backToMonth, backToDept } = useNav();
@@ -56,6 +55,7 @@ const HINTS: Record<string, string> = {
 export default function App() {
   const view = useNav((s) => s.view);
   const goBack = useNav((s) => s.goBack);
+  const kpis = useMemo(() => companyKpis(), []);
 
   return (
     <div className="app">
@@ -69,7 +69,7 @@ export default function App() {
         </div>
         <Breadcrumb />
         <div className="kpis">
-          <div className="kpi"><div className="v">{fmtUSD(kpis.totalSpend)}</div><div className="l">6-mo spend</div></div>
+          <div className="kpi"><div className="v">{fmtUSD(kpis.totalSpend)}</div><div className="l">Total spend</div></div>
           <div className="kpi"><div className="v">{kpis.txnCount.toLocaleString()}</div><div className="l">Transactions</div></div>
           <div className="kpi"><div className="v">{kpis.employees}</div><div className="l">Employees</div></div>
           <div className="kpi"><div className="v">{kpis.departments}</div><div className="l">Departments</div></div>
