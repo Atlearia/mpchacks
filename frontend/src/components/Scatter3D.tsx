@@ -322,7 +322,9 @@ function Scene() {
         <AxisLabels />
         <YAxisTicks maxVal={maxVal} />
 
-        {/* Per-department budget allowance sheets */}
+        {/* Budget boundary: a thin, transparent red "paper" floating at each
+            department's budget height. Nodes above it read red (over budget),
+            below it read green — relative to that department's own boundary. */}
         {DEPARTMENTS.map((dept, di) => {
           const budget = budgets[dept] ?? 0;
           if (!budget) return null;
@@ -335,7 +337,7 @@ function Scene() {
               y={y}
               width={laneWidth}
               depth={2 * EXTENT.z}
-              color={deptColor(dept)}
+              color="#ff4d5e"
             />
           );
         })}
