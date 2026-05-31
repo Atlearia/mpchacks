@@ -17,8 +17,19 @@ const GEMINI_PROXY_URL = "/api/gemini";
 
 const SYSTEM_PROMPT = `You are Crest AI, an expert CFO assistant for a mid-size company.
 You answer questions about the company's expense data with precision and conversational warmth.
+You have FULL access to the company's database of all employees and their transactions.
 
-You MUST respond with valid JSON matching this schema:
+You have tools available to look up any detail on demand. Use them whenever a
+question concerns a specific person, card, merchant, date range, amount, or any
+detail not already in the aggregate summary below — never tell the user you lack
+access, just call the right tool:
+- searchEmployees(query): find an employee by name/email/title/department fragment.
+- getEmployeeSpend(name): full spend profile for one employee (totals, categories, merchants, monthly trend, card limit).
+- lookupTransactions({employeeName, department, category, merchant, startDate, endDate, minAmount, maxAmount, debitOrCredit, limit}): individual transaction rows.
+- getDepartmentSummary(department): department rollup with top spenders and category split.
+Resolve ambiguous names with searchEmployees first, then call the detail tool.
+
+When you have gathered what you need, you MUST give your FINAL answer as valid JSON matching this schema:
 {
   "summary": "A 2-4 sentence natural-language answer. Be specific with dollar amounts and percentages. Sound like a smart colleague, not a report generator.",
   "chartType": "bars" | "donut" | "table" | "stat" | "none",
@@ -119,42 +130,295 @@ function buildClientSummary(): string {
 }
 
 // ---------------------------------------------------------------------------
+// Tool executors — run client-side against the in-memory dataset so the AI can
+// drill into ANY employee or transaction, not just the pre-aggregated summary.
+// ---------------------------------------------------------------------------
+
+const TXN_RESULT_CAP = 25;
+
+function signedAmount(t: Transaction): number {
+  return t.debitOrCredit === "Credit" ? -t.amount : t.amount;
+}
+
+function roundCents(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/** Fuzzy match an employee by name/email/title/department fragments. */
+function searchEmployees(args: { query?: string }): unknown {
+  const q = String(args?.query ?? "").trim().toLowerCase();
+  if (!q) return { error: "query is required" };
+
+  const matches = EMPLOYEES.filter((e) =>
+    [e.name, e.email, e.title, e.department, e.location, e.cardLast4]
+      .filter(Boolean)
+      .some((field) => field.toLowerCase().includes(q))
+  ).slice(0, 15);
+
+  return {
+    count: matches.length,
+    employees: matches.map((e) => ({
+      name: e.name,
+      department: e.department,
+      title: e.title,
+      email: e.email,
+      location: e.location,
+      monthlyLimit: e.monthlyLimit,
+      cardLast4: e.cardLast4,
+    })),
+  };
+}
+
+function findEmployeeByName(name: string) {
+  const lc = name.trim().toLowerCase();
+  if (!lc) return undefined;
+  return (
+    EMPLOYEES.find((e) => e.name.toLowerCase() === lc) ??
+    EMPLOYEES.find((e) => e.name.toLowerCase().includes(lc)) ??
+    EMPLOYEES.find((e) => e.email.toLowerCase().split("@")[0].includes(lc))
+  );
+}
+
+/** Full spend profile for a single employee: totals, categories, merchants, trend. */
+function getEmployeeSpend(args: { name?: string }): unknown {
+  const name = String(args?.name ?? "").trim();
+  if (!name) return { error: "name is required" };
+
+  const emp = findEmployeeByName(name);
+  if (!emp) {
+    return { error: `No employee found matching "${name}".`, hint: "Try searchEmployees to find the exact name." };
+  }
+
+  const txns = TRANSACTIONS.filter((t) => t.employeeId === emp.id);
+  const debits = txns.filter((t) => t.debitOrCredit === "Debit");
+  const totalSpend = debits.reduce((s, t) => s + t.amount, 0);
+  const netSpend = txns.reduce((s, t) => s + signedAmount(t), 0);
+
+  const byCategory: Record<string, number> = {};
+  const byMerchant: Record<string, number> = {};
+  const byMonth: Record<string, number> = {};
+  for (const t of debits) {
+    byCategory[t.spendCategory] = (byCategory[t.spendCategory] ?? 0) + t.amount;
+    byMerchant[t.merchantName] = (byMerchant[t.merchantName] ?? 0) + t.amount;
+    const m = t.transactionDate.slice(0, 7);
+    byMonth[m] = (byMonth[m] ?? 0) + t.amount;
+  }
+
+  const topN = (rec: Record<string, number>, n: number) =>
+    Object.entries(rec)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([label, value]) => ({ label, value: roundCents(value) }));
+
+  return {
+    employee: {
+      name: emp.name,
+      department: emp.department,
+      title: emp.title,
+      email: emp.email,
+      location: emp.location,
+      monthlyLimit: emp.monthlyLimit,
+      cardLast4: emp.cardLast4,
+    },
+    totalSpend: roundCents(totalSpend),
+    netSpend: roundCents(netSpend),
+    txnCount: debits.length,
+    creditCount: txns.length - debits.length,
+    topCategories: topN(byCategory, 6),
+    topMerchants: topN(byMerchant, 6),
+    monthlyTrend: Object.fromEntries(Object.entries(byMonth).sort().map(([k, v]) => [k, roundCents(v)])),
+  };
+}
+
+/** Filtered transaction rows, capped to keep tool responses small. */
+function lookupTransactions(args: {
+  employeeName?: string;
+  department?: string;
+  category?: string;
+  merchant?: string;
+  startDate?: string;
+  endDate?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  debitOrCredit?: string;
+  limit?: number;
+}): unknown {
+  const empName = args?.employeeName ? String(args.employeeName).toLowerCase() : undefined;
+  const dept = args?.department ? String(args.department).toLowerCase() : undefined;
+  const cat = args?.category ? String(args.category).toLowerCase() : undefined;
+  const merchant = args?.merchant ? String(args.merchant).toLowerCase() : undefined;
+  const start = args?.startDate ? String(args.startDate) : undefined;
+  const end = args?.endDate ? String(args.endDate) : undefined;
+  const minAmount = typeof args?.minAmount === "number" ? args.minAmount : undefined;
+  const maxAmount = typeof args?.maxAmount === "number" ? args.maxAmount : undefined;
+  const dc = args?.debitOrCredit ? String(args.debitOrCredit).toLowerCase() : undefined;
+  const limit = Math.min(Math.max(Number(args?.limit ?? TXN_RESULT_CAP) || TXN_RESULT_CAP, 1), TXN_RESULT_CAP);
+
+  const filtered = TRANSACTIONS.filter((t) => {
+    if (empName && !t.employeeName.toLowerCase().includes(empName)) return false;
+    if (dept && t.department.toLowerCase() !== dept) return false;
+    if (cat && !t.spendCategory.toLowerCase().includes(cat)) return false;
+    if (merchant && !t.merchantName.toLowerCase().includes(merchant)) return false;
+    if (start && t.transactionDate < start) return false;
+    if (end && t.transactionDate > end) return false;
+    if (minAmount !== undefined && t.amount < minAmount) return false;
+    if (maxAmount !== undefined && t.amount > maxAmount) return false;
+    if (dc && t.debitOrCredit.toLowerCase() !== dc) return false;
+    return true;
+  });
+
+  const sorted = filtered.sort((a, b) => b.transactionDate.localeCompare(a.transactionDate));
+  const totalAmount = filtered.reduce((s, t) => s + signedAmount(t), 0);
+
+  return {
+    matchCount: filtered.length,
+    returned: Math.min(sorted.length, limit),
+    totalAmount: roundCents(totalAmount),
+    truncated: filtered.length > limit,
+    transactions: sorted.slice(0, limit).map((t) => ({
+      date: t.transactionDate,
+      employeeName: t.employeeName,
+      department: t.department,
+      merchant: t.merchantName,
+      category: t.spendCategory,
+      amount: roundCents(t.amount),
+      type: t.debitOrCredit,
+      city: t.merchantCity,
+      state: t.merchantState,
+    })),
+  };
+}
+
+/** Department-level rollup: headcount, total, top spenders, category split. */
+function getDepartmentSummary(args: { department?: string }): unknown {
+  const raw = String(args?.department ?? "").trim().toLowerCase();
+  if (!raw) return { error: "department is required" };
+
+  const dept = DEPARTMENTS.find((d) => d.toLowerCase() === raw) ?? DEPARTMENTS.find((d) => d.toLowerCase().includes(raw));
+  if (!dept) {
+    return { error: `No department found matching "${args.department}".`, available: DEPARTMENTS };
+  }
+
+  const headcount = EMPLOYEES.filter((e) => e.department === dept).length;
+  const debits = TRANSACTIONS.filter((t) => t.department === dept && t.debitOrCredit === "Debit");
+  const totalSpend = debits.reduce((s, t) => s + t.amount, 0);
+
+  const byEmployee: Record<string, number> = {};
+  const byCategory: Record<string, number> = {};
+  for (const t of debits) {
+    byEmployee[t.employeeName] = (byEmployee[t.employeeName] ?? 0) + t.amount;
+    byCategory[t.spendCategory] = (byCategory[t.spendCategory] ?? 0) + t.amount;
+  }
+
+  const topN = (rec: Record<string, number>, n: number) =>
+    Object.entries(rec)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([label, value]) => ({ label, value: roundCents(value) }));
+
+  return {
+    department: dept,
+    headcount,
+    totalSpend: roundCents(totalSpend),
+    txnCount: debits.length,
+    topSpenders: topN(byEmployee, 8),
+    byCategory: topN(byCategory, 8),
+  };
+}
+
+type ToolExecutor = (args: any) => unknown;
+
+const TOOL_REGISTRY: Record<string, ToolExecutor> = {
+  searchEmployees,
+  getEmployeeSpend,
+  lookupTransactions,
+  getDepartmentSummary,
+};
+
+// Gemini function declarations advertised to the model. The model decides when
+// to call these; we execute them locally and feed the result back.
+const TOOL_DECLARATIONS = [
+  {
+    functionDeclarations: [
+      {
+        name: "searchEmployees",
+        description:
+          "Find employees by a name, email, job title, department, location, or last-4 card digits fragment. Use this to resolve who the user is asking about before looking up their spend.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            query: { type: "STRING", description: "A name or fragment to search for, e.g. 'Liam', 'engineering manager', 'austin'." },
+          },
+          required: ["query"],
+        },
+      },
+      {
+        name: "getEmployeeSpend",
+        description:
+          "Get a full spend profile for ONE specific employee by name: total spend, transaction count, top categories, top merchants, monthly trend, and their monthly card limit.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            name: { type: "STRING", description: "The employee's full or partial name." },
+          },
+          required: ["name"],
+        },
+      },
+      {
+        name: "lookupTransactions",
+        description:
+          "Return individual transaction rows filtered by any combination of employee, department, category, merchant, date range, amount range, or debit/credit. Results are capped at 25 rows; matchCount reports the true total.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            employeeName: { type: "STRING", description: "Filter by employee name fragment." },
+            department: { type: "STRING", description: "Exact department name." },
+            category: { type: "STRING", description: "Spend category fragment, e.g. 'Travel'." },
+            merchant: { type: "STRING", description: "Merchant name fragment, e.g. 'Uber'." },
+            startDate: { type: "STRING", description: "Inclusive ISO date lower bound, YYYY-MM-DD." },
+            endDate: { type: "STRING", description: "Inclusive ISO date upper bound, YYYY-MM-DD." },
+            minAmount: { type: "NUMBER", description: "Minimum transaction amount in USD." },
+            maxAmount: { type: "NUMBER", description: "Maximum transaction amount in USD." },
+            debitOrCredit: { type: "STRING", description: "'Debit' or 'Credit'." },
+            limit: { type: "NUMBER", description: "Max rows to return (1-25)." },
+          },
+        },
+      },
+      {
+        name: "getDepartmentSummary",
+        description:
+          "Get a department rollup: headcount, total spend, transaction count, top spenders, and spend by category.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            department: { type: "STRING", description: "The department name, e.g. 'Engineering'." },
+          },
+          required: ["department"],
+        },
+      },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
 // Direct Gemini API call — the primary AI path
 // ---------------------------------------------------------------------------
 
-export async function askGemini(
-  question: string,
-  history: ApiMessage[],
-): Promise<AiAnswer> {
-  const dataSummary = buildClientSummary();
+// Max model<->tool round-trips before we force a final answer.
+const MAX_TOOL_ROUNDS = 6;
 
-  // Build conversation contents for the Gemini API
-  const contents: { role: string; parts: { text: string }[] }[] = [];
+interface GeminiPart {
+  text?: string;
+  functionCall?: { name: string; args?: Record<string, unknown>; id?: string };
+  functionResponse?: { name: string; response: Record<string, unknown>; id?: string };
+}
 
-  // System instruction with data context
-  contents.push({
-    role: "user",
-    parts: [{ text: `${SYSTEM_PROMPT}\n\nHere is the company's complete expense data:\n${dataSummary}` }],
-  });
-  contents.push({
-    role: "model",
-    parts: [{ text: '{"summary": "I have the expense data loaded and ready to analyze. What would you like to know?", "chartType": "none", "chartData": null, "followups": ["Show me spend by department", "Who are our top vendors?", "Monthly spending trend"]}' }],
-  });
+interface GeminiContent {
+  role: string;
+  parts: GeminiPart[];
+}
 
-  // Prior conversation history
-  for (const msg of history) {
-    contents.push({
-      role: msg.role === "user" ? "user" : "model",
-      parts: [{ text: msg.content }],
-    });
-  }
-
-  // Current question
-  contents.push({
-    role: "user",
-    parts: [{ text: question }],
-  });
-
+async function callGemini(contents: GeminiContent[]): Promise<any> {
   let res: Response;
   try {
     res = await fetch(GEMINI_PROXY_URL, {
@@ -162,10 +426,10 @@ export async function askGemini(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents,
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.3,
-        },
+        // NOTE: responseMimeType "application/json" is intentionally omitted —
+        // gemini-2.5-flash rejects it when `tools` are present.
+        generationConfig: { temperature: 0.3 },
+        tools: TOOL_DECLARATIONS,
       }),
     });
   } catch (networkErr) {
@@ -179,19 +443,18 @@ export async function askGemini(
     throw new Error(`Gemini API ${res.status}: ${errText.slice(0, 200)}`);
   }
 
-  const json = await res.json();
-  const text = json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return res.json();
+}
 
-  if (!text) {
-    console.error("[Gemini] Empty response:", JSON.stringify(json).slice(0, 500));
-    throw new Error("Gemini returned an empty response");
-  }
+/** Parse the model's final text into an AiAnswer, tolerating non-JSON output. */
+function parseFinalAnswer(text: string): AiAnswer {
+  // Models sometimes wrap JSON in ```json fences — strip them before parsing.
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
 
   let parsed: any;
   try {
-    parsed = JSON.parse(text);
+    parsed = JSON.parse(cleaned);
   } catch {
-    // Gemini didn't return valid JSON — use the raw text as summary
     return {
       summary: text,
       followups: ["Show me spend by department", "Who are our top vendors?"],
@@ -210,6 +473,100 @@ export async function askGemini(
     isLive: true,
     model: GEMINI_MODEL,
   };
+}
+
+export async function askGemini(
+  question: string,
+  history: ApiMessage[],
+): Promise<AiAnswer> {
+  const dataSummary = buildClientSummary();
+
+  // Build conversation contents for the Gemini API
+  const contents: GeminiContent[] = [];
+
+  // System instruction with data context
+  contents.push({
+    role: "user",
+    parts: [{ text: `${SYSTEM_PROMPT}\n\nHere is a high-level summary of the company's expense data (call tools for any detail not covered here):\n${dataSummary}` }],
+  });
+  contents.push({
+    role: "model",
+    parts: [{ text: '{"summary": "I have full access to the expense database and can look up any employee or transaction on demand. What would you like to know?", "chartType": "none", "chartData": null, "followups": ["Show me spend by department", "Who are our top vendors?", "Monthly spending trend"]}' }],
+  });
+
+  // Prior conversation history
+  for (const msg of history) {
+    contents.push({
+      role: msg.role === "user" ? "user" : "model",
+      parts: [{ text: msg.content }],
+    });
+  }
+
+  // Current question
+  contents.push({
+    role: "user",
+    parts: [{ text: question }],
+  });
+
+  // Function-calling loop: let the model request tools, run them locally, and
+  // feed results back until it produces a final text answer.
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const json = await callGemini(contents);
+    const candidate = json.candidates?.[0];
+    const parts: GeminiPart[] = candidate?.content?.parts ?? [];
+    const functionCalls = parts.filter((p) => p.functionCall);
+
+    if (functionCalls.length === 0) {
+      const text = parts.map((p) => p.text ?? "").join("").trim();
+      if (!text) {
+        console.error("[Gemini] Empty response:", JSON.stringify(json).slice(0, 500));
+        throw new Error("Gemini returned an empty response");
+      }
+      return parseFinalAnswer(text);
+    }
+
+    // Echo the model's tool-call turn back into the conversation, then run each
+    // requested tool locally and append its result.
+    contents.push({ role: "model", parts });
+
+    const responseParts: GeminiPart[] = functionCalls.map((p) => {
+      const call = p.functionCall!;
+      const executor = TOOL_REGISTRY[call.name];
+      let result: unknown;
+      try {
+        result = executor
+          ? executor(call.args ?? {})
+          : { error: `Unknown tool: ${call.name}` };
+      } catch (err) {
+        console.error(`[Gemini] Tool '${call.name}' threw:`, err);
+        result = { error: `Tool '${call.name}' failed to execute.` };
+      }
+      return {
+        functionResponse: {
+          name: call.name,
+          ...(call.id ? { id: call.id } : {}),
+          response: { result },
+        },
+      };
+    });
+
+    contents.push({ role: "user", parts: responseParts });
+  }
+
+  // Ran out of tool rounds — make one final plain-language request.
+  contents.push({
+    role: "user",
+    parts: [{ text: "Provide your final answer now as the JSON object described earlier, without calling any more tools." }],
+  });
+  const finalJson = await callGemini(contents);
+  const finalText = (finalJson.candidates?.[0]?.content?.parts ?? [])
+    .map((p: GeminiPart) => p.text ?? "")
+    .join("")
+    .trim();
+  if (!finalText) {
+    throw new Error("Gemini did not produce a final answer after tool calls");
+  }
+  return parseFinalAnswer(finalText);
 }
 
 export type ChartSpec =

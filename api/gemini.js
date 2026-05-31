@@ -18,16 +18,20 @@ export default async function handler(req, res) {
   const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
   try {
-    const { contents, generationConfig } = req.body;
+    const { contents, generationConfig, tools, toolConfig } = req.body;
 
     if (!contents || !Array.isArray(contents)) {
       return res.status(400).json({ error: "Missing or invalid 'contents' in request body" });
     }
 
+    const payload = { contents, generationConfig };
+    if (tools) payload.tools = tools;
+    if (toolConfig) payload.toolConfig = toolConfig;
+
     const geminiRes = await fetch(GEMINI_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents, generationConfig }),
+      body: JSON.stringify(payload),
     });
 
     const geminiData = await geminiRes.json();

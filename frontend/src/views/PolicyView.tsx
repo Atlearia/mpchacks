@@ -12,7 +12,7 @@ import {
 import { fetchPolicyBrief, type PolicyBrief } from "../data/ai";
 import { fmtUSD } from "../theme";
 import { SeverityBadge } from "../components/charts";
-import { AlertIcon, SparkIcon } from "../components/icons";
+import { SparkIcon } from "../components/icons";
 
 function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
   return (
@@ -220,10 +220,6 @@ function ViolationsTab() {
   const violations = useMemo(() => policyViolations(config), [config]);
   const stats = useMemo(() => violationStats(violations), [violations]);
   const offenders = useMemo(() => repeatOffenders(violations), [violations]);
-  const spotlight = useMemo(
-    () => violations.find((v) => v.type === "split_transaction"),
-    [violations]
-  );
 
   const filtered: Violation[] =
     filter === "all" ? violations : violations.filter((v) => v.severity === filter);
@@ -364,27 +360,6 @@ function ViolationsTab() {
       <div className="policy-layout">
         {/* Left: Flagged transactions list */}
         <div className="policy-main-col">
-          {/* Spotlight */}
-          {spotlight && (
-            <motion.div
-              className="panel spotlight"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={{ marginBottom: 16 }}
-            >
-              <div className="panel-h">
-                <h3 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <AlertIcon size={18} /> Split-Transaction Spotlight
-                </h3>
-                <SeverityBadge severity="critical" />
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>{spotlight.title}</div>
-              <div style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.5 }}>
-                {spotlight.detail}
-              </div>
-            </motion.div>
-          )}
-
           <div className="panel viol-panel">
             <div className="panel-h">
               <h3>Flagged Transactions</h3>

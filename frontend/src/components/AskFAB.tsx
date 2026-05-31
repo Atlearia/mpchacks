@@ -8,17 +8,43 @@ import { useNav } from "../state/store";
 // ---------------------------------------------------------------------------
 // Context-aware floating AI assistant. Flow:
 //   1. FAB at bottom-right (resting state)
-//   2. Click FAB → enters "pick mode" (cursor becomes crosshair, elements highlight)
-//   3. Click any element → captures context, opens chat panel anchored to FAB
+//   2. Click FAB → enters "pick mode" (crosshair + drag to select a region)
+//   3. Drag a rectangle → captures visible content inside, opens chat panel
 //   4. User types query → AI answers using the captured context + section info
 //   5. Subsequent messages keep the conversation going
 // ---------------------------------------------------------------------------
+
+interface SelectionRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
 
 interface ContextInfo {
   section: string;
   element?: string;
   value?: string;
   extra?: string;
+}
+
+const MIN_SELECTION_PX = 12;
+
+function rectsIntersect(a: DOMRect | SelectionRect, b: DOMRect): boolean {
+  const aRight = a.left + a.width;
+  const aBottom = a.top + a.height;
+  return a.left < b.right && aRight > b.left && a.top < b.bottom && aBottom > b.top;
+}
+
+function normalizeRect(start: { x: number; y: number }, end: { x: number; y: number }): SelectionRect {
+  const left = Math.min(start.x, end.x);
+  const top = Math.min(start.y, end.y);
+  return {
+    left,
+    top,
+    width: Math.abs(end.x - start.x),
+    height: Math.abs(end.y - start.y),
+  };
 }
 
 interface Message {
@@ -54,79 +80,58 @@ function ResultRenderer({ spec }: { spec: ChartSpec }) {
   return null;
 }
 
-function extractContext(el: HTMLElement, section: string): ContextInfo {
-  // Walk up from the clicked element to find meaningful data attributes or text
-  let node: HTMLElement | null = el;
-  const ctx: ContextInfo = { section };
+function extractRegionContext(rect: SelectionRect, section: string): ContextInfo {
+  const root = document.querySelector(".main-content");
+  const ctx: ContextInfo = { section, element: "region" };
 
-  while (node && node !== document.body) {
-    // Check for data-ai-context attributes we sprinkle on key elements
-    const aiCtx = node.getAttribute("data-ai-ctx");
-    if (aiCtx) {
-      ctx.element = aiCtx;
-      ctx.value = node.getAttribute("data-ai-val") ?? node.textContent?.trim().slice(0, 120);
-      break;
-    }
-
-    // Heuristic: known CSS classes → context type
-    if (node.classList.contains("stat-card")) {
-      ctx.element = "stat-card";
-      ctx.value = node.textContent?.trim().slice(0, 100);
-      break;
-    }
-    if (node.classList.contains("violation-row")) {
-      ctx.element = "violation";
-      ctx.value = node.textContent?.trim().slice(0, 200);
-      break;
-    }
-    if (node.classList.contains("queue-card")) {
-      ctx.element = "approval-request";
-      ctx.value = node.textContent?.trim().slice(0, 200);
-      break;
-    }
-    if (node.classList.contains("offender-row")) {
-      ctx.element = "repeat-offender";
-      ctx.value = node.textContent?.trim().slice(0, 150);
-      break;
-    }
-    if (node.classList.contains("panel")) {
-      const heading = node.querySelector("h3");
-      ctx.element = "panel";
-      ctx.value = heading?.textContent?.trim() ?? node.textContent?.trim().slice(0, 150);
-      break;
-    }
-    if (node.classList.contains("bar-col")) {
-      ctx.element = "chart-bar";
-      ctx.value = node.textContent?.trim().slice(0, 80);
-      break;
-    }
-    if (node.classList.contains("emp-card")) {
-      ctx.element = "employee";
-      ctx.value = node.textContent?.trim().slice(0, 150);
-      break;
-    }
-    if (node.classList.contains("report-card")) {
-      ctx.element = "expense-report";
-      ctx.value = node.textContent?.trim().slice(0, 200);
-      break;
-    }
-    if (node.classList.contains("nav-item")) {
-      ctx.element = "navigation";
-      ctx.value = node.textContent?.trim();
-      break;
-    }
-    if (node.classList.contains("kpi")) {
-      ctx.element = "kpi";
-      ctx.value = node.textContent?.trim();
-      break;
-    }
-
-    node = node.parentElement;
+  if (!root) {
+    ctx.element = "general";
+    ctx.value = section;
+    return ctx;
   }
 
-  if (!ctx.element) {
-    ctx.element = "general";
-    ctx.value = el.textContent?.trim().slice(0, 100) || section;
+  const textSnippets: string[] = [];
+  const seen = new Set<string>();
+  const domRect = new DOMRect(rect.left, rect.top, rect.width, rect.height);
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const text = node.textContent?.replace(/\s+/g, " ").trim();
+      if (!text || text.length < 2) return NodeFilter.FILTER_REJECT;
+
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      for (const r of range.getClientRects()) {
+        if (rectsIntersect(domRect, r)) {
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+      return NodeFilter.FILTER_REJECT;
+    },
+  });
+
+  let textNode: Node | null;
+  while ((textNode = walker.nextNode())) {
+    const text = textNode.textContent?.replace(/\s+/g, " ").trim();
+    if (text && !seen.has(text)) {
+      seen.add(text);
+      textSnippets.push(text);
+    }
+  }
+
+  const tagged: string[] = [];
+  root.querySelectorAll("[data-ai-ctx]").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    if (!rectsIntersect(domRect, el.getBoundingClientRect())) return;
+    const label = el.getAttribute("data-ai-ctx");
+    const val = el.getAttribute("data-ai-val") ?? el.textContent?.replace(/\s+/g, " ").trim().slice(0, 120);
+    if (label && val) tagged.push(`${label}: ${val}`);
+  });
+
+  const combined = textSnippets.join(" · ").slice(0, 1200);
+  ctx.value = combined || section;
+  if (tagged.length > 0) {
+    ctx.extra = tagged.join("; ");
   }
 
   return ctx;
@@ -142,6 +147,12 @@ function contextToPromptPrefix(ctx: ContextInfo): string {
   };
 
   const where = sectionNames[ctx.section] ?? ctx.section;
+
+  if (ctx.element === "region") {
+    const tagged = ctx.extra ? ` Structured highlights: ${ctx.extra}.` : "";
+    return `[Context: The user is on ${where}. They selected an area on screen containing: "${ctx.value}".${tagged}]\n\n`;
+  }
+
   const what = ctx.element !== "general"
     ? `I'm looking at a ${ctx.element} element showing: "${ctx.value}".`
     : "";
@@ -159,52 +170,94 @@ export default function AskFAB() {
   const idRef = useRef(0);
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [dragRect, setDragRect] = useState<SelectionRect | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
+  const openChatWithContext = useCallback((ctx: ContextInfo) => {
+    setContext(ctx);
+    setMode("chat");
+    setMessages([]);
+    setDragRect(null);
+    setIsDragging(false);
+    dragStartRef.current = null;
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, []);
+
+  const cancelPickMode = useCallback(() => {
+    setDragRect(null);
+    setIsDragging(false);
+    dragStartRef.current = null;
+  }, []);
 
   // Auto-scroll chat thread
   useEffect(() => {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // Pick mode: listen for clicks on the page
-  const handlePickClick = useCallback((e: MouseEvent) => {
-    const target = e.target as HTMLElement;
+  const finishSelection = useCallback(
+    (rect: SelectionRect) => {
+      if (rect.width < MIN_SELECTION_PX || rect.height < MIN_SELECTION_PX) {
+        cancelPickMode();
+        return;
+      }
+      openChatWithContext(extractRegionContext(rect, section));
+    },
+    [section, openChatWithContext, cancelPickMode]
+  );
 
-    // Ignore clicks on the FAB itself or the chat panel
-    if (target.closest(".ask-fab") || target.closest(".ask-panel")) return;
-
+  const handleOverlayMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
     e.preventDefault();
-    e.stopPropagation();
-
-    const ctx = extractContext(target, section);
-    setContext(ctx);
-    setMode("chat");
-    setMessages([]);
-
-    // Focus the input after a tick
-    setTimeout(() => inputRef.current?.focus(), 100);
-  }, [section]);
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    setDragRect({ left: e.clientX, top: e.clientY, width: 0, height: 0 });
+  }, []);
 
   useEffect(() => {
-    if (mode === "picking") {
-      document.body.classList.add("ai-pick-mode");
-      document.addEventListener("click", handlePickClick, true);
-      return () => {
-        document.body.classList.remove("ai-pick-mode");
-        document.removeEventListener("click", handlePickClick, true);
-      };
-    }
-  }, [mode, handlePickClick]);
+    if (mode !== "picking") return;
+
+    document.body.classList.add("ai-pick-mode");
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      setDragRect(normalizeRect(dragStartRef.current, { x: e.clientX, y: e.clientY }));
+    };
+
+    const onMouseUp = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      const rect = normalizeRect(dragStartRef.current, { x: e.clientX, y: e.clientY });
+      dragStartRef.current = null;
+      setIsDragging(false);
+      finishSelection(rect);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        cancelPickMode();
+        setMode("idle");
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.classList.remove("ai-pick-mode");
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mode, finishSelection, cancelPickMode]);
 
   const handleFABClick = () => {
     if (mode === "idle") {
+      cancelPickMode();
       setMode("picking");
     } else if (mode === "picking") {
       // Clicking FAB again during pick mode → open chat with general context
-      setContext({ section, element: "general", value: section });
-      setMode("chat");
-      setMessages([]);
-      setTimeout(() => inputRef.current?.focus(), 100);
+      openChatWithContext({ section, element: "general", value: section });
     } else {
       // Close chat
       setMode("idle");
@@ -262,10 +315,14 @@ export default function AskFAB() {
   const contextLabel = context
     ? context.element === "general"
       ? `Asking about ${context.section}`
-      : `Asking about this ${context.element}`
+      : context.element === "region"
+        ? "Asking about selected area"
+        : `Asking about this ${context.element}`
     : "";
 
-  const suggestedForContext = context?.element === "violation"
+  const suggestedForContext = context?.element === "region"
+    ? ["Summarize what's in this area", "What stands out here?", "Explain these numbers"]
+    : context?.element === "violation"
     ? ["Why is this a violation?", "Who else does this?", "How severe is this?"]
     : context?.element === "approval-request"
       ? ["Should we approve this?", "What's their spending history?", "Is this within budget?"]
@@ -277,18 +334,44 @@ export default function AskFAB() {
 
   return (
     <>
-      {/* Pick-mode overlay hint */}
+      {/* Drag-to-select overlay (Windows snipping-tool style) */}
       <AnimatePresence>
         {mode === "picking" && (
-          <motion.div
-            className="pick-hint"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-          >
-            <SparkIcon size={14} />
-            Click any element to ask about it — or click the button again for general questions
-          </motion.div>
+          <>
+            <motion.div
+              className={`ai-selection-overlay${isDragging ? " dragging" : ""}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onMouseDown={handleOverlayMouseDown}
+            />
+            {dragRect && dragRect.width > 0 && dragRect.height > 0 && (
+              <div
+                className="ai-selection-box"
+                style={{
+                  left: dragRect.left,
+                  top: dragRect.top,
+                  width: dragRect.width,
+                  height: dragRect.height,
+                }}
+              >
+                <span className="ai-selection-size">
+                  {Math.round(dragRect.width)} × {Math.round(dragRect.height)}
+                </span>
+              </div>
+            )}
+            <motion.div
+              className="pick-hint"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+            >
+              <SparkIcon size={14} />
+              {isDragging
+                ? "Release to capture this area"
+                : "Drag to select an area — Esc to cancel, or click the button for general questions"}
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
@@ -385,7 +468,7 @@ export default function AskFAB() {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about this element…"
+                placeholder="Ask about this selection…"
               />
               <button className="ask-send" type="submit" disabled={!input.trim()}>
                 <SendIcon size={16} />
