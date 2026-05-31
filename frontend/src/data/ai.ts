@@ -9,12 +9,11 @@ import { deptColor } from "../theme";
 //   3. Local keyword matcher (fully offline, no AI)
 // ---------------------------------------------------------------------------
 
-// Gemini API key for direct browser calls when backend is unavailable.
-// In production this should be server-side only; for the hackathon demo this
-// lets the AI work without the Python backend running.
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? "";
+// Gemini calls are now proxied through our Vercel serverless function at
+// /api/gemini, which reads GEMINI_API_KEY from the server environment.
+// This keeps the API key secure and never exposed to the browser.
 const GEMINI_MODEL = "gemini-2.5-flash";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_PROXY_URL = "/api/gemini";
 
 const SYSTEM_PROMPT = `You are Crest AI, an expert CFO assistant for a mid-size company.
 You answer questions about the company's expense data with precision and conversational warmth.
@@ -158,7 +157,7 @@ export async function askGemini(
 
   let res: Response;
   try {
-    res = await fetch(GEMINI_URL, {
+    res = await fetch(GEMINI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
