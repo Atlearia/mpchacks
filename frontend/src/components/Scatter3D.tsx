@@ -13,18 +13,46 @@ import { usePolicy } from "../data/policy";
 const EXTENT = { x: 14, y: 10, z: 10 };
 
 /**
- * Budget-health color: green when a node sits well under its department's
- * monthly budget, sliding through amber to red as it approaches and exceeds
- * the budget. Because the ratio is per-department, a high-spend node under a
- * large budget can read greener than a low-spend node over a small budget.
+ * Deep, luxurious jewel-tone palette for each department.
+ * Each color is rich and saturated — think polished gemstones.
+ * Over-budget nodes get a subtle warm shift to distinguish them.
  */
+const JEWEL_TONES = [
+  "#0d4f4f", // deep teal
+  "#1a237e", // midnight indigo
+  "#4a148c", // deep purple
+  "#1b5e20", // dark emerald
+  "#b71c1c", // deep crimson
+  "#0d47a1", // royal blue
+  "#4e342e", // dark bronze
+  "#006064", // dark cyan
+  "#311b92", // deep violet
+];
+
+const JEWEL_EMISSIVES = [
+  "#1de9b6", // teal glow
+  "#536dfe", // indigo glow
+  "#e040fb", // purple glow
+  "#69f0ae", // emerald glow
+  "#ff5252", // crimson glow
+  "#448aff", // blue glow
+  "#d7ccc8", // bronze glow
+  "#84ffff", // cyan glow
+  "#b388ff", // violet glow
+];
+
 const _hc = new THREE.Color();
-function healthColor(ratio: number): string {
-  const r = Math.max(0, Math.min(ratio, 1.3));
-  // ratio 0 -> 145deg (green), 1 -> 0deg (red), capped red beyond.
-  const hue = Math.max(0, 145 - 145 * r);
-  _hc.setHSL(hue / 360, 0.72, 0.56);
-  return `#${_hc.getHexString()}`;
+function nodeColor(deptIdx: number, ratio: number): { base: string; emissive: string } {
+  const idx = deptIdx % JEWEL_TONES.length;
+  const base = JEWEL_TONES[idx];
+  const emissive = JEWEL_EMISSIVES[idx];
+  // If over budget, shift towards a warmer/hotter variant
+  if (ratio > 1.0) {
+    _hc.set(base);
+    _hc.lerp(new THREE.Color("#5c1010"), Math.min((ratio - 1) * 0.6, 0.5));
+    return { base: `#${_hc.getHexString()}`, emissive };
+  }
+  return { base, emissive };
 }
 
 /**
@@ -45,13 +73,15 @@ function pos(deptIdx: number, monthIdx: number, value: number, maxVal: number) {
 function Dot({
   position,
   color,
-  coreColor,
+  baseColor,
+  emissiveColor,
   label,
   onClick,
 }: {
   position: readonly [number, number, number];
-  color: string; // department identity (drop line, floor, tooltip rim)
-  coreColor: string; // budget-health (sphere fill)
+  color: string;          // department identity (drop line, floor dot, tooltip rim)
+  baseColor: string;      // deep jewel-tone fill
+  emissiveColor: string;  // inner glow color
   label: string;
   onClick: () => void;
 }) {
@@ -80,20 +110,15 @@ function Dot({
           document.body.style.cursor = "auto";
         }}
       >
-        <sphereGeometry args={[0.42, 24, 24]} />
+        <sphereGeometry args={[0.44, 32, 32]} />
         <meshStandardMaterial
-          color={coreColor}
-          emissive={coreColor}
-          emissiveIntensity={hover ? 1.2 : 0.7}
-          roughness={0.25}
-          metalness={0.1}
+          color={baseColor}
+          emissive={emissiveColor}
+          emissiveIntensity={hover ? 0.9 : 0.35}
+          roughness={0.12}
+          metalness={0.7}
+          envMapIntensity={1.5}
         />
-      </mesh>
-      {/* Thin department-colored ring so each node still carries its
-          department identity on top of the budget-health fill. */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.6, 0.045, 8, 32]} />
-        <meshBasicMaterial color={color} transparent opacity={0.85} />
       </mesh>
       {/* Vertical drop line to the Y=0 floor for depth perception */}
       <Line
@@ -103,13 +128,13 @@ function Dot({
         ]}
         color={color}
         transparent
-        opacity={0.2}
+        opacity={0.15}
         lineWidth={1}
       />
       {/* Small dot on the floor where the drop line lands */}
       <mesh position={[0, -position[1], 0]}>
-        <sphereGeometry args={[0.14, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.4} />
+        <sphereGeometry args={[0.12, 12, 12]} />
+        <meshBasicMaterial color={color} transparent opacity={0.3} />
       </mesh>
       {hover && (
         <Html position={[0, 1.2, 0]} center distanceFactor={26} zIndexRange={[40, 0]}>
@@ -122,51 +147,43 @@ function Dot({
   );
 }
 
-/* ───────────────── Per-department budget "sheet" (allowance plane) ────────── */
+/* ───────────────── Continuous budget boundary plane ────────────────────── */
 
-function BudgetSheet({
-  x,
-  y,
-  width,
-  depth,
-  color,
-}: {
-  x: number;
-  y: number;
-  width: number;
-  depth: number;
-  color: string;
-}) {
-  const half = depth / 2;
-  const hw = width / 2;
+/**
+ * A single continuous translucent plane spanning the full plot width at the
+ * average budget height. Replaces per-department rectangles with a smooth,
+ * gossamer-thin sheet that reads as a budget "ceiling" the nodes push through.
+ */
+function BudgetPlane({ y }: { y: number }) {
   return (
-    <group position={[x, y, 0]}>
-      {/* Thin translucent paper-like sheet at the department's budget height */}
-      <mesh>
-        <boxGeometry args={[width, 0.07, depth]} />
+    <group position={[0, y, 0]}>
+      {/* Continuous translucent sheet */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2 * EXTENT.x + 2, 2 * EXTENT.z + 2]} />
         <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.25}
+          color="#ff2040"
+          emissive="#ff2040"
+          emissiveIntensity={0.12}
           transparent
-          opacity={0.16}
-          roughness={0.4}
+          opacity={0.06}
+          roughness={0.6}
           side={THREE.DoubleSide}
+          depthWrite={false}
         />
       </mesh>
-      {/* Glowing perimeter so the sheet edge reads as a crisp "page" */}
+      {/* Subtle glowing border line along the edge */}
       <Line
         points={[
-          [-hw, 0.05, -half],
-          [hw, 0.05, -half],
-          [hw, 0.05, half],
-          [-hw, 0.05, half],
-          [-hw, 0.05, -half],
+          [-(EXTENT.x + 1), 0.02, -(EXTENT.z + 1)],
+          [(EXTENT.x + 1), 0.02, -(EXTENT.z + 1)],
+          [(EXTENT.x + 1), 0.02, (EXTENT.z + 1)],
+          [-(EXTENT.x + 1), 0.02, (EXTENT.z + 1)],
+          [-(EXTENT.x + 1), 0.02, -(EXTENT.z + 1)],
         ]}
-        color={color}
-        lineWidth={1.5}
+        color="#ff3050"
+        lineWidth={1}
         transparent
-        opacity={0.6}
+        opacity={0.18}
       />
     </group>
   );
@@ -306,8 +323,6 @@ function Scene() {
   const points = useMemo(() => deptDatePoints(), []);
   const maxVal = useMemo(() => maxDeptMonthTotal() * 1.05, []);
 
-  const laneWidth = ((2 * EXTENT.x) / Math.max(DEPARTMENTS.length - 1, 1)) * 0.6;
-
   return (
     <>
       <ambientLight intensity={0.78} />
@@ -322,25 +337,14 @@ function Scene() {
         <AxisLabels />
         <YAxisTicks maxVal={maxVal} />
 
-        {/* Budget boundary: a thin, transparent red "paper" floating at each
-            department's budget height. Nodes above it read red (over budget),
-            below it read green — relative to that department's own boundary. */}
-        {DEPARTMENTS.map((dept, di) => {
-          const budget = budgets[dept] ?? 0;
-          if (!budget) return null;
-          const x = (di / (DEPARTMENTS.length - 1) - 0.5) * 2 * EXTENT.x;
-          const y = Math.min(budget / maxVal, 1.12) * EXTENT.y;
-          return (
-            <BudgetSheet
-              key={`sheet-${dept}`}
-              x={x}
-              y={y}
-              width={laneWidth}
-              depth={2 * EXTENT.z}
-              color="#ff4d5e"
-            />
-          );
-        })}
+        {/* Continuous budget boundary plane at average budget height */}
+        {(() => {
+          const budgetVals = DEPARTMENTS.map(d => budgets[d] ?? 0).filter(b => b > 0);
+          if (budgetVals.length === 0) return null;
+          const avgBudget = budgetVals.reduce((a, b) => a + b, 0) / budgetVals.length;
+          const y = Math.min(avgBudget / maxVal, 1.12) * EXTENT.y;
+          return <BudgetPlane y={y} />;
+        })()}
 
         {points.map((p) => {
           const di = DEPARTMENTS.indexOf(p.department);
@@ -348,12 +352,14 @@ function Scene() {
           const budget = budgets[p.department] ?? 0;
           const ratio = budget > 0 ? p.total / budget : 0;
           const pctLabel = budget > 0 ? ` · ${Math.round(ratio * 100)}% of budget` : "";
+          const { base, emissive } = nodeColor(di, ratio);
           return (
             <Dot
               key={`${p.department}-${p.date}`}
               position={pos(di, mi, p.total, maxVal)}
               color={deptColor(p.department)}
-              coreColor={healthColor(ratio)}
+              baseColor={base}
+              emissiveColor={emissive}
               label={`${p.department} · ${p.monthLabel} · ${fmtUSD(p.total)}${pctLabel}`}
               onClick={() => selectMonth(p.date)}
             />
