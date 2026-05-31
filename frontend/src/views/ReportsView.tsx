@@ -2,16 +2,25 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { usePolicy } from "../data/policy";
 import { buildReports, type ExpenseReport } from "../data/intelligence";
-import { employeeById } from "../data/selectors";
+import { departmentManager, employeeById } from "../data/selectors";
 import { fmtUSD, fmtUSDc } from "../theme";
 import { Avatar, DonutChart } from "../components/charts";
 import { AlertIcon, CheckCircleIcon, SparkIcon } from "../components/icons";
 
-const STATUS_CLASS: Record<ExpenseReport["status"], string> = {
+type ReportAction = "approved" | "flagged";
+
+const STATUS_CLASS: Record<ExpenseReport["status"] | "flagged", string> = {
   draft: "status-draft",
   ready: "status-ready",
   approved: "status-approved",
+  flagged: "status-flagged",
 };
+
+function displayStatus(report: ExpenseReport, action?: ReportAction) {
+  if (action === "approved") return "approved";
+  if (action === "flagged") return "flagged";
+  return report.status;
+}
 
 function aiSummary(r: ExpenseReport): string {
   const top = r.categories[0];
@@ -25,14 +34,16 @@ function aiSummary(r: ExpenseReport): string {
 
 function Detail({
   report,
-  approved,
-  onApprove,
+  action,
+  onAction,
 }: {
   report: ExpenseReport;
-  approved: boolean;
-  onApprove: () => void;
+  action?: ReportAction;
+  onAction: (next: ReportAction) => void;
 }) {
   const emp = employeeById(report.employeeId);
+  const manager = departmentManager(report.department);
+  const status = displayStatus(report, action);
   return (
     <motion.div className="panel" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} key={report.id}>
       <div className="detail-hero">
@@ -45,9 +56,7 @@ function Detail({
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{fmtUSD(report.total)}</div>
-          <span className={`status-tag ${STATUS_CLASS[approved ? "approved" : report.status]}`}>
-            {approved ? "approved" : report.status}
-          </span>
+          <span className={`status-tag ${STATUS_CLASS[status]}`}>{status}</span>
         </div>
       </div>
 
@@ -114,16 +123,32 @@ function Detail({
         </div>
       </div>
 
-      <div className="report-approve-bar">
-        <div className="ra-text">
-          {approved
-            ? "Report approved and routed to accounting for reimbursement."
-            : "Reviewed against the active expense policy and ready for CFO sign-off."}
+      {action ? (
+        <div className={`decided-banner ${action === "flagged" ? "flagged" : action}`}>
+          <CheckCircleIcon size={18} />
+          {action === "approved"
+            ? "Approved · routed to accounting for reimbursement."
+            : manager
+              ? `Flagged for review · sent to ${manager.name} (${manager.title}).`
+              : "Flagged for review · routed to the department manager."}
         </div>
-        <button className="btn approve" style={{ flex: "0 0 auto", padding: "12px 22px" }} onClick={onApprove} disabled={approved}>
-          {approved ? "Approved" : "Approve Report"}
-        </button>
-      </div>
+      ) : (
+        <div className="report-approve-bar">
+          <div className="ra-text">
+            {manager
+              ? `Ready for CFO sign-off, or flag concerns to ${manager.name}, ${manager.title}.`
+              : "Reviewed against the active expense policy and ready for CFO sign-off."}
+          </div>
+          <div className="report-action-btns">
+            <button className="btn flag" onClick={() => onAction("flagged")}>
+              Flag to Manager
+            </button>
+            <button className="btn approve" onClick={() => onAction("approved")}>
+              Approve Report
+            </button>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -132,7 +157,7 @@ export default function ReportsView() {
   const config = usePolicy((s) => s.config);
   const reports = useMemo(() => buildReports(config), [config]);
   const [selected, setSelected] = useState<string | null>(reports[0]?.id ?? null);
-  const [approved, setApproved] = useState<Record<string, boolean>>({});
+  const [actions, setActions] = useState<Record<string, ReportAction>>({});
 
   const active = reports.find((r) => r.id === selected) ?? null;
 
@@ -147,7 +172,7 @@ export default function ReportsView() {
             </div>
             {reports.map((r) => {
               const emp = employeeById(r.employeeId);
-              const status = approved[r.id] ? "approved" : r.status;
+              const status = displayStatus(r, actions[r.id]);
               return (
                 <div
                   key={r.id}
@@ -177,8 +202,8 @@ export default function ReportsView() {
             {active ? (
               <Detail
                 report={active}
-                approved={!!approved[active.id]}
-                onApprove={() => setApproved((p) => ({ ...p, [active.id]: true }))}
+                action={actions[active.id]}
+                onAction={(next) => setActions((p) => ({ ...p, [active.id]: next }))}
               />
             ) : (
               <div className="empty-detail">Select a report to review</div>

@@ -71,6 +71,18 @@ export function employeeById(id: string): Employee | undefined {
   return EMPLOYEES.find((e) => e.id === id);
 }
 
+/** Best-effort department lead for routing flagged expense reports. */
+export function departmentManager(department: string): Employee | undefined {
+  const inDept = EMPLOYEES.filter((e) => e.department === department);
+  const rank = (title: string) => {
+    if (/director/i.test(title)) return 0;
+    if (/manager|controller/i.test(title)) return 1;
+    if (/lead/i.test(title)) return 2;
+    return 3;
+  };
+  return [...inDept].sort((a, b) => rank(a.title) - rank(b.title))[0];
+}
+
 export function employeeTransactions(id: string, monthStart?: string): Transaction[] {
   return TRANSACTIONS.filter(
     (t) =>

@@ -1619,7 +1619,7 @@ body {
 
 .policy-rules-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -1650,7 +1650,16 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+}
+.policy-rules-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.policy-rules-panel .setting-fields {
+  flex: 1;
+  justify-content: space-evenly;
 }
 .policy-rules-panel-wide {
   grid-column: 1 / -1;
@@ -1711,8 +1720,10 @@ body {
 
 .dept-budget-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px 16px;
+  flex: 1;
+  align-content: start;
 }
 .dept-budget-item {
   display: flex;
@@ -2573,6 +2584,14 @@ body {
 .btn.deny:hover {
   background: rgba(244, 112, 138, 0.24);
 }
+.btn.flag {
+  background: rgba(240, 182, 78, 0.14);
+  border-color: rgba(240, 182, 78, 0.45);
+  color: var(--warn);
+}
+.btn.flag:hover {
+  background: rgba(240, 182, 78, 0.24);
+}
 .decided-banner {
   padding: 14px 18px;
   border-radius: 12px;
@@ -2589,6 +2608,10 @@ body {
 .decided-banner.denied {
   background: rgba(244, 112, 138, 0.14);
   color: var(--bad);
+}
+.decided-banner.flagged {
+  background: rgba(240, 182, 78, 0.14);
+  color: var(--warn);
 }
 .empty-detail {
   display: grid;
@@ -2678,6 +2701,10 @@ body {
   color: var(--good);
   background: rgba(52, 199, 154, 0.16);
 }
+.status-flagged {
+  color: var(--warn);
+  background: rgba(240, 182, 78, 0.16);
+}
 .line-item {
   display: grid;
   grid-template-columns: 90px 1fr 130px 96px;
@@ -2729,6 +2756,16 @@ body {
   flex: 1;
   font-size: 13px;
   color: var(--text-dim);
+}
+.report-action-btns {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.report-action-btns .btn {
+  flex: 0 0 auto;
+  padding: 12px 18px;
+  white-space: nowrap;
 }
 .tag {
   display: inline-block;
