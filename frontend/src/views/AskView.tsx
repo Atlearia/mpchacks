@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { answerQuestion, SUGGESTED_PROMPTS, type AiAnswer, type AiFocus, type ChartSpec } from "../data/ai";
+import { askGemini, answerQuestion, SUGGESTED_PROMPTS, type AiAnswer, type AiFocus, type ChartSpec } from "../data/ai";
 import { BarChart, DataTable, DonutChart } from "../components/charts";
 import { Avatar } from "../components/charts";
 import { SendIcon, SparkIcon } from "../components/icons";
@@ -41,6 +41,7 @@ function ResultRenderer({ spec }: { spec: ChartSpec }) {
 export default function AskView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [isLive, setIsLive] = useState<boolean | null>(null);
   const focusRef = useRef<AiFocus>({});
   const idRef = useRef(0);
   const threadRef = useRef<HTMLDivElement>(null);
@@ -49,7 +50,7 @@ export default function AskView() {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const submit = (text: string) => {
+  const submit = async (text: string) => {
     const q = text.trim();
     if (!q) return;
     const userId = ++idRef.current;
@@ -61,8 +62,26 @@ export default function AskView() {
     ]);
     setInput("");
 
-    // Simulate model latency, then resolve with a live, data-derived answer.
-    setTimeout(() => {
+    // Build conversation history for the API
+    const history = messages
+      .filter((m) => !m.pending)
+      .map((m) => ({
+        role: m.role as "user" | "ai",
+        content: m.role === "ai" ? (m.answer?.summary ?? m.text) : m.text,
+      }));
+
+    try {
+      // Try the real Gemini API first
+      const answer = await askGemini(q, history);
+      setIsLive(true);
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.id === aiId ? { ...msg, pending: false, text: answer.summary, answer } : msg
+        )
+      );
+    } catch {
+      // Fallback to local intent matcher if backend is down
+      setIsLive(false);
       const answer = answerQuestion(q, focusRef.current);
       focusRef.current = answer.focus;
       setMessages((m) =>
@@ -70,7 +89,7 @@ export default function AskView() {
           msg.id === aiId ? { ...msg, pending: false, text: answer.summary, answer } : msg
         )
       );
-    }, 650);
+    }
   };
 
   const empty = messages.length === 0;
@@ -89,6 +108,11 @@ export default function AskView() {
                 Plain-English questions, answered with the right chart. Try a suggestion below, then
                 ask follow-ups — I keep the context.
               </p>
+              {isLive !== null && (
+                <div className={`ai-mode-badge ${isLive ? "live" : "offline"}`}>
+                  {isLive ? "✦ Powered by Gemini 3.5 Flash" : "⚡ Offline mode (local engine)"}
+                </div>
+              )}
             </div>
           )}
 
@@ -108,6 +132,9 @@ export default function AskView() {
                 <div className="bubble">
                   <div className="ai-head">
                     <SparkIcon size={13} /> Brim AI
+                    {msg.answer?.isLive && (
+                      <span className="ai-model-tag">Gemini 3.5 Flash</span>
+                    )}
                   </div>
                   {msg.pending ? (
                     <div className="typing">
@@ -168,6 +195,11 @@ export default function AskView() {
               <SendIcon size={18} />
             </button>
           </form>
+          {isLive !== null && !empty && (
+            <div className="composer-status">
+              {isLive ? "✦ Gemini 3.5 Flash" : "⚡ Local engine (backend unavailable)"}
+            </div>
+          )}
         </div>
       </div>
     </div>

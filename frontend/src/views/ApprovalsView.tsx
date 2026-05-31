@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { usePolicy } from "../data/policy";
 import { approvalQueue, type ApprovalRequest } from "../data/intelligence";
+import { fetchApprovalRecommendation, type ApprovalAIResult } from "../data/ai";
 import { employeeById } from "../data/selectors";
 import { fmtUSD } from "../theme";
 import { Avatar, BarChart, BudgetGauge } from "../components/charts";
@@ -23,6 +24,48 @@ function Detail({
 }) {
   const emp = employeeById(req.employeeId);
   const fitsRemaining = req.amount <= req.budgetRemaining;
+
+  const [aiResult, setAiResult] = useState<ApprovalAIResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setAiResult(null);
+    setAiLoading(true);
+    setAiError(false);
+
+    fetchApprovalRecommendation({
+      employeeName: req.employeeName,
+      department: req.department,
+      title: req.title,
+      amount: req.amount,
+      category: req.category,
+      merchant: req.merchant,
+      budgetRemaining: req.budgetRemaining,
+      priorSimilar: req.priorSimilar,
+      history: req.history,
+    })
+      .then((result) => {
+        if (!cancelled) {
+          setAiResult(result);
+          setAiLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAiError(true);
+          setAiLoading(false);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [req.id]);
+
+  // Use AI result if available, otherwise fall back to template data
+  const recommendation = aiResult?.recommendation ?? req.recommendation;
+  const confidence = aiResult?.confidence ?? req.confidence;
+  const reasoning = aiResult?.reasoning ?? req.reasoning;
 
   return (
     <motion.div className="panel" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} key={req.id}>
@@ -72,19 +115,51 @@ function Detail({
         <div className="rec-head">
           <SparkIcon size={16} />
           <span className="lab">AI Recommendation</span>
-          <span className={`rec-tag ${REC_CLASS[req.recommendation]}`} style={{ marginLeft: 8 }}>
-            {REC_LABEL[req.recommendation]}
-          </span>
-          <span className="conf">{req.confidence}% confidence</span>
+          {aiLoading ? (
+            <span className="ai-model-tag" style={{ marginLeft: 8 }}>
+              <div className="typing" style={{ display: "inline-flex", gap: 3 }}>
+                <span /><span /><span />
+              </div>
+              &nbsp;Analyzing…
+            </span>
+          ) : (
+            <>
+              <span className={`rec-tag ${REC_CLASS[recommendation as keyof typeof REC_CLASS] ?? "rec-review"}`} style={{ marginLeft: 8 }}>
+                {REC_LABEL[recommendation as keyof typeof REC_LABEL] ?? "Needs review"}
+              </span>
+              <span className="conf">{confidence}% confidence</span>
+              {aiResult && <span className="ai-model-tag" style={{ marginLeft: "auto" }}>Gemini 3.5 Flash</span>}
+              {aiError && <span className="ai-model-tag" style={{ marginLeft: "auto", opacity: 0.6 }}>Local engine</span>}
+            </>
+          )}
         </div>
         <div className="rec-reasons">
-          {req.reasoning.map((r, i) => (
-            <div className="rec-reason" key={i}>
+          {aiLoading ? (
+            <div className="rec-reason" style={{ color: "var(--text-dim)" }}>
               <span className="dot">•</span>
-              {r}
+              Generating contextual recommendation with Gemini 3.5 Flash…
             </div>
-          ))}
+          ) : (
+            reasoning.map((r, i) => (
+              <div className="rec-reason" key={i}>
+                <span className="dot">•</span>
+                {r}
+              </div>
+            ))
+          )}
         </div>
+        {aiResult?.riskFlags && aiResult.riskFlags.length > 0 && (
+          <div className="rec-risks">
+            {aiResult.riskFlags.map((f, i) => (
+              <span className="risk-flag" key={i}>⚠ {f}</span>
+            ))}
+          </div>
+        )}
+        {aiResult?.suggestedConditions && (
+          <div className="rec-conditions">
+            <strong>Suggested conditions:</strong> {aiResult.suggestedConditions}
+          </div>
+        )}
       </div>
 
       {decision ? (

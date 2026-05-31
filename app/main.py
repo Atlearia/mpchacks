@@ -80,10 +80,15 @@ async def health() -> HealthResponse:
 
 # Imported after job_store/limiter exist to avoid circular imports.
 from app.routers import dashboard, ingest, query  # noqa: E402
+from app.routers import ask as ask_router  # noqa: E402
+from app.routers import policy_ai, approvals_ai  # noqa: E402
 
 app.include_router(ingest.router)
 app.include_router(query.router)
 app.include_router(dashboard.router)
+app.include_router(ask_router.router)
+app.include_router(policy_ai.router)
+app.include_router(approvals_ai.router)
 
 
 @app.on_event("shutdown")

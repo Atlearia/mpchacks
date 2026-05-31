@@ -9,9 +9,10 @@ import {
   type Severity,
   type Violation,
 } from "../data/intelligence";
+import { fetchPolicyBrief, type PolicyBrief } from "../data/ai";
 import { fmtUSD } from "../theme";
 import { SeverityBadge } from "../components/charts";
-import { AlertIcon } from "../components/icons";
+import { AlertIcon, SparkIcon } from "../components/icons";
 
 function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
   return (
@@ -199,6 +200,9 @@ const FILTERS: { id: Severity | "all"; label: string }[] = [
 function ViolationsTab() {
   const config = usePolicy((s) => s.config);
   const [filter, setFilter] = useState<Severity | "all">("all");
+  const [brief, setBrief] = useState<PolicyBrief | null>(null);
+  const [briefLoading, setBriefLoading] = useState(false);
+  const [briefError, setBriefError] = useState<string | null>(null);
 
   const violations = useMemo(() => policyViolations(config), [config]);
   const stats = useMemo(() => violationStats(violations), [violations]);
@@ -210,6 +214,36 @@ function ViolationsTab() {
 
   const filtered: Violation[] =
     filter === "all" ? violations : violations.filter((v) => v.severity === filter);
+
+  const handleBrief = async () => {
+    setBriefLoading(true);
+    setBriefError(null);
+    try {
+      const top = violations.slice(0, 30).map((v) => ({
+        type: v.type,
+        severity: v.severity,
+        employeeName: v.employeeName,
+        department: v.department,
+        amount: v.amount,
+        merchantName: v.merchantName,
+        title: v.title,
+        detail: v.detail,
+      }));
+      const result = await fetchPolicyBrief(top);
+      setBrief(result);
+    } catch {
+      setBriefError("AI analysis unavailable — check that the backend is running.");
+    } finally {
+      setBriefLoading(false);
+    }
+  };
+
+  const riskColors: Record<string, string> = {
+    critical: "var(--bad)",
+    elevated: "var(--warn)",
+    moderate: "#e0c040",
+    healthy: "var(--good)",
+  };
 
   return (
     <>
@@ -235,6 +269,78 @@ function ViolationsTab() {
           <div className="stat-card-value">{fmtUSD(stats.flaggedAmount)}</div>
         </div>
       </div>
+
+      {!brief && !briefLoading && (
+        <motion.button
+          className="ai-brief-btn"
+          onClick={handleBrief}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <SparkIcon size={16} />
+          Generate AI Policy Brief
+          <span className="ai-brief-badge">Gemini 3.5 Flash</span>
+        </motion.button>
+      )}
+
+      {briefLoading && (
+        <div className="ai-brief-panel loading">
+          <div className="typing">
+            <span /><span /><span />
+          </div>
+          <span style={{ marginLeft: 12, fontSize: 13, color: "var(--text-dim)" }}>
+            Analyzing {stats.total} violations with Gemini 3.5 Flash…
+          </span>
+        </div>
+      )}
+
+      {briefError && (
+        <div className="ai-brief-panel error">
+          <span>{briefError}</span>
+          <button className="chip on" onClick={handleBrief} style={{ marginLeft: 12 }}>Retry</button>
+        </div>
+      )}
+
+      {brief && (
+        <motion.div
+          className="ai-brief-panel"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="brief-header">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <SparkIcon size={16} />
+              <span className="brief-title">AI Policy Brief</span>
+              <span
+                className="risk-badge"
+                style={{ background: riskColors[brief.riskLevel] ?? "var(--text-dim)" }}
+              >
+                {brief.riskLevel.toUpperCase()} RISK
+              </span>
+            </div>
+            <span className="ai-model-tag">Gemini 3.5 Flash</span>
+          </div>
+          <div className="brief-headline">{brief.headline}</div>
+          <div className="brief-narrative">{brief.narrative}</div>
+          {brief.topActions.length > 0 && (
+            <div className="brief-actions">
+              <div className="brief-actions-title">Priority Actions</div>
+              {brief.topActions.map((a, i) => (
+                <div className="brief-action" key={i}>
+                  <span className="brief-action-num">{a.priority}</span>
+                  <div>
+                    <div className="brief-action-text">{a.action}</div>
+                    <div className="brief-action-impact">{a.impact}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {brief.trendInsight && (
+            <div className="brief-trend">{brief.trendInsight}</div>
+          )}
+        </motion.div>
+      )}
 
       <div className="approvals-split">
         <div style={{ order: 2 }}>

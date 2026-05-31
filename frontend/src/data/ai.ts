@@ -3,9 +3,11 @@ import type { Transaction } from "./types";
 import { deptColor } from "../theme";
 
 // ---------------------------------------------------------------------------
-// "Talk to Your Data" engine. A lightweight intent matcher turns plain-English
-// questions into chart specs computed from the REAL transactions. The prose is
-// templated (the "AI" voice); the numbers are always live.
+// "Talk to Your Data" engine. Two modes:
+//   1. LIVE MODE — calls the backend /api/ask endpoint which uses Gemini 3.5 Flash
+//      with the full dataset context and multi-turn conversation history.
+//   2. FALLBACK MODE — if the backend is unreachable, uses the local intent
+//      matcher (same logic as before) so the demo still works offline.
 // ---------------------------------------------------------------------------
 
 export type ChartSpec =
@@ -19,12 +21,175 @@ export interface AiAnswer {
   spec?: ChartSpec;
   followups: string[];
   focus: AiFocus;
+  model?: string;
+  isLive?: boolean;
 }
 
 export interface AiFocus {
   department?: string;
   category?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Live Gemini API call
+// ---------------------------------------------------------------------------
+
+interface ApiMessage {
+  role: "user" | "ai";
+  content: string;
+}
+
+interface ApiAskResponse {
+  summary: string;
+  chartType: string;
+  chartData: any;
+  followups: string[];
+  model: string;
+}
+
+function apiChartToSpec(chartType: string, chartData: any): ChartSpec | undefined {
+  if (!chartData || chartType === "none") return undefined;
+
+  if (chartType === "bars" && Array.isArray(chartData)) {
+    return {
+      kind: "bars",
+      data: chartData.map((d: any) => ({
+        label: String(d.label ?? ""),
+        value: Number(d.value ?? 0),
+        color: d.color,
+      })),
+    };
+  }
+
+  if (chartType === "donut" && Array.isArray(chartData)) {
+    return {
+      kind: "donut",
+      data: chartData.map((d: any) => ({
+        label: String(d.label ?? ""),
+        value: Number(d.value ?? 0),
+        color: d.color,
+      })),
+    };
+  }
+
+  if (chartType === "table" && chartData.columns && chartData.rows) {
+    return {
+      kind: "table",
+      columns: chartData.columns.map(String),
+      rows: chartData.rows.map((r: any[]) => r.map((c) => (typeof c === "number" ? c : String(c)))),
+    };
+  }
+
+  if (chartType === "stat" && Array.isArray(chartData)) {
+    return {
+      kind: "stat",
+      stats: chartData.map((s: any) => ({
+        label: String(s.label ?? ""),
+        value: String(s.value ?? ""),
+      })),
+    };
+  }
+
+  return undefined;
+}
+
+export async function askGemini(
+  question: string,
+  history: ApiMessage[],
+): Promise<AiAnswer> {
+  const res = await fetch("/api/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, history }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
+  }
+
+  const data: ApiAskResponse = await res.json();
+  const spec = apiChartToSpec(data.chartType, data.chartData);
+
+  return {
+    summary: data.summary,
+    spec,
+    followups: data.followups ?? [],
+    focus: {},
+    model: data.model,
+    isLive: true,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Policy AI — executive brief
+// ---------------------------------------------------------------------------
+
+export interface PolicyBrief {
+  headline: string;
+  riskLevel: string;
+  topActions: { priority: number; action: string; impact: string }[];
+  narrative: string;
+  trendInsight: string;
+}
+
+export async function fetchPolicyBrief(
+  violations: {
+    type: string;
+    severity: string;
+    employeeName: string;
+    department: string;
+    amount: number;
+    merchantName: string;
+    title: string;
+    detail: string;
+  }[]
+): Promise<PolicyBrief> {
+  const res = await fetch("/api/policy/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ violations: violations.slice(0, 30) }),
+  });
+
+  if (!res.ok) throw new Error(`Policy AI error: ${res.status}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Approval AI — recommendation
+// ---------------------------------------------------------------------------
+
+export interface ApprovalAIResult {
+  recommendation: string;
+  confidence: number;
+  reasoning: string[];
+  riskFlags: string[];
+  suggestedConditions: string;
+}
+
+export async function fetchApprovalRecommendation(request: {
+  employeeName: string;
+  department: string;
+  title: string;
+  amount: number;
+  category: string;
+  merchant: string;
+  budgetRemaining: number;
+  priorSimilar: number;
+  history: { month: string; total: number }[];
+}): Promise<ApprovalAIResult> {
+  const res = await fetch("/api/approvals/recommend", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
+
+  if (!res.ok) throw new Error(`Approval AI error: ${res.status}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// LOCAL FALLBACK — the original intent matcher (used when backend is down)
+// ---------------------------------------------------------------------------
 
 const signed = (t: Transaction) => (t.debitOrCredit === "Credit" ? -t.amount : t.amount);
 const debits = () => TRANSACTIONS.filter((t) => t.debitOrCredit === "Debit");
@@ -101,7 +266,7 @@ const DEFAULT_FOLLOWUPS = [
   "Who are the top spenders?",
 ];
 
-/** Map a natural-language question (plus prior focus) to a live answer. */
+/** Local fallback: map a natural-language question (plus prior focus) to a live answer. */
 export function answerQuestion(question: string, prevFocus: AiFocus = {}): AiAnswer {
   const q = question.toLowerCase();
   const dept = matchDepartment(question) ?? (q.includes("that") || q.includes("compare") ? prevFocus.department : undefined);
