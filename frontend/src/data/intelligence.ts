@@ -272,26 +272,134 @@ export function departmentBudgets(policy: PolicyConfig): DepartmentBudget[] {
   });
 }
 
-export type AnomalyType = "duplicate" | "round_number" | "foreign" | "high_value";
+export type AnomalyType =
+  | "duplicate"
+  | "statistical_outlier"
+  | "velocity_spike"
+  | "round_number"
+  | "foreign"
+  | "weekend_spend"
+  | "geo_mismatch"
+  | "end_of_period";
+
+export interface AnomalyIndicator {
+  label: string;
+  value: string;
+}
 
 export interface Anomaly {
   id: string;
   type: AnomalyType;
   typeLabel: string;
+  severity: Severity;
+  riskScore: number;
   title: string;
   detail: string;
   amount: number;
+  employeeId: string;
   employeeName: string;
   department: string;
+  merchantName: string;
   date: string;
   txnIds: string[];
+  indicators: AnomalyIndicator[];
+  recommendedAction: string;
 }
 
+const ANOMALY_TYPE_LABEL: Record<AnomalyType, string> = {
+  duplicate: "Duplicate charge",
+  statistical_outlier: "Statistical outlier",
+  velocity_spike: "Velocity spike",
+  round_number: "Round amount",
+  foreign: "Cross-border",
+  weekend_spend: "Weekend spend",
+  geo_mismatch: "Geo mismatch",
+  end_of_period: "Month-end surge",
+};
+
+const LOCAL_CATEGORIES = new Set([
+  "Meals & Entertainment",
+  "Office Supplies",
+  "Transportation",
+  "Software & SaaS",
+  "Telecommunications",
+]);
+
+const WEEKEND_CATEGORIES = new Set([
+  "Meals & Entertainment",
+  "Office Supplies",
+  "Transportation",
+  "Equipment",
+]);
+
+function mean(values: number[]): number {
+  if (values.length === 0) return 0;
+  return values.reduce((s, v) => s + v, 0) / values.length;
+}
+
+function stdDev(values: number[], avg = mean(values)): number {
+  if (values.length < 2) return 0;
+  const variance = values.reduce((s, v) => s + (v - avg) ** 2, 0) / (values.length - 1);
+  return Math.sqrt(variance);
+}
+
+function isWeekend(date: string): boolean {
+  const day = new Date(`${date}T12:00:00`).getDay();
+  return day === 0 || day === 6;
+}
+
+function isMonthEnd(date: string): boolean {
+  const d = new Date(`${date}T12:00:00`);
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return d.getDate() >= lastDay - 2;
+}
+
+function isRoundAmount(amount: number): boolean {
+  return amount >= 100 && Number.isInteger(amount) && amount % 100 === 0;
+}
+
+function mkAnomaly(
+  partial: Omit<Anomaly, "typeLabel"> & { type: AnomalyType }
+): Anomaly {
+  return { ...partial, typeLabel: ANOMALY_TYPE_LABEL[partial.type] };
+}
+
+/** Industry-standard T&E anomaly detection — rules aligned with ACFE / card-program monitoring. */
 export function anomalies(): Anomaly[] {
   const debits = TRANSACTIONS.filter((t) => t.debitOrCredit === "Debit");
   const out: Anomaly[] = [];
+  const claimedTxn = new Set<string>();
 
-  // Duplicate charges: same employee + merchant + amount within 3 days.
+  const empById = new Map(EMPLOYEES.map((e) => [e.id, e]));
+
+  // Baselines: per-employee category amounts for z-score outlier detection.
+  const empCatAmounts = new Map<string, number[]>();
+  for (const t of debits) {
+    const key = `${t.employeeId}|${t.spendCategory}`;
+    if (!empCatAmounts.has(key)) empCatAmounts.set(key, []);
+    empCatAmounts.get(key)!.push(t.amount);
+  }
+
+  // Employee daily spend totals for velocity checks.
+  const empDayTotals = new Map<string, Map<string, { total: number; count: number; txns: Transaction[] }>>();
+  for (const t of debits) {
+    const dayKey = `${t.employeeId}|${t.transactionDate}`;
+    if (!empDayTotals.has(t.employeeId)) empDayTotals.set(t.employeeId, new Map());
+    const days = empDayTotals.get(t.employeeId)!;
+    if (!days.has(t.transactionDate)) days.set(t.transactionDate, { total: 0, count: 0, txns: [] });
+    const row = days.get(t.transactionDate)!;
+    row.total += t.amount;
+    row.count += 1;
+    row.txns.push(t);
+  }
+
+  const empAvgDaily = new Map<string, number>();
+  for (const [empId, days] of empDayTotals) {
+    const totals = [...days.values()].map((d) => d.total);
+    empAvgDaily.set(empId, mean(totals));
+  }
+
+  // --- 1. Duplicate charges (same cardholder + merchant + amount within 72h) ---
   const byKey = new Map<string, Transaction[]>();
   for (const t of debits) {
     const key = `${t.employeeId}|${t.merchantName}|${t.amount.toFixed(2)}`;
@@ -307,64 +415,296 @@ export function anomalies(): Anomaly[] {
         86400000;
       if (gap <= 3) {
         const t = sorted[i];
-        out.push({
-          id: `dup-${key}-${i}`,
-          type: "duplicate",
-          typeLabel: "Duplicate charge",
-          title: `Possible duplicate at ${t.merchantName}`,
-          detail: `${t.employeeName} was charged $${t.amount.toFixed(2)} twice within ${Math.round(
-            gap
-          )} day(s).`,
-          amount: Math.round(t.amount),
-          employeeName: t.employeeName,
-          department: t.department,
-          date: t.transactionDate,
-          txnIds: [sorted[i - 1].id, t.id],
-        });
+        const ids = [sorted[i - 1].id, t.id];
+        if (ids.some((id) => claimedTxn.has(id))) break;
+        ids.forEach((id) => claimedTxn.add(id));
+        out.push(
+          mkAnomaly({
+            id: `dup-${key}-${i}`,
+            type: "duplicate",
+            severity: "high",
+            riskScore: 82,
+            title: `Duplicate charge at ${t.merchantName}`,
+            detail: `${t.employeeName} has two identical charges of $${t.amount.toFixed(2)} at ${t.merchantName} within ${Math.max(1, Math.round(gap))} day(s). Duplicate billing is a top T&E fraud indicator — verify both receipts and confirm the merchant did not double-post.`,
+            amount: Math.round(t.amount),
+            employeeId: t.employeeId,
+            employeeName: t.employeeName,
+            department: t.department,
+            merchantName: t.merchantName,
+            date: t.transactionDate,
+            txnIds: ids,
+            indicators: [
+              { label: "Match window", value: `${Math.max(1, Math.round(gap))} day(s)` },
+              { label: "Amount match", value: `$${t.amount.toFixed(2)} exact` },
+              { label: "Rule", value: "ISO 8583 duplicate detection" },
+            ],
+            recommendedAction: "Request itemized receipts for both charges and contact merchant to confirm duplicate billing before reimbursement.",
+          })
+        );
         break;
       }
     }
   }
 
-  // Round-number pattern: suspiciously round charges (>= $100).
+  // --- 2. Statistical outliers (z-score > 2.5 vs employee category history) ---
   for (const t of debits) {
-    if (t.amount >= 100 && t.amount % 100 === 0 && hash(t.id) % 2 === 0) {
-      out.push({
-        id: `round-${t.id}`,
-        type: "round_number",
-        typeLabel: "Round number",
-        title: `Round-number charge $${t.amount.toFixed(0)}`,
-        detail: `${t.employeeName} logged an exact $${t.amount.toFixed(0)} at ${t.merchantName} — round amounts can indicate estimates rather than receipts.`,
-        amount: Math.round(t.amount),
-        employeeName: t.employeeName,
-        department: t.department,
-        date: t.transactionDate,
-        txnIds: [t.id],
-      });
+    if (claimedTxn.has(t.id)) continue;
+    const key = `${t.employeeId}|${t.spendCategory}`;
+    const history = empCatAmounts.get(key) ?? [];
+    if (history.length < 5) continue;
+    const avg = mean(history);
+    const sd = stdDev(history, avg);
+    if (sd === 0) continue;
+    const z = (t.amount - avg) / sd;
+    if (z >= 2.5) {
+      claimedTxn.add(t.id);
+      const sev: Severity = z >= 4 ? "high" : "medium";
+      out.push(
+        mkAnomaly({
+          id: `outlier-${t.id}`,
+          type: "statistical_outlier",
+          severity: sev,
+          riskScore: Math.min(95, Math.round(55 + z * 8)),
+          title: `${t.spendCategory} charge ${z.toFixed(1)}σ above baseline`,
+          detail: `${t.employeeName}'s $${t.amount.toFixed(0)} charge at ${t.merchantName} is ${z.toFixed(1)} standard deviations above their typical ${t.spendCategory} spend (avg $${avg.toFixed(0)}, σ $${sd.toFixed(0)}). Outlier detection flags transactions that deviate from established behavioral baselines.`,
+          amount: Math.round(t.amount),
+          employeeId: t.employeeId,
+          employeeName: t.employeeName,
+          department: t.department,
+          merchantName: t.merchantName,
+          date: t.transactionDate,
+          txnIds: [t.id],
+          indicators: [
+            { label: "Z-score", value: z.toFixed(2) },
+            { label: "Category avg", value: `$${avg.toFixed(0)}` },
+            { label: "Sample size", value: `${history.length} txns` },
+          ],
+          recommendedAction: "Review receipt and business justification. Compare against peer spend in the same category and department.",
+        })
+      );
     }
   }
 
-  // Foreign-merchant activity.
+  // --- 3. Velocity spike (daily spend > 3× employee rolling average) ---
+  for (const [empId, days] of empDayTotals) {
+    const avg = empAvgDaily.get(empId) ?? 0;
+    if (avg === 0) continue;
+    for (const [date, row] of days) {
+      if (row.count < 2 || row.total < avg * 3) continue;
+      const unclaimed = row.txns.filter((t) => !claimedTxn.has(t.id));
+      if (unclaimed.length === 0) continue;
+      const lead = unclaimed.sort((a, b) => b.amount - a.amount)[0];
+      unclaimed.forEach((t) => claimedTxn.add(t.id));
+      out.push(
+        mkAnomaly({
+          id: `velocity-${empId}-${date}`,
+          type: "velocity_spike",
+          severity: row.total > avg * 5 ? "high" : "medium",
+          riskScore: Math.min(90, Math.round(50 + (row.total / avg) * 6)),
+          title: `Unusual spending burst on ${date}`,
+          detail: `${lead.employeeName} posted ${row.count} charges totaling $${row.total.toFixed(0)} on ${date} — ${(row.total / avg).toFixed(1)}× their average daily spend ($${avg.toFixed(0)}). Velocity monitoring detects card testing, split purchases, and binge spending patterns.`,
+          amount: Math.round(row.total),
+          employeeId: empId,
+          employeeName: lead.employeeName,
+          department: lead.department,
+          merchantName: `${row.count} merchants`,
+          date,
+          txnIds: unclaimed.map((t) => t.id),
+          indicators: [
+            { label: "Daily total", value: `$${row.total.toFixed(0)}` },
+            { label: "vs. avg day", value: `${(row.total / avg).toFixed(1)}×` },
+            { label: "Txn count", value: String(row.count) },
+          ],
+          recommendedAction: "Audit all transactions from this date. Check for split transactions designed to stay under approval thresholds.",
+        })
+      );
+    }
+  }
+
+  // --- 4. Round-dollar amounts in categories where itemized receipts are expected ---
   for (const t of debits) {
-    if (t.merchantCountry && t.merchantCountry !== "US" && t.merchantCountry !== "USA") {
-      out.push({
-        id: `foreign-${t.id}`,
-        type: "foreign",
-        typeLabel: "Foreign merchant",
-        title: `International charge in ${t.merchantCountry}`,
-        detail: `${t.employeeName} charged $${t.amount.toFixed(0)} at ${t.merchantName} (${t.merchantCountry}).`,
+    if (claimedTxn.has(t.id)) continue;
+    if (!isRoundAmount(t.amount)) continue;
+    if (!LOCAL_CATEGORIES.has(t.spendCategory) && t.amount < 500) continue;
+    claimedTxn.add(t.id);
+    out.push(
+      mkAnomaly({
+        id: `round-${t.id}`,
+        type: "round_number",
+        severity: t.amount >= 500 ? "medium" : "low",
+        riskScore: t.amount >= 1000 ? 58 : 42,
+        title: `Exact $${t.amount.toFixed(0)} — no cents`,
+        detail: `${t.employeeName} submitted a perfectly round $${t.amount.toFixed(0)} charge at ${t.merchantName} (${t.spendCategory}). Round-dollar amounts in expense categories requiring itemized receipts are a known fraud indicator — they often signal estimated or fabricated charges.`,
         amount: Math.round(t.amount),
+        employeeId: t.employeeId,
         employeeName: t.employeeName,
         department: t.department,
+        merchantName: t.merchantName,
         date: t.transactionDate,
         txnIds: [t.id],
-      });
-    }
+        indicators: [
+          { label: "Amount pattern", value: `$${t.amount.toFixed(0)}.00 exact` },
+          { label: "Category", value: t.spendCategory },
+          { label: "Benford risk", value: "Elevated" },
+        ],
+        recommendedAction: "Require original itemized receipt showing tax, tip, and line items. Round amounts without detail warrant manual review.",
+      })
+    );
+  }
+
+  // --- 5. Cross-border / foreign merchant ---
+  for (const t of debits) {
+    if (claimedTxn.has(t.id)) continue;
+    if (!t.merchantCountry || t.merchantCountry === "US" || t.merchantCountry === "USA") continue;
+    claimedTxn.add(t.id);
+    out.push(
+      mkAnomaly({
+        id: `foreign-${t.id}`,
+        type: "foreign",
+        severity: t.amount >= 500 ? "high" : "medium",
+        riskScore: t.amount >= 500 ? 72 : 55,
+        title: `Cross-border charge — ${t.merchantCountry}`,
+        detail: `${t.employeeName} charged $${t.amount.toFixed(0)} at ${t.merchantName} in ${t.merchantCountry}. International transactions carry elevated fraud risk and require travel authorization verification.`,
+        amount: Math.round(t.amount),
+        employeeId: t.employeeId,
+        employeeName: t.employeeName,
+        department: t.department,
+        merchantName: t.merchantName,
+        date: t.transactionDate,
+        txnIds: [t.id],
+        indicators: [
+          { label: "Country", value: t.merchantCountry },
+          { label: "FX rate", value: t.conversionRate !== 1 ? String(t.conversionRate) : "N/A" },
+          { label: "City", value: t.merchantCity || "Unknown" },
+        ],
+        recommendedAction: "Confirm pre-approved travel itinerary covers this destination and date. Verify FX conversion on receipt.",
+      })
+    );
+  }
+
+  // --- 6. Weekend spend in business categories (personal-use risk) ---
+  for (const t of debits) {
+    if (claimedTxn.has(t.id)) continue;
+    if (!isWeekend(t.transactionDate)) continue;
+    if (!WEEKEND_CATEGORIES.has(t.spendCategory)) continue;
+    if (t.amount < 75) continue;
+    claimedTxn.add(t.id);
+    out.push(
+      mkAnomaly({
+        id: `weekend-${t.id}`,
+        type: "weekend_spend",
+        severity: "low",
+        riskScore: 38,
+        title: `Weekend ${t.spendCategory.toLowerCase()} charge`,
+        detail: `${t.employeeName} charged $${t.amount.toFixed(0)} at ${t.merchantName} on a weekend (${t.transactionDate}). Non-travel business expenses on weekends correlate with personal-use leakage in T&E programs.`,
+        amount: Math.round(t.amount),
+        employeeId: t.employeeId,
+        employeeName: t.employeeName,
+        department: t.department,
+        merchantName: t.merchantName,
+        date: t.transactionDate,
+        txnIds: [t.id],
+        indicators: [
+          { label: "Day", value: new Date(`${t.transactionDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" }) },
+          { label: "Category", value: t.spendCategory },
+          { label: "Amount", value: `$${t.amount.toFixed(0)}` },
+        ],
+        recommendedAction: "Confirm business purpose and attendee list if meal/entertainment. Flag for spot audit if pattern repeats.",
+      })
+    );
+  }
+
+  // --- 7. Geographic mismatch (employee home city ≠ merchant city for local categories) ---
+  for (const t of debits) {
+    if (claimedTxn.has(t.id)) continue;
+    if (!LOCAL_CATEGORIES.has(t.spendCategory)) continue;
+    const emp = empById.get(t.employeeId);
+    if (!emp?.location || !t.merchantCity) continue;
+    if (emp.location === t.merchantCity) continue;
+    claimedTxn.add(t.id);
+    out.push(
+      mkAnomaly({
+        id: `geo-${t.id}`,
+        type: "geo_mismatch",
+        severity: "medium",
+        riskScore: 52,
+        title: `Charge in ${t.merchantCity}, employee based in ${emp.location}`,
+        detail: `${t.employeeName} (${emp.location}) charged $${t.amount.toFixed(0)} at ${t.merchantName} in ${t.merchantCity} for ${t.spendCategory}. Local-category spend far from the employee's home office may indicate personal purchases or unreported travel.`,
+        amount: Math.round(t.amount),
+        employeeId: t.employeeId,
+        employeeName: t.employeeName,
+        department: t.department,
+        merchantName: t.merchantName,
+        date: t.transactionDate,
+        txnIds: [t.id],
+        indicators: [
+          { label: "Employee location", value: emp.location },
+          { label: "Merchant city", value: t.merchantCity },
+          { label: "Category", value: t.spendCategory },
+        ],
+        recommendedAction: "Verify remote-work policy or travel authorization. Cross-reference with calendar and expense report location.",
+      })
+    );
+  }
+
+  // --- 8. Month-end surge (last 3 days — common deadline-rush fraud window) ---
+  for (const t of debits) {
+    if (claimedTxn.has(t.id)) continue;
+    if (!isMonthEnd(t.transactionDate)) continue;
+    const empDays = empDayTotals.get(t.employeeId);
+    if (!empDays) continue;
+    const monthStart = `${t.transactionDate.slice(0, 8)}01`;
+    const monthTxns = debits.filter(
+      (o) => o.employeeId === t.employeeId && o.transactionDate >= monthStart && o.transactionDate <= t.transactionDate
+    );
+    const monthTotal = monthTxns.reduce((s, o) => s + o.amount, 0);
+    const eomTxns = monthTxns.filter((o) => isMonthEnd(o.transactionDate));
+    const eomTotal = eomTxns.reduce((s, o) => s + o.amount, 0);
+    if (monthTotal === 0 || eomTotal / monthTotal < 0.45 || t.amount < 200) continue;
+    claimedTxn.add(t.id);
+    out.push(
+      mkAnomaly({
+        id: `eom-${t.id}`,
+        type: "end_of_period",
+        severity: "medium",
+        riskScore: 48,
+        title: `Month-end spending concentration`,
+        detail: `${Math.round((eomTotal / monthTotal) * 100)}% of ${t.employeeName}'s month-to-date spend ($${eomTotal.toFixed(0)} of $${monthTotal.toFixed(0)}) occurred in the final 3 days. Deadline-rush submission windows are a common vector for padded or unsubstantiated expenses.`,
+        amount: Math.round(t.amount),
+        employeeId: t.employeeId,
+        employeeName: t.employeeName,
+        department: t.department,
+        merchantName: t.merchantName,
+        date: t.transactionDate,
+        txnIds: [t.id],
+        indicators: [
+          { label: "EOM concentration", value: `${Math.round((eomTotal / monthTotal) * 100)}%` },
+          { label: "EOM total", value: `$${eomTotal.toFixed(0)}` },
+          { label: "Month total", value: `$${monthTotal.toFixed(0)}` },
+        ],
+        recommendedAction: "Review all expenses submitted in the closing window. Prioritize high-dollar and round-amount items for receipt validation.",
+      })
+    );
   }
 
   return out
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 40);
+    .sort((a, b) => b.riskScore - a.riskScore || b.amount - a.amount)
+    .slice(0, 50);
+}
+
+export function anomalyStats(list: Anomaly[]) {
+  const bySeverity: Record<Severity, number> = { critical: 0, high: 0, medium: 0, low: 0 };
+  const byType = new Map<string, number>();
+  for (const a of list) {
+    bySeverity[a.severity] += 1;
+    byType.set(a.typeLabel, (byType.get(a.typeLabel) ?? 0) + 1);
+  }
+  return {
+    total: list.length,
+    bySeverity,
+    flaggedAmount: list.reduce((s, a) => s + a.amount, 0),
+    topType: [...byType.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—",
+  };
 }
 
 export interface VendorConsolidation {

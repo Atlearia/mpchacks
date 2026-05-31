@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { useNav, type Section } from "./state/store";
 import { usePolicy } from "./data/policy";
 import { companyKpis } from "./data/selectors";
-import { approvalQueue, policyViolations } from "./data/intelligence";
 import { fmtUSD } from "./theme";
 import { Avatar } from "./components/charts";
 import {
@@ -38,18 +37,12 @@ export default function App() {
   const section = useNav((s) => s.section);
   const setSection = useNav((s) => s.setSection);
   const policyInit = usePolicy((s) => s.init);
-  const config = usePolicy((s) => s.config);
 
   useEffect(() => {
     policyInit();
   }, [policyInit]);
 
   const kpis = useMemo(() => companyKpis(), []);
-  const openViolations = useMemo(() => {
-    const v = policyViolations(config);
-    return v.filter((x) => x.severity === "critical" || x.severity === "high").length;
-  }, [config]);
-  const pendingApprovals = useMemo(() => approvalQueue(config).length, [config]);
 
   const navItems: NavDef[] = [
     { id: "overview", label: "Overview", icon: <GridIcon /> },
@@ -73,27 +66,16 @@ export default function App() {
         </div>
 
         <div className="nav-section-label">Workspace</div>
-        {navItems.map((item) => {
-          const badge =
-            item.id === "policy" && openViolations > 0
-              ? { n: openViolations, warn: false }
-              : item.id === "approvals" && pendingApprovals > 0
-                ? { n: pendingApprovals, warn: true }
-                : null;
-          return (
-            <div
-              key={item.id}
-              className={`nav-item ${section === item.id ? "active" : ""}`}
-              onClick={() => setSection(item.id)}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-              {badge && (
-                <span className={`nav-badge ${badge.warn ? "warn" : ""}`}>{badge.n}</span>
-              )}
-            </div>
-          );
-        })}
+        {navItems.map((item) => (
+          <div
+            key={item.id}
+            className={`nav-item ${section === item.id ? "active" : ""}`}
+            onClick={() => setSection(item.id)}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </div>
+        ))}
 
         <div className="nav-foot">
           <Avatar name="Ning Ye" hue={214} size={34} />

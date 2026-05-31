@@ -48,35 +48,6 @@ export default function ExploreView() {
         </button>
       )}
 
-      {/* Subtle floating interaction hint for galaxy view */}
-      <AnimatePresence>
-        {view === "galaxy" && (
-          <motion.div
-            className="explore-hint-float"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.4, delay: 0.8 }}
-          >
-            <div className="explore-hint-inner">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                <circle cx="8" cy="8" r="7" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-                <circle cx="8" cy="8" r="2" fill="rgba(255,255,255,0.5)" />
-                <path d="M8 1v3M8 12v3M1 8h3M12 8h3" stroke="rgba(255,255,255,0.25)" strokeWidth="0.8" />
-              </svg>
-              <span>Orbit</span>
-              <span className="explore-hint-sep">·</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                <rect x="5" y="1" width="6" height="10" rx="3" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-                <line x1="8" y1="3" x2="8" y2="5" stroke="rgba(255,255,255,0.5)" strokeWidth="1" strokeLinecap="round" />
-                <path d="M4 13l4 2 4-2" stroke="rgba(255,255,255,0.25)" strokeWidth="0.8" strokeLinejoin="round" />
-              </svg>
-              <span>Zoom</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* The 3D galaxy stays mounted; camera resets to overview when backing out of a drill-down */}
       <motion.div
         className="layer"
