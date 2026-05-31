@@ -41,15 +41,9 @@ export default function ExploreView() {
 
   return (
     <div className="layer" style={{ position: "absolute", inset: 0 }}>
-      {/* Breadcrumb — only shows when drilled in past galaxy */}
+      {/* Back button — only shows when drilled in past galaxy */}
       {view !== "galaxy" && (
-        <div style={{ position: "absolute", top: 16, left: 22, zIndex: 16 }}>
-          <Breadcrumb />
-        </div>
-      )}
-
-      {view !== "galaxy" && (
-        <button className="back-btn" style={{ top: 54 }} onClick={goBack}>
+        <button className="back-btn" style={{ top: 16 }} onClick={goBack}>
           ‹ Back
         </button>
       )}
@@ -89,7 +83,7 @@ export default function ExploreView() {
         )}
       </AnimatePresence>
 
-      {/* The 3D galaxy stays mounted so orbit state is preserved */}
+      {/* The 3D galaxy stays mounted; camera resets to overview when backing out of a drill-down */}
       <motion.div
         className="layer"
         animate={{ opacity: view === "galaxy" ? 1 : 0 }}

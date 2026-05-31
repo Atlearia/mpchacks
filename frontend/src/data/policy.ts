@@ -18,7 +18,7 @@ export interface CategoryLimit {
 export interface PolicyConfig {
   /** Any single transaction at or above this needs pre-approval. */
   approvalThreshold: number;
-  /** A solo meal above this is flagged; team meals get more headroom. */
+  /** Per-employee expense cap; meal charges above this may be flagged. */
   soloMealLimit: number;
   /** Per-department monthly budget ceilings (USD). */
   departmentBudgets: Record<string, number>;

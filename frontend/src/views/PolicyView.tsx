@@ -10,15 +10,22 @@ import {
   type Violation,
 } from "../data/intelligence";
 import { fetchPolicyBrief, type PolicyBrief } from "../data/ai";
+import { employeeById } from "../data/selectors";
 import { fmtUSD } from "../theme";
-import { SeverityBadge } from "../components/charts";
-import { SparkIcon } from "../components/icons";
+import { Avatar, SeverityBadge, StatCard } from "../components/charts";
+import { AlertIcon, DocIcon, ShieldIcon, SparkIcon } from "../components/icons";
 
-function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label?: string }) {
   return (
-    <div className={`toggle ${on ? "on" : ""}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`toggle ${on ? "on" : ""}`}
+      onClick={onClick}
+      aria-pressed={on}
+      aria-label={label}
+    >
       <div className="knob" />
-    </div>
+    </button>
   );
 }
 
@@ -29,6 +36,38 @@ function topMerchants(n = 14): string[] {
     map.set(t.merchantName, (map.get(t.merchantName) ?? 0) + t.amount);
   }
   return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([m]) => m);
+}
+
+function SettingField({
+  label,
+  hint,
+  value,
+  onChange,
+  step,
+}: {
+  label: string;
+  hint?: string;
+  value: number;
+  onChange: (v: number) => void;
+  step?: number;
+}) {
+  return (
+    <div className="setting-field">
+      <div className="setting-field-label">
+        <span>{label}</span>
+        {hint && <span className="setting-field-hint">{hint}</span>}
+      </div>
+      <div className="rule-input">
+        <span className="rule-input-prefix">$</span>
+        <input
+          type="number"
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+      </div>
+    </div>
+  );
 }
 
 function RulesTab() {
@@ -44,142 +83,210 @@ function RulesTab() {
   const reset = usePolicy((s) => s.reset);
 
   const merchants = useMemo(() => topMerchants(), []);
+  const [merchantQuery, setMerchantQuery] = useState("");
+  const [categoryQuery, setCategoryQuery] = useState("");
+
+  const filteredMerchants = merchants.filter((m) =>
+    m.toLowerCase().includes(merchantQuery.toLowerCase())
+  );
+  const filteredCategories = config.categoryLimits.filter((c) =>
+    c.category.toLowerCase().includes(categoryQuery.toLowerCase())
+  );
+
+  const activeRules =
+    config.categoryLimits.filter((c) => c.enabled).length +
+    config.allowedCategories.length +
+    config.restrictedMerchants.length;
 
   return (
-    <div className="rule-grid">
-      <div className="panel">
-        <div className="panel-h">
-          <h3>Spend Thresholds</h3>
-          <span className="panel-sub" style={{ cursor: "pointer" }} onClick={reset}>
-            Reset defaults
-          </span>
+    <div className="policy-rules">
+      <div className="policy-rules-header">
+        <div>
+          <h2 className="policy-rules-title">Expense Policy Configuration</h2>
+          <p className="policy-rules-desc">
+            Adjust thresholds, budgets, and restrictions. Changes apply instantly to the violation
+            engine.
+          </p>
         </div>
-        <div className="rule-row">
-          <div className="rule-label">
-            Pre-approval threshold
-            <div className="rule-hint">Any single charge at/above needs sign-off</div>
-          </div>
-          <div className="rule-input">
-            <span>$</span>
-            <input
-              type="number"
-              value={config.approvalThreshold}
-              onChange={(e) => setApprovalThreshold(Number(e.target.value))}
-            />
-          </div>
+        <button type="button" className="policy-reset-btn" onClick={reset}>
+          Reset to defaults
+        </button>
+      </div>
+
+      <div className="policy-rules-summary">
+        <div className="policy-rules-stat">
+          <span className="policy-rules-stat-val">{activeRules}</span>
+          <span className="policy-rules-stat-lbl">Active rules</span>
         </div>
-        <div className="rule-row">
-          <div className="rule-label">
-            Solo meal limit
-            <div className="rule-hint">Team meals get more headroom (AI context-aware)</div>
-          </div>
-          <div className="rule-input">
-            <span>$</span>
-            <input
-              type="number"
-              value={config.soloMealLimit}
-              onChange={(e) => setSoloMealLimit(Number(e.target.value))}
-            />
-          </div>
+        <div className="policy-rules-stat">
+          <span className="policy-rules-stat-val">{config.allowedCategories.length}</span>
+          <span className="policy-rules-stat-lbl">Allowed categories</span>
         </div>
-        <div className="rule-row">
-          <div className="rule-label">
-            Receipt required above
-            <div className="rule-hint">Charges over this need an attached receipt</div>
-          </div>
-          <div className="rule-input">
-            <span>$</span>
-            <input
-              type="number"
-              value={config.receiptRequiredAbove}
-              onChange={(e) => setReceiptRequiredAbove(Number(e.target.value))}
-            />
-          </div>
+        <div className="policy-rules-stat">
+          <span className="policy-rules-stat-val">{config.restrictedMerchants.length}</span>
+          <span className="policy-rules-stat-lbl">Blocked merchants</span>
+        </div>
+        <div className="policy-rules-stat">
+          <span className="policy-rules-stat-val">{DEPARTMENTS.length}</span>
+          <span className="policy-rules-stat-lbl">Dept budgets</span>
         </div>
       </div>
 
-      <div className="panel">
-        <div className="panel-h">
-          <h3>Department Monthly Budgets</h3>
-        </div>
-        {DEPARTMENTS.map((dept) => (
-          <div className="rule-row" key={dept}>
-            <div className="rule-label">{dept}</div>
-            <div className="rule-input">
-              <span>$</span>
-              <input
-                type="number"
-                step={500}
-                value={config.departmentBudgets[dept] ?? 0}
-                onChange={(e) => setDepartmentBudget(dept, Number(e.target.value))}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="panel">
-        <div className="panel-h">
-          <h3>Per-Category Transaction Caps</h3>
-        </div>
-        {config.categoryLimits.map((c) => (
-          <div className="rule-row" key={c.category}>
-            <div className="rule-label" style={{ flex: 1 }}>
-              {c.category}
-              <div className="rule-hint">{fmtUSD(c.perTransaction)} per transaction</div>
-            </div>
-            <input
-              type="range"
-              min={50}
-              max={5000}
-              step={50}
-              value={c.perTransaction}
-              disabled={!c.enabled}
-              onChange={(e) => setCategoryLimit(c.category, Number(e.target.value))}
-            />
-            <Toggle on={c.enabled} onClick={() => toggleCategoryLimit(c.category)} />
-          </div>
-        ))}
-      </div>
-
-      <div className="row-gap">
-        <div className="panel">
+      <div className="policy-rules-grid">
+        <div className="panel policy-rules-panel">
           <div className="panel-h">
-            <h3>Allowed Categories</h3>
-            <span className="panel-sub">Toggle off to restrict</span>
+            <div className="panel-h-left">
+              <span className="panel-icon"><ShieldIcon size={16} /></span>
+              <div>
+                <h3>Spend Thresholds</h3>
+                <span className="panel-desc">Single-transaction limits and approval gates</span>
+              </div>
+            </div>
           </div>
+          <div className="setting-fields">
+            <SettingField
+              label="Pre-approval threshold"
+              hint="Any charge at or above requires manager sign-off"
+              value={config.approvalThreshold}
+              onChange={setApprovalThreshold}
+            />
+            <SettingField
+              label="Per-employee expense cap"
+              hint="Single charges above this are flagged for policy review"
+              value={config.soloMealLimit}
+              onChange={setSoloMealLimit}
+            />
+            <SettingField
+              label="Receipt required above"
+              hint="Charges over this amount need an attached receipt"
+              value={config.receiptRequiredAbove}
+              onChange={setReceiptRequiredAbove}
+            />
+          </div>
+        </div>
+
+        <div className="panel policy-rules-panel">
+          <div className="panel-h">
+            <div className="panel-h-left">
+              <span className="panel-icon"><DocIcon size={16} /></span>
+              <div>
+                <h3>Department Monthly Budgets</h3>
+                <span className="panel-desc">Monthly spend ceilings by department</span>
+              </div>
+            </div>
+          </div>
+          <div className="dept-budget-grid">
+            {DEPARTMENTS.map((dept) => (
+              <div className="dept-budget-item" key={dept}>
+                <label className="dept-budget-name">{dept}</label>
+                <div className="rule-input">
+                  <span className="rule-input-prefix">$</span>
+                  <input
+                    type="number"
+                    step={500}
+                    value={config.departmentBudgets[dept] ?? 0}
+                    onChange={(e) => setDepartmentBudget(dept, Number(e.target.value))}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="panel policy-rules-panel policy-rules-panel-wide">
+          <div className="panel-h">
+            <div className="panel-h-left">
+              <span className="panel-icon"><AlertIcon size={16} /></span>
+              <div>
+                <h3>Per-Category Transaction Caps</h3>
+                <span className="panel-desc">Maximum amount per transaction by spend category</span>
+              </div>
+            </div>
+          </div>
+          <div className="category-limit-list">
+            {config.categoryLimits.map((c) => (
+              <div className={`category-limit-row ${c.enabled ? "" : "disabled"}`} key={c.category}>
+                <div className="category-limit-info">
+                  <span className="category-limit-name">{c.category}</span>
+                  <span className="category-limit-val">{fmtUSD(c.perTransaction)}</span>
+                </div>
+                <input
+                  type="range"
+                  className="category-limit-slider"
+                  min={50}
+                  max={5000}
+                  step={50}
+                  value={c.perTransaction}
+                  disabled={!c.enabled}
+                  onChange={(e) => setCategoryLimit(c.category, Number(e.target.value))}
+                />
+                <Toggle
+                  on={c.enabled}
+                  onClick={() => toggleCategoryLimit(c.category)}
+                  label={`Toggle ${c.category} limit`}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="panel policy-rules-panel">
+          <div className="panel-h">
+            <div className="panel-h-left">
+              <h3>Allowed Categories</h3>
+            </div>
+            <span className="panel-sub">{config.allowedCategories.length} enabled</span>
+          </div>
+          <input
+            type="search"
+            className="policy-search"
+            placeholder="Search categories…"
+            value={categoryQuery}
+            onChange={(e) => setCategoryQuery(e.target.value)}
+          />
           <div className="chip-set">
-            {config.categoryLimits.map((c) => {
+            {filteredCategories.map((c) => {
               const on = config.allowedCategories.includes(c.category);
               return (
-                <span
+                <button
+                  type="button"
                   className={`chip ${on ? "on" : ""}`}
                   key={c.category}
                   onClick={() => toggleAllowedCategory(c.category)}
                 >
                   {c.category}
-                </span>
+                </button>
               );
             })}
           </div>
         </div>
 
-        <div className="panel">
+        <div className="panel policy-rules-panel">
           <div className="panel-h">
-            <h3>Restricted Merchants</h3>
-            <span className="panel-sub">Charges here get flagged</span>
+            <div className="panel-h-left">
+              <h3>Restricted Merchants</h3>
+            </div>
+            <span className="panel-sub">{config.restrictedMerchants.length} blocked</span>
           </div>
+          <input
+            type="search"
+            className="policy-search"
+            placeholder="Search merchants…"
+            value={merchantQuery}
+            onChange={(e) => setMerchantQuery(e.target.value)}
+          />
           <div className="chip-set">
-            {merchants.map((m) => {
+            {filteredMerchants.map((m) => {
               const on = config.restrictedMerchants.includes(m);
               return (
-                <span
+                <button
+                  type="button"
                   className={`chip danger ${on ? "on" : ""}`}
                   key={m}
                   onClick={() => toggleRestrictedMerchant(m)}
                 >
                   {m}
-                </span>
+                </button>
               );
             })}
           </div>
@@ -189,30 +296,32 @@ function RulesTab() {
   );
 }
 
-const FILTERS: { id: Severity | "all"; label: string }[] = [
+const FILTERS: { id: Severity | "all"; label: string; color?: string }[] = [
   { id: "all", label: "All" },
-  { id: "critical", label: "Critical" },
-  { id: "high", label: "High" },
-  { id: "medium", label: "Medium" },
+  { id: "critical", label: "Critical", color: "var(--bad)" },
+  { id: "high", label: "High", color: "var(--warn)" },
+  { id: "medium", label: "Medium", color: "#c9920a" },
   { id: "low", label: "Low" },
 ];
 
-/* Compact violation type icon — replaces the full-width severity badge in the row */
-function ViolationTypeIcon({ type }: { type: string }) {
-  const icons: Record<string, string> = {
-    split_transaction: "✂",
-    restricted_merchant: "🚫",
-    disallowed_category: "⛔",
-    over_limit: "📈",
-    needs_approval: "🔒",
-    missing_receipt: "📄",
-  };
-  return <span className="viol-type-icon">{icons[type] ?? "⚠"}</span>;
+const TYPE_META: Record<string, { label: string; tone: "bad" | "warn" | "neutral" }> = {
+  split_transaction: { label: "Split", tone: "warn" },
+  restricted_merchant: { label: "Blocked", tone: "bad" },
+  disallowed_category: { label: "Category", tone: "bad" },
+  over_limit: { label: "Over cap", tone: "warn" },
+  needs_approval: { label: "Approval", tone: "neutral" },
+  missing_receipt: { label: "Receipt", tone: "neutral" },
+};
+
+function ViolationTypeBadge({ type }: { type: string }) {
+  const meta = TYPE_META[type] ?? { label: "Flag", tone: "neutral" as const };
+  return <span className={`viol-type-badge tone-${meta.tone}`}>{meta.label}</span>;
 }
 
 function ViolationsTab() {
   const config = usePolicy((s) => s.config);
   const [filter, setFilter] = useState<Severity | "all">("all");
+  const [search, setSearch] = useState("");
   const [brief, setBrief] = useState<PolicyBrief | null>(null);
   const [briefLoading, setBriefLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -221,8 +330,20 @@ function ViolationsTab() {
   const stats = useMemo(() => violationStats(violations), [violations]);
   const offenders = useMemo(() => repeatOffenders(violations), [violations]);
 
-  const filtered: Violation[] =
-    filter === "all" ? violations : violations.filter((v) => v.severity === filter);
+  const filtered: Violation[] = useMemo(() => {
+    let list = filter === "all" ? violations : violations.filter((v) => v.severity === filter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (v) =>
+          v.title.toLowerCase().includes(q) ||
+          v.employeeName.toLowerCase().includes(q) ||
+          v.department.toLowerCase().includes(q) ||
+          v.merchantName.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [violations, filter, search]);
 
   const handleBrief = async () => {
     setBriefLoading(true);
@@ -240,7 +361,7 @@ function ViolationsTab() {
       const result = await fetchPolicyBrief(top);
       setBrief(result);
     } catch {
-      /* brief unavailable — user can retry via Generate Policy Brief */
+      /* brief unavailable */
     } finally {
       setBriefLoading(false);
     }
@@ -249,11 +370,10 @@ function ViolationsTab() {
   const riskColors: Record<string, string> = {
     critical: "var(--bad)",
     elevated: "var(--warn)",
-    moderate: "#e0c040",
+    moderate: "#c9920a",
     healthy: "var(--good)",
   };
 
-  /* Severity counts for filter chips */
   const sevCounts: Record<string, number> = {
     all: violations.length,
     critical: stats.bySeverity.critical,
@@ -264,44 +384,45 @@ function ViolationsTab() {
 
   return (
     <>
-      {/* ── KPI summary row ── */}
-      <div className="kpi-row policy-kpi-row">
-        <div className="stat-card policy-kpi critical-kpi">
-          <div className="stat-card-label">Critical</div>
-          <div className="stat-card-value" style={{ color: "var(--bad)" }}>
-            {stats.bySeverity.critical}
-          </div>
-          <div className="stat-card-sub">Immediate action required</div>
-        </div>
-        <div className="stat-card policy-kpi high-kpi">
-          <div className="stat-card-label">High</div>
-          <div className="stat-card-value" style={{ color: "var(--warn)" }}>
-            {stats.bySeverity.high}
-          </div>
-          <div className="stat-card-sub">Review needed</div>
-        </div>
-        <div className="stat-card policy-kpi">
-          <div className="stat-card-label">Total Violations</div>
-          <div className="stat-card-value">{stats.total}</div>
-          <div className="stat-card-sub">Across all severity levels</div>
-        </div>
-        <div className="stat-card policy-kpi">
-          <div className="stat-card-label">Flagged Amount</div>
-          <div className="stat-card-value">{fmtUSD(stats.flaggedAmount)}</div>
-          <div className="stat-card-sub">Combined value at risk</div>
-        </div>
+      <div className="kpi-row">
+        <StatCard
+          label="Critical"
+          value={stats.bySeverity.critical}
+          sub="Immediate action required"
+          accent="var(--bad)"
+          icon={<AlertIcon size={18} />}
+        />
+        <StatCard
+          label="High Priority"
+          value={stats.bySeverity.high}
+          sub="Review within 48 hours"
+          accent="var(--warn)"
+          icon={<AlertIcon size={18} />}
+        />
+        <StatCard
+          label="Total Violations"
+          value={stats.total}
+          sub={`${stats.bySeverity.medium} medium · ${stats.bySeverity.low} low`}
+        />
+        <StatCard
+          label="Flagged Amount"
+          value={fmtUSD(stats.flaggedAmount)}
+          sub="Combined value at risk"
+          accent="var(--accent)"
+        />
       </div>
 
-      {/* ── AI Policy Brief ── */}
       {!brief && !briefLoading && (
         <motion.button
+          type="button"
           className="ai-brief-btn"
           onClick={handleBrief}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.005 }}
+          whileTap={{ scale: 0.995 }}
         >
           <SparkIcon size={16} />
-          Generate Policy Brief
+          Generate AI Policy Brief
+          <span className="ai-brief-badge">Crest AI</span>
         </motion.button>
       )}
 
@@ -310,7 +431,7 @@ function ViolationsTab() {
           <div className="typing">
             <span /><span /><span />
           </div>
-          <span style={{ marginLeft: 12, fontSize: 13, color: "var(--text-dim)" }}>
+          <span className="ai-brief-loading-text">
             Analyzing {stats.total} violations…
           </span>
         </div>
@@ -323,7 +444,7 @@ function ViolationsTab() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="brief-header">
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div className="brief-header-left">
               <SparkIcon size={16} />
               <span className="brief-title">Policy Brief</span>
               <span
@@ -350,41 +471,49 @@ function ViolationsTab() {
               ))}
             </div>
           )}
-          {brief.trendInsight && (
-            <div className="brief-trend">{brief.trendInsight}</div>
-          )}
+          {brief.trendInsight && <div className="brief-trend">{brief.trendInsight}</div>}
         </motion.div>
       )}
 
-      {/* ── Main content: Violations + Offenders side-by-side ── */}
       <div className="policy-layout">
-        {/* Left: Flagged transactions list */}
         <div className="policy-main-col">
           <div className="panel viol-panel">
             <div className="panel-h">
-              <h3>Flagged Transactions</h3>
-              <span className="panel-sub">{filtered.length} shown</span>
+              <div className="panel-h-left">
+                <h3>Flagged Transactions</h3>
+                <span className="panel-desc">Click a row to view full details</span>
+              </div>
+              <span className="panel-sub">{filtered.length} of {violations.length}</span>
             </div>
 
-            {/* Filter bar with counts */}
-            <div className="filter-bar">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  className={`viol-filter-chip ${filter === f.id ? "active" : ""}`}
-                  onClick={() => setFilter(f.id)}
-                >
-                  {f.label}
-                  <span className="viol-filter-count">{sevCounts[f.id]}</span>
-                </button>
-              ))}
+            <div className="policy-toolbar">
+              <input
+                type="search"
+                className="policy-search policy-search-wide"
+                placeholder="Search by employee, merchant, or title…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <div className="filter-bar">
+                {FILTERS.map((f) => (
+                  <button
+                    type="button"
+                    key={f.id}
+                    className={`viol-filter-chip ${filter === f.id ? "active" : ""}`}
+                    onClick={() => setFilter(f.id)}
+                  >
+                    {f.label}
+                    <span className="viol-filter-count">{sevCounts[f.id]}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Violation list */}
             <div className="viol-list">
               <AnimatePresence initial={false}>
                 {filtered.slice(0, 60).map((v) => {
                   const isExpanded = expandedId === v.id;
+                  const emp = employeeById(v.employeeId);
                   return (
                     <motion.div
                       className={`viol-card ${isExpanded ? "expanded" : ""}`}
@@ -395,14 +524,30 @@ function ViolationsTab() {
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.15 }}
                       onClick={() => setExpandedId(isExpanded ? null : v.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setExpandedId(isExpanded ? null : v.id);
+                        }
+                      }}
                     >
                       <div className="viol-card-top">
-                        <ViolationTypeIcon type={v.type} />
+                        <Avatar
+                          name={v.employeeName}
+                          hue={emp?.avatarHue ?? 220}
+                          size={38}
+                        />
                         <div className="viol-card-main">
-                          <div className="viol-card-title">{v.title}</div>
+                          <div className="viol-card-title-row">
+                            <div className="viol-card-title">{v.title}</div>
+                            <ViolationTypeBadge type={v.type} />
+                          </div>
                           <div className="viol-card-meta">
                             <span className="viol-card-who">{v.employeeName}</span>
                             <span className="viol-card-dept">{v.department}</span>
+                            <span className="viol-card-date">{v.date}</span>
                           </div>
                         </div>
                         <div className="viol-card-right">
@@ -422,9 +567,9 @@ function ViolationsTab() {
                             <div className="viol-detail-inner">
                               <div className="viol-detail-text">{v.detail}</div>
                               <div className="viol-detail-meta">
-                                <span>📅 {v.date}</span>
-                                <span>🏪 {v.merchantName}</span>
-                                <span>📂 {v.typeLabel}</span>
+                                <span><strong>Merchant</strong> {v.merchantName}</span>
+                                <span><strong>Type</strong> {v.typeLabel}</span>
+                                <span><strong>Date</strong> {v.date}</span>
                               </div>
                             </div>
                           </motion.div>
@@ -436,41 +581,51 @@ function ViolationsTab() {
               </AnimatePresence>
               {filtered.length === 0 && (
                 <div className="viol-empty">
-                  <span>✅</span>
-                  <p>No violations match this filter</p>
+                  <CheckCircleEmpty />
+                  <p>No violations match your filters</p>
+                  <span className="viol-empty-hint">Try adjusting severity or search terms</span>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right: Repeat offenders sidebar */}
         <div className="policy-side-col">
           <div className="panel offender-panel">
             <div className="panel-h">
-              <h3>Repeat Offenders</h3>
-              <span className="panel-sub">Ranked by risk</span>
+              <div className="panel-h-left">
+                <h3>Repeat Offenders</h3>
+                <span className="panel-desc">Ranked by composite risk score</span>
+              </div>
             </div>
             <div className="offender-list">
               {offenders.map((o, i) => {
+                const emp = employeeById(o.employeeId);
                 const maxScore = offenders[0]?.riskScore ?? 1;
                 const pct = Math.round((o.riskScore / maxScore) * 100);
                 return (
                   <div className="offender-card" key={o.employeeId}>
                     <div className="offender-card-top">
-                      <div className="offender-rank-badge">
-                        {i + 1}
-                      </div>
+                      <span className="offender-rank-badge">{i + 1}</span>
+                      <Avatar
+                        name={o.employeeName}
+                        hue={emp?.avatarHue ?? 220}
+                        size={34}
+                      />
                       <div className="offender-info">
                         <div className="offender-name">{o.employeeName}</div>
                         <div className="offender-dept">{o.department}</div>
                       </div>
-                      <div className="offender-risk-score">{o.riskScore}</div>
+                      <div className="offender-risk-wrap">
+                        <div className="offender-risk-score">{o.riskScore}</div>
+                        <div className="offender-risk-lbl">risk</div>
+                      </div>
                     </div>
                     <div className="offender-details">
                       <span>{o.count} flags</span>
                       <span className="offender-dot">·</span>
                       <span>{o.topType}</span>
+                      <SeverityBadge severity={o.worstSeverity} />
                     </div>
                     <div className="offender-bar-track">
                       <motion.div
@@ -479,7 +634,8 @@ function ViolationsTab() {
                         animate={{ width: `${pct}%` }}
                         transition={{ duration: 0.6, delay: i * 0.05 }}
                         style={{
-                          background: pct > 80 ? "var(--bad)" : pct > 50 ? "var(--warn)" : "var(--accent)",
+                          background:
+                            pct > 80 ? "var(--bad)" : pct > 50 ? "var(--warn)" : "var(--accent)",
                         }}
                       />
                     </div>
@@ -494,6 +650,15 @@ function ViolationsTab() {
   );
 }
 
+function CheckCircleEmpty() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--good)" strokeWidth="1.7">
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8.5 12 2.4 2.4L16 9.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function PolicyView() {
   const [tab, setTab] = useState<"rules" | "violations">("violations");
   const config = usePolicy((s) => s.config);
@@ -502,14 +667,28 @@ export default function PolicyView() {
   return (
     <div className="view">
       <div className="view-inner">
-        <div className="tabs">
-          <div className={`tab ${tab === "violations" ? "active" : ""}`} onClick={() => setTab("violations")}>
+        <div className="policy-tab-bar" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "violations"}
+            className={`policy-tab ${tab === "violations" ? "active" : ""}`}
+            onClick={() => setTab("violations")}
+          >
+            <AlertIcon size={15} />
             Violations
-            <span className="tab-count">{violationCount}</span>
-          </div>
-          <div className={`tab ${tab === "rules" ? "active" : ""}`} onClick={() => setTab("rules")}>
+            <span className="policy-tab-count">{violationCount}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "rules"}
+            className={`policy-tab ${tab === "rules" ? "active" : ""}`}
+            onClick={() => setTab("rules")}
+          >
+            <ShieldIcon size={15} />
             Policy Rules
-          </div>
+          </button>
         </div>
 
         {tab === "rules" ? <RulesTab /> : <ViolationsTab />}

@@ -147,8 +147,8 @@ export function policyViolations(policy: PolicyConfig): Violation[] {
       );
       const looksSolo = sameDayMeals.length === 1;
       if (looksSolo) {
-        out.push(mk(t, "over_limit", "low", `Solo meal $${t.amount.toFixed(0)} over $${policy.soloMealLimit} limit`,
-          `Appears to be a solo meal above the $${policy.soloMealLimit} cap (a team meal of this size would be in policy).`));
+        out.push(mk(t, "over_limit", "low", `Meal expense $${t.amount.toFixed(0)} over $${policy.soloMealLimit} cap`,
+          `Charge exceeds the $${policy.soloMealLimit} per-employee expense cap.`));
       }
     }
 

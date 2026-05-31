@@ -1,4 +1,13 @@
-import { Suspense, useMemo, useRef, useState, useCallback } from "react";
+import {
+  Suspense,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  type RefObject,
+} from "react";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -11,6 +20,11 @@ import { usePolicy } from "../data/policy";
 // Half-extents of the 3D plot volume.
 // X = department spread, Y = spending (height), Z = date (depth).
 const EXTENT = { x: 14, y: 10, z: 10 };
+
+const INITIAL_CAMERA = {
+  position: new THREE.Vector3(28, 22, 28),
+  target: new THREE.Vector3(0, 0, 0),
+};
 
 /**
  * Finance-grade metallic palette — think Bloomberg terminal meets
@@ -325,7 +339,10 @@ function CameraAnimator({
   const animatingRef = useRef(false);
   const prevTarget = useRef<{ x: number; y: number; z: number } | null>(null);
 
-  if (target && target !== prevTarget.current) {
+  if (!target) {
+    prevTarget.current = null;
+    animatingRef.current = false;
+  } else if (target !== prevTarget.current) {
     prevTarget.current = target;
     startPosRef.current.copy(camera.position);
     // Position camera at 90% from the data point — looking at it from
@@ -340,7 +357,7 @@ function CameraAnimator({
   }
 
   useFrame((_, delta) => {
-    if (!animatingRef.current) return;
+    if (!animatingRef.current || !target) return;
     progressRef.current += delta * 1.5; // ~0.67s total animation
     const t = Math.min(progressRef.current, 1);
     // Smooth ease-in-out
@@ -358,9 +375,73 @@ function CameraAnimator({
   return null;
 }
 
+/**
+ * When backing out of a drill-down, fly the camera back to the view that was
+ * saved at orb-click time (before the zoom-in animation finished).
+ */
+function CameraZoomHome({
+  active,
+  controlsRef,
+  onComplete,
+}: {
+  active: boolean;
+  controlsRef: RefObject<OrbitControlsImpl | null>;
+  onComplete: () => void;
+}) {
+  const { camera } = useThree();
+  const progressRef = useRef(0);
+  const startPosRef = useRef(new THREE.Vector3());
+  const endPosRef = useRef(new THREE.Vector3());
+  const startTargetRef = useRef(new THREE.Vector3());
+  const endTargetRef = useRef(new THREE.Vector3());
+  const animatingRef = useRef(false);
+  const prevActive = useRef(false);
+
+  useFrame((_, delta) => {
+    const controls = controlsRef.current;
+
+    if (active && !prevActive.current) {
+      if (!controls) return;
+      prevActive.current = true;
+      startPosRef.current.copy(camera.position);
+      startTargetRef.current.copy(controls.target);
+      endPosRef.current.copy(controls.position0);
+      endTargetRef.current.copy(controls.target0);
+      progressRef.current = 0;
+      animatingRef.current = true;
+    } else if (!active) {
+      prevActive.current = false;
+      animatingRef.current = false;
+    }
+
+    if (!animatingRef.current || !controls) return;
+
+    progressRef.current += delta * 1.5;
+    const t = Math.min(progressRef.current, 1);
+    const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+    camera.position.lerpVectors(startPosRef.current, endPosRef.current, ease);
+    controls.target.lerpVectors(startTargetRef.current, endTargetRef.current, ease);
+    controls.update();
+
+    if (t >= 1) {
+      animatingRef.current = false;
+      const wasDamping = controls.enableDamping;
+      controls.enableDamping = false;
+      controls.reset();
+      controls.update();
+      controls.enableDamping = wasDamping;
+      onComplete();
+    }
+  });
+
+  return null;
+}
+
 /* ────────────────────────────── Scene ───────────────────────────────────── */
 
 function Scene() {
+  const view = useNav((s) => s.view);
   const selectMonth = useNav((s) => s.selectMonth);
   const budgets = usePolicy((s) => s.config.departmentBudgets);
   const points = useMemo(() => deptDatePoints(), []);
@@ -372,9 +453,26 @@ function Scene() {
     z: number;
     monthStart: string;
   } | null>(null);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+  const [zoomingHome, setZoomingHome] = useState(false);
+  const prevViewRef = useRef(view);
+
+  useEffect(() => {
+    if (view === "galaxy" && prevViewRef.current !== "galaxy") {
+      setZoomTarget(null);
+      setZoomingHome(true);
+    }
+    prevViewRef.current = view;
+  }, [view]);
+
+  const handleZoomHomeComplete = useCallback(() => {
+    setZoomingHome(false);
+  }, []);
 
   const handleDotClick = useCallback(
     (monthStart: string, dotPos: readonly [number, number, number]) => {
+      // Snapshot the current orbit view before the zoom animation moves the camera.
+      controlsRef.current?.saveState();
       setZoomTarget({
         x: dotPos[0],
         y: dotPos[1],
@@ -404,6 +502,11 @@ function Scene() {
       <CameraAnimator
         target={zoomTarget}
         onComplete={handleZoomComplete}
+      />
+      <CameraZoomHome
+        active={zoomingHome}
+        controlsRef={controlsRef}
+        onComplete={handleZoomHomeComplete}
       />
 
       {/* Center the plot so it orbits around its visual center (half height) */}
@@ -446,13 +549,14 @@ function Scene() {
       </group>
 
       <OrbitControls
+        ref={controlsRef}
         enablePan={false}
         minDistance={18}
         maxDistance={70}
         dampingFactor={0.08}
         minPolarAngle={Math.PI * 0.1}
         maxPolarAngle={Math.PI * 0.48}
-        enabled={!zoomTarget}
+        enabled={!zoomTarget && !zoomingHome}
       />
     </>
   );
@@ -464,7 +568,7 @@ export default function Scatter3D() {
   return (
     <Canvas
       camera={{
-        position: [28, 22, 28],
+        position: INITIAL_CAMERA.position.toArray(),
         fov: 48,
       }}
       dpr={[1, 2]}
