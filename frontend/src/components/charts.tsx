@@ -29,16 +29,24 @@ export function StatCard({
   accent?: string;
   icon?: ReactNode;
 }) {
+  const iconStyle = accent
+    ? { color: accent, background: `color-mix(in srgb, ${accent} 14%, transparent)` }
+    : undefined;
+
   return (
     <div className="stat-card">
       <div className="stat-card-top">
         <span className="stat-card-label">{label}</span>
-        {icon && <span className="stat-card-icon" style={{ color: accent }}>{icon}</span>}
+        <span className="stat-card-icon" style={iconStyle} aria-hidden={!icon}>
+          {icon}
+        </span>
       </div>
-      <div className="stat-card-value" style={accent ? { color: accent } : undefined}>
-        {value}
+      <div className="stat-card-body">
+        <div className="stat-card-value" style={accent ? { color: accent } : undefined}>
+          {value}
+        </div>
+        <div className="stat-card-sub">{sub ?? "\u00A0"}</div>
       </div>
-      {sub != null && <div className="stat-card-sub">{sub}</div>}
     </div>
   );
 }

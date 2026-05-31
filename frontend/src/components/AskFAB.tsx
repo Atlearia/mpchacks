@@ -139,10 +139,10 @@ function extractRegionContext(rect: SelectionRect, section: string): ContextInfo
 
 function contextToPromptPrefix(ctx: ContextInfo): string {
   const sectionNames: Record<string, string> = {
-    overview: "the Executive Overview dashboard",
+    overview: "the Overview dashboard",
     explore: "the Spend Explorer",
     policy: "the Policy Compliance view",
-    approvals: "the Pre-Approval Queue",
+    approvals: "the Approval Queue",
     reports: "the Expense Reports view",
   };
 
@@ -369,7 +369,7 @@ export default function AskFAB() {
               <SparkIcon size={14} />
               {isDragging
                 ? "Release to capture this area"
-                : "Drag to select an area — Esc to cancel, or click the button for general questions"}
+                : "Drag to select an area. Esc to cancel, or click the button for general questions"}
             </motion.div>
           </>
         )}

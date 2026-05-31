@@ -1,30 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import Splash from "./components/Splash";
 import { loadDataset } from "./data/dataset";
 import "./index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
-
-function Splash({ message, error }: { message: string; error?: boolean }) {
-  return (
-    <div
-      style={{
-        height: "100vh",
-        display: "grid",
-        placeItems: "center",
-        background: "#eef1f9",
-        color: error ? "#ec4d68" : "#6a7299",
-        fontFamily: "system-ui, sans-serif",
-        gap: 16,
-        textAlign: "center",
-        padding: 24,
-      }}
-    >
-      <div style={{ fontSize: 18, letterSpacing: 0.3 }}>{message}</div>
-    </div>
-  );
-}
 
 root.render(<Splash message="Loading expense intelligence…" />);
 

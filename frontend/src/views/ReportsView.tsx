@@ -25,7 +25,7 @@ function displayStatus(report: ExpenseReport, action?: ReportAction) {
 function aiSummary(r: ExpenseReport): string {
   const top = r.categories[0];
   const flag = r.flaggedCount
-    ? ` ${r.flaggedCount} line item${r.flaggedCount > 1 ? "s" : ""} need review before sign-off.`
+    ? ` ${r.flaggedCount} line item${r.flaggedCount > 1 ? "s" : ""} need review before approval.`
     : " All line items are within policy.";
   return `${r.lineItems.length} transactions from ${r.startDate} to ${r.endDate}, grouped into "${r.title}". Largest category is ${top?.category} (${fmtUSD(
     top?.total ?? 0
@@ -136,8 +136,8 @@ function Detail({
         <div className="report-approve-bar">
           <div className="ra-text">
             {manager
-              ? `Ready for CFO sign-off, or flag concerns to ${manager.name}, ${manager.title}.`
-              : "Reviewed against the active expense policy and ready for CFO sign-off."}
+              ? `Ready for CFO approval, or flag concerns to ${manager.name}, ${manager.title}.`
+              : "Reviewed against the active expense policy and ready for CFO approval."}
           </div>
           <div className="report-action-btns">
             <button className="btn flag" onClick={() => onAction("flagged")}>
@@ -168,7 +168,7 @@ export default function ReportsView() {
           <div>
             <div className="panel-h" style={{ marginBottom: 4 }}>
               <h3>Generated Reports</h3>
-              <span className="panel-sub">{reports.length} auto-grouped</span>
+              <span className="panel-sub">{reports.length} grouped</span>
             </div>
             {reports.map((r) => {
               const emp = employeeById(r.employeeId);

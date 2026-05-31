@@ -105,19 +105,19 @@ function RulesTab() {
               <span className="panel-icon"><ShieldIcon size={16} /></span>
               <div>
                 <h3>Spend Thresholds</h3>
-                <span className="panel-desc">Single-transaction limits and approval gates</span>
+                <span className="panel-desc">Single transaction limits and approval gates</span>
               </div>
             </div>
           </div>
           <div className="setting-fields">
             <SettingField
-              label="Pre-approval threshold"
-              hint="Any charge at or above requires manager sign-off"
+              label="Approval threshold"
+              hint="Any charge at or above requires manager approval"
               value={config.approvalThreshold}
               onChange={setApprovalThreshold}
             />
             <SettingField
-              label="Per-employee expense cap"
+              label="Employee expense cap"
               hint="Single charges above this are flagged for policy review"
               value={config.soloMealLimit}
               onChange={setSoloMealLimit}

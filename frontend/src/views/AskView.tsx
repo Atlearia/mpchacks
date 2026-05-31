@@ -105,8 +105,8 @@ export default function AskView() {
               </div>
               <h2>Ask anything about your spend</h2>
               <p>
-                Plain-English questions, answered with the right chart. Try a suggestion below, then
-                ask follow-ups — I keep the context.
+                Ask in plain English and get charts back. Try a suggestion below, then ask
+                follow-ups. Context carries over.
               </p>
               {isLive !== null && (
                 <div className={`ai-mode-badge ${isLive ? "live" : "offline"}`}>

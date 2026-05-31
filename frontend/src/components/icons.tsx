@@ -115,3 +115,11 @@ export function TrendDownIcon({ size = 18, className }: IconProps) {
     </svg>
   );
 }
+
+export function ChevronDownIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}

@@ -5,6 +5,7 @@ import { usePolicy } from "../data/policy";
 import { companyKpis } from "../data/selectors";
 import {
   anomalies,
+  anomalyStats,
   departmentBudgets,
   policyViolations,
   vendorConsolidation,
@@ -12,7 +13,8 @@ import {
 } from "../data/intelligence";
 import { fmtUSD } from "../theme";
 import { BudgetGauge, SeverityBadge, Sparkline, StatCard } from "../components/charts";
-import { AlertIcon, SparkIcon, TrendUpIcon } from "../components/icons";
+import AnomalyList from "../components/AnomalyList";
+import { AlertIcon, ShieldIcon, SparkIcon, TrendUpIcon } from "../components/icons";
 
 export default function OverviewDashboard() {
   const config = usePolicy((s) => s.config);
@@ -23,6 +25,7 @@ export default function OverviewDashboard() {
   const violations = useMemo(() => policyViolations(config), [config]);
   const stats = useMemo(() => violationStats(violations), [violations]);
   const anomalyList = useMemo(() => anomalies(), []);
+  const anomalySummary = useMemo(() => anomalyStats(anomalyList), [anomalyList]);
   const consolidation = useMemo(() => vendorConsolidation(), []);
 
   const totalSavings = consolidation.reduce((s, c) => s + c.estimatedSavings, 0);
@@ -52,6 +55,7 @@ export default function OverviewDashboard() {
             value={atRisk.length}
             sub={<>of {budgets.length} departments</>}
             accent={atRisk.length ? "var(--warn)" : "var(--good)"}
+            icon={<ShieldIcon />}
           />
           <StatCard
             label="Potential Savings"
@@ -91,7 +95,7 @@ export default function OverviewDashboard() {
                   )}
                   {b.status === "risk" && (
                     <>
-                      <AlertIcon size={14} /> Projected to exceed budget — trending to{" "}
+                      <AlertIcon size={14} /> Projected to exceed budget, trending to{" "}
                       {fmtUSD(b.projectedNext)} next month
                     </>
                   )}
@@ -128,25 +132,20 @@ export default function OverviewDashboard() {
               </div>
             </div>
 
-            <div className="panel">
+            <div className="panel anomaly-panel">
               <div className="panel-h">
-                <h3>Anomalies Detected</h3>
-                <span className="panel-sub">{anomalyList.length} flagged</span>
+                <div className="panel-h-left">
+                  <h3>Anomalies Detected</h3>
+                  <span className="panel-desc">Click a card for analyst detail</span>
+                </div>
+                <span className="panel-sub">
+                  {anomalySummary.total} flagged
+                  {anomalySummary.bySeverity.high > 0 && (
+                    <> · {anomalySummary.bySeverity.high} high</>
+                  )}
+                </span>
               </div>
-              <div className="alert-list">
-                {anomalyList.slice(0, 4).map((a) => (
-                  <div className="alert-item" key={a.id}>
-                    <div className="alert-icon warn">
-                      <SparkIcon size={16} />
-                    </div>
-                    <div className="alert-body">
-                      <div className="alert-title">{a.title}</div>
-                      <div className="alert-detail">{a.detail}</div>
-                    </div>
-                    <span className="tag">{a.typeLabel}</span>
-                  </div>
-                ))}
-              </div>
+              <AnomalyList items={anomalyList} limit={5} />
             </div>
 
             {consolidation[0] && (

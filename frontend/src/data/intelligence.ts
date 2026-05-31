@@ -102,7 +102,7 @@ export function policyViolations(policy: PolicyConfig): Violation[] {
         title: `${txns.length} charges split to dodge $${policy.approvalThreshold} approval`,
         detail: `${first.employeeName} ran ${txns.length} charges at ${first.merchantName} on ${first.transactionDate} totaling $${Math.round(
           sum
-        ).toLocaleString()} — each under the $${policy.approvalThreshold} approval threshold.`,
+        ).toLocaleString()}, each under the $${policy.approvalThreshold} approval threshold.`,
         employeeId: first.employeeId,
         employeeName: first.employeeName,
         department: first.department,
@@ -154,7 +154,7 @@ export function policyViolations(policy: PolicyConfig): Violation[] {
 
     if (t.amount >= policy.approvalThreshold && hash(t.id) % 3 === 0) {
       out.push(mk(t, "needs_approval", "medium", `$${t.amount.toFixed(0)} charge without recorded approval`,
-        `Charges at/above $${policy.approvalThreshold} require pre-approval; none is on file for this transaction.`));
+        `Charges at/above $${policy.approvalThreshold} require approval; none is on file for this transaction.`));
     }
 
     if (t.amount >= policy.receiptRequiredAbove && hash(t.id + "r") % 4 === 0) {
@@ -425,7 +425,7 @@ export function anomalies(): Anomaly[] {
             severity: "high",
             riskScore: 82,
             title: `Duplicate charge at ${t.merchantName}`,
-            detail: `${t.employeeName} has two identical charges of $${t.amount.toFixed(2)} at ${t.merchantName} within ${Math.max(1, Math.round(gap))} day(s). Duplicate billing is a top T&E fraud indicator — verify both receipts and confirm the merchant did not double-post.`,
+            detail: `${t.employeeName} has two identical charges of $${t.amount.toFixed(2)} at ${t.merchantName} within ${Math.max(1, Math.round(gap))} day(s). Duplicate billing is a top T&E fraud indicator. Verify both receipts and confirm the merchant did not double-post.`,
             amount: Math.round(t.amount),
             employeeId: t.employeeId,
             employeeName: t.employeeName,
@@ -502,7 +502,7 @@ export function anomalies(): Anomaly[] {
           severity: row.total > avg * 5 ? "high" : "medium",
           riskScore: Math.min(90, Math.round(50 + (row.total / avg) * 6)),
           title: `Unusual spending burst on ${date}`,
-          detail: `${lead.employeeName} posted ${row.count} charges totaling $${row.total.toFixed(0)} on ${date} — ${(row.total / avg).toFixed(1)}× their average daily spend ($${avg.toFixed(0)}). Velocity monitoring detects card testing, split purchases, and binge spending patterns.`,
+          detail: `${lead.employeeName} posted ${row.count} charges totaling $${row.total.toFixed(0)} on ${date}, ${(row.total / avg).toFixed(1)}× their average daily spend ($${avg.toFixed(0)}). Velocity monitoring detects card testing, split purchases, and binge spending patterns.`,
           amount: Math.round(row.total),
           employeeId: empId,
           employeeName: lead.employeeName,
@@ -533,8 +533,8 @@ export function anomalies(): Anomaly[] {
         type: "round_number",
         severity: t.amount >= 500 ? "medium" : "low",
         riskScore: t.amount >= 1000 ? 58 : 42,
-        title: `Exact $${t.amount.toFixed(0)} — no cents`,
-        detail: `${t.employeeName} submitted a perfectly round $${t.amount.toFixed(0)} charge at ${t.merchantName} (${t.spendCategory}). Round-dollar amounts in expense categories requiring itemized receipts are a known fraud indicator — they often signal estimated or fabricated charges.`,
+        title: `Exact $${t.amount.toFixed(0)}, no cents`,
+        detail: `${t.employeeName} submitted a perfectly round $${t.amount.toFixed(0)} charge at ${t.merchantName} (${t.spendCategory}). Round-dollar amounts in expense categories requiring itemized receipts are a known fraud indicator. They often signal estimated or fabricated charges.`,
         amount: Math.round(t.amount),
         employeeId: t.employeeId,
         employeeName: t.employeeName,
@@ -563,7 +563,7 @@ export function anomalies(): Anomaly[] {
         type: "foreign",
         severity: t.amount >= 500 ? "high" : "medium",
         riskScore: t.amount >= 500 ? 72 : 55,
-        title: `Cross-border charge — ${t.merchantCountry}`,
+        title: `Cross-border charge in ${t.merchantCountry}`,
         detail: `${t.employeeName} charged $${t.amount.toFixed(0)} at ${t.merchantName} in ${t.merchantCountry}. International transactions carry elevated fraud risk and require travel authorization verification.`,
         amount: Math.round(t.amount),
         employeeId: t.employeeId,
@@ -703,7 +703,7 @@ export function anomalyStats(list: Anomaly[]) {
     total: list.length,
     bySeverity,
     flaggedAmount: list.reduce((s, a) => s + a.amount, 0),
-    topType: [...byType.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—",
+    topType: [...byType.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "None",
   };
 }
 
@@ -928,12 +928,12 @@ export function approvalQueue(policy: PolicyConfig): ApprovalRequest[] {
     );
     reasoning.push(
       priorSimilar > 0
-        ? `Consistent with ${emp.name}'s history — ${priorSimilar} prior ${tpl.category.toLowerCase()} charges.`
+        ? `Consistent with ${emp.name}'s history, with ${priorSimilar} prior ${tpl.category.toLowerCase()} charges.`
         : `No prior ${tpl.category.toLowerCase()} spend for ${emp.name}; first of its kind.`
     );
     reasoning.push(
       amount >= policy.approvalThreshold
-        ? `Above the $${policy.approvalThreshold} approval threshold, so sign-off is required.`
+        ? `Above the $${policy.approvalThreshold} approval threshold, so approval is required.`
         : `Below the $${policy.approvalThreshold} threshold; routine.`
     );
 

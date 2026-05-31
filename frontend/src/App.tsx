@@ -19,12 +19,12 @@ import ReportsView from "./views/ReportsView";
 import AskFAB from "./components/AskFAB";
 
 const SECTION_META: Record<Section, { title: string; sub: string }> = {
-  overview: { title: "Executive Overview", sub: "Company-wide spend health at a glance" },
-  explore: { title: "Spend Explorer", sub: "3D galaxy of department spend over time" },
-  ask: { title: "Ask Your Data", sub: "Conversational analytics across every transaction" },
+  overview: { title: "Overview", sub: "Company spend summary" },
+  explore: { title: "Spend Explorer", sub: "3D view of department spend over time" },
+  ask: { title: "Ask Your Data", sub: "Questions and charts from your spend data" },
   policy: { title: "Policy Compliance", sub: "Rules, violations, and repeat offenders" },
-  approvals: { title: "Pre-Approval Queue", sub: "AI-assisted spend approvals" },
-  reports: { title: "Expense Reports", sub: "Auto-generated, policy-checked, approval-ready" },
+  approvals: { title: "Approval Queue", sub: "Pending spend requests" },
+  reports: { title: "Expense Reports", sub: "Grouped by employee and ready for review" },
 };
 
 interface NavDef {
