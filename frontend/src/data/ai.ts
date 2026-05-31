@@ -13,7 +13,7 @@ import { deptColor } from "../theme";
 // In production this should be server-side only; for the hackathon demo this
 // lets the AI work without the Python backend running.
 const GEMINI_API_KEY = "REDACTED_KEY";
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.1-pro";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `You are Brim AI, an expert CFO assistant for a mid-size company.
@@ -120,10 +120,10 @@ function buildClientSummary(): string {
 }
 
 // ---------------------------------------------------------------------------
-// Direct Gemini API call from browser
+// Direct Gemini API call — the primary AI path
 // ---------------------------------------------------------------------------
 
-async function askGeminiDirect(
+export async function askGemini(
   question: string,
   history: ApiMessage[],
 ): Promise<AiAnswer> {
@@ -156,34 +156,45 @@ async function askGeminiDirect(
     parts: [{ text: question }],
   });
 
-  const res = await fetch(GEMINI_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents,
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.3,
-      },
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents,
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.3,
+        },
+      }),
+    });
+  } catch (networkErr) {
+    console.error("[Gemini] Network error:", networkErr);
+    throw new Error("Network error calling Gemini API");
+  }
 
   if (!res.ok) {
-    const err = await res.text();
-    console.error("[Gemini direct] API error:", res.status, err);
-    throw new Error(`Gemini API error: ${res.status}`);
+    const errText = await res.text().catch(() => "unknown");
+    console.error("[Gemini] API error:", res.status, errText);
+    throw new Error(`Gemini API ${res.status}: ${errText.slice(0, 200)}`);
   }
 
   const json = await res.json();
   const text = json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
+  if (!text) {
+    console.error("[Gemini] Empty response:", JSON.stringify(json).slice(0, 500));
+    throw new Error("Gemini returned an empty response");
+  }
+
   let parsed: any;
   try {
     parsed = JSON.parse(text);
   } catch {
-    // If Gemini didn't return valid JSON, wrap the raw text as summary
+    // Gemini didn't return valid JSON — use the raw text as summary
     return {
-      summary: text || "I couldn't process that question. Try rephrasing it.",
+      summary: text,
       followups: ["Show me spend by department", "Who are our top vendors?"],
       focus: {},
       isLive: true,
@@ -200,49 +211,6 @@ async function askGeminiDirect(
     isLive: true,
     model: GEMINI_MODEL,
   };
-}
-
-// ---------------------------------------------------------------------------
-// Main ask function: backend → direct Gemini → local fallback
-// ---------------------------------------------------------------------------
-
-export async function askGemini(
-  question: string,
-  history: ApiMessage[],
-): Promise<AiAnswer> {
-  // Tier 1: Try the backend (has MongoDB + full context)
-  try {
-    const res = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, history }),
-    });
-
-    if (res.ok) {
-      const data: ApiAskResponse = await res.json();
-      const spec = apiChartToSpec(data.chartType, data.chartData);
-      return {
-        summary: data.summary,
-        spec,
-        followups: data.followups ?? [],
-        focus: {},
-        model: data.model,
-        isLive: true,
-      };
-    }
-  } catch {
-    // Backend unreachable — fall through
-  }
-
-  // Tier 2: Call Gemini API directly from browser
-  try {
-    return await askGeminiDirect(question, history);
-  } catch (e) {
-    console.warn("[AI] Direct Gemini call failed, using local fallback:", e);
-  }
-
-  // Tier 3: Local keyword matcher (fully offline)
-  throw new Error("All AI backends unavailable");
 }
 
 export type ChartSpec =
