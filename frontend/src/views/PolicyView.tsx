@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePolicy } from "../data/policy";
 import { DEPARTMENTS, TRANSACTIONS } from "../data/dataset";
 import {
@@ -197,12 +197,26 @@ const FILTERS: { id: Severity | "all"; label: string }[] = [
   { id: "low", label: "Low" },
 ];
 
+/* Compact violation type icon — replaces the full-width severity badge in the row */
+function ViolationTypeIcon({ type }: { type: string }) {
+  const icons: Record<string, string> = {
+    split_transaction: "✂",
+    restricted_merchant: "🚫",
+    disallowed_category: "⛔",
+    over_limit: "📈",
+    needs_approval: "🔒",
+    missing_receipt: "📄",
+  };
+  return <span className="viol-type-icon">{icons[type] ?? "⚠"}</span>;
+}
+
 function ViolationsTab() {
   const config = usePolicy((s) => s.config);
   const [filter, setFilter] = useState<Severity | "all">("all");
   const [brief, setBrief] = useState<PolicyBrief | null>(null);
   const [briefLoading, setBriefLoading] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const violations = useMemo(() => policyViolations(config), [config]);
   const stats = useMemo(() => violationStats(violations), [violations]);
@@ -252,31 +266,46 @@ function ViolationsTab() {
     healthy: "var(--good)",
   };
 
+  /* Severity counts for filter chips */
+  const sevCounts: Record<string, number> = {
+    all: violations.length,
+    critical: stats.bySeverity.critical,
+    high: stats.bySeverity.high,
+    medium: stats.bySeverity.medium,
+    low: stats.bySeverity.low,
+  };
+
   return (
     <>
-      <div className="kpi-row">
-        <div className="stat-card">
-          <div className="stat-card-label">Total Violations</div>
-          <div className="stat-card-value">{stats.total}</div>
-        </div>
-        <div className="stat-card">
+      {/* ── KPI summary row ── */}
+      <div className="kpi-row policy-kpi-row">
+        <div className="stat-card policy-kpi critical-kpi">
           <div className="stat-card-label">Critical</div>
           <div className="stat-card-value" style={{ color: "var(--bad)" }}>
             {stats.bySeverity.critical}
           </div>
+          <div className="stat-card-sub">Immediate action required</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card policy-kpi high-kpi">
           <div className="stat-card-label">High</div>
           <div className="stat-card-value" style={{ color: "var(--warn)" }}>
             {stats.bySeverity.high}
           </div>
+          <div className="stat-card-sub">Review needed</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card policy-kpi">
+          <div className="stat-card-label">Total Violations</div>
+          <div className="stat-card-value">{stats.total}</div>
+          <div className="stat-card-sub">Across all severity levels</div>
+        </div>
+        <div className="stat-card policy-kpi">
           <div className="stat-card-label">Flagged Amount</div>
           <div className="stat-card-value">{fmtUSD(stats.flaggedAmount)}</div>
+          <div className="stat-card-sub">Combined value at risk</div>
         </div>
       </div>
 
+      {/* ── AI Policy Brief ── */}
       {!brief && !briefLoading && (
         <motion.button
           className="ai-brief-btn"
@@ -347,31 +376,11 @@ function ViolationsTab() {
         </motion.div>
       )}
 
-      <div className="approvals-split">
-        <div style={{ order: 2 }}>
-          <div className="panel">
-            <div className="panel-h">
-              <h3>Repeat Offenders</h3>
-              <span className="panel-sub">Ranked by risk</span>
-            </div>
-            <div style={{ maxHeight: "calc(100vh - 380px)", minHeight: 150, overflowY: "auto" }}>
-            {offenders.map((o, i) => (
-              <div className="offender-row" key={o.employeeId}>
-                <div className="offender-rank">{i + 1}</div>
-                <div className="offender-body">
-                  <div className="nm">{o.employeeName}</div>
-                  <div className="mt">
-                    {o.department} · {o.count} flags · mostly {o.topType}
-                  </div>
-                </div>
-                <div className="offender-score">{o.riskScore}</div>
-              </div>
-            ))}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ order: 1, gridColumn: "1 / 2" }}>
+      {/* ── Main content: Violations + Offenders side-by-side ── */}
+      <div className="policy-layout">
+        {/* Left: Flagged transactions list */}
+        <div className="policy-main-col">
+          {/* Spotlight */}
           {spotlight && (
             <motion.div
               className="panel spotlight"
@@ -392,37 +401,132 @@ function ViolationsTab() {
             </motion.div>
           )}
 
-          <div className="panel">
+          <div className="panel viol-panel">
             <div className="panel-h">
               <h3>Flagged Transactions</h3>
               <span className="panel-sub">{filtered.length} shown</span>
             </div>
+
+            {/* Filter bar with counts */}
             <div className="filter-bar">
               {FILTERS.map((f) => (
-                <span
+                <button
                   key={f.id}
-                  className={`chip ${filter === f.id ? "on" : ""}`}
+                  className={`viol-filter-chip ${filter === f.id ? "active" : ""}`}
                   onClick={() => setFilter(f.id)}
                 >
                   {f.label}
-                </span>
+                  <span className="viol-filter-count">{sevCounts[f.id]}</span>
+                </button>
               ))}
             </div>
-            <div style={{ maxHeight: "calc(100vh - 520px)", minHeight: 200, overflowY: "auto" }}>
-            {filtered.slice(0, 60).map((v) => (
-              <div className="violation-row" key={v.id}>
-                <SeverityBadge severity={v.severity} />
-                <div>
-                  <div className="v-title">{v.title}</div>
-                  <div className="v-detail">{v.detail}</div>
+
+            {/* Violation list */}
+            <div className="viol-list">
+              <AnimatePresence initial={false}>
+                {filtered.slice(0, 60).map((v) => {
+                  const isExpanded = expandedId === v.id;
+                  return (
+                    <motion.div
+                      className={`viol-card ${isExpanded ? "expanded" : ""}`}
+                      key={v.id}
+                      layout
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={() => setExpandedId(isExpanded ? null : v.id)}
+                    >
+                      <div className="viol-card-top">
+                        <ViolationTypeIcon type={v.type} />
+                        <div className="viol-card-main">
+                          <div className="viol-card-title">{v.title}</div>
+                          <div className="viol-card-meta">
+                            <span className="viol-card-who">{v.employeeName}</span>
+                            <span className="viol-card-dept">{v.department}</span>
+                          </div>
+                        </div>
+                        <div className="viol-card-right">
+                          <div className="viol-card-amt">{fmtUSD(v.amount)}</div>
+                          <SeverityBadge severity={v.severity} />
+                        </div>
+                      </div>
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            className="viol-card-detail"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="viol-detail-inner">
+                              <div className="viol-detail-text">{v.detail}</div>
+                              <div className="viol-detail-meta">
+                                <span>📅 {v.date}</span>
+                                <span>🏪 {v.merchantName}</span>
+                                <span>📂 {v.typeLabel}</span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+              {filtered.length === 0 && (
+                <div className="viol-empty">
+                  <span>✅</span>
+                  <p>No violations match this filter</p>
                 </div>
-                <div className="v-who">
-                  {v.employeeName}
-                  <div className="dept">{v.department}</div>
-                </div>
-                <div className="v-amt">{fmtUSD(v.amount)}</div>
-              </div>
-            ))}
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Repeat offenders sidebar */}
+        <div className="policy-side-col">
+          <div className="panel offender-panel">
+            <div className="panel-h">
+              <h3>Repeat Offenders</h3>
+              <span className="panel-sub">Ranked by risk</span>
+            </div>
+            <div className="offender-list">
+              {offenders.map((o, i) => {
+                const maxScore = offenders[0]?.riskScore ?? 1;
+                const pct = Math.round((o.riskScore / maxScore) * 100);
+                return (
+                  <div className="offender-card" key={o.employeeId}>
+                    <div className="offender-card-top">
+                      <div className="offender-rank-badge">
+                        {i + 1}
+                      </div>
+                      <div className="offender-info">
+                        <div className="offender-name">{o.employeeName}</div>
+                        <div className="offender-dept">{o.department}</div>
+                      </div>
+                      <div className="offender-risk-score">{o.riskScore}</div>
+                    </div>
+                    <div className="offender-details">
+                      <span>{o.count} flags</span>
+                      <span className="offender-dot">·</span>
+                      <span>{o.topType}</span>
+                    </div>
+                    <div className="offender-bar-track">
+                      <motion.div
+                        className="offender-bar-fill"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.6, delay: i * 0.05 }}
+                        style={{
+                          background: pct > 80 ? "var(--bad)" : pct > 50 ? "var(--warn)" : "var(--accent)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

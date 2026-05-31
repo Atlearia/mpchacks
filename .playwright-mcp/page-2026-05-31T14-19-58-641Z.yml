@@ -1,0 +1,845 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - img "Crest" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: Crest
+        - generic [ref=e9]: Expense Intelligence
+    - generic [ref=e10]: Workspace
+    - generic [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+      - generic [ref=e17]: Overview
+    - generic [ref=e18] [cursor=pointer]:
+      - img [ref=e19]
+      - generic [ref=e22]: Explore
+    - generic [ref=e23] [cursor=pointer]:
+      - img [ref=e24]
+      - generic [ref=e27]: Policy
+      - generic [ref=e28]: "196"
+    - generic [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+      - generic [ref=e33]: Approvals
+      - generic [ref=e34]: "6"
+    - generic [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - generic [ref=e39]: Reports
+    - generic [ref=e40]:
+      - generic [ref=e41]: NY
+      - generic [ref=e42]:
+        - generic [ref=e43]: Ning Ye
+        - generic [ref=e44]: CFO
+  - generic [ref=e45]:
+    - banner [ref=e46]:
+      - generic [ref=e47]:
+        - heading "Policy Compliance" [level=1] [ref=e273]
+        - paragraph [ref=e49]: Rules, violations, and repeat offenders
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: $3,188,853
+          - generic [ref=e53]: Total spend
+        - generic [ref=e54]:
+          - generic [ref=e55]: 3,143
+          - generic [ref=e56]: Transactions
+        - generic [ref=e57]:
+          - generic [ref=e58]: "45"
+          - generic [ref=e59]: Employees
+        - generic [ref=e60]:
+          - generic [ref=e61]: "9"
+          - generic [ref=e62]: Departments
+    - generic [ref=e275]:
+      - generic [ref=e276]:
+        - generic [ref=e277] [cursor=pointer]: Violations1634
+        - generic [ref=e278] [cursor=pointer]: Policy Rules
+      - generic [ref=e279]:
+        - generic [ref=e280]:
+          - generic [ref=e281]: Critical
+          - generic [ref=e282]: "1"
+          - generic [ref=e283]: Immediate action required
+        - generic [ref=e284]:
+          - generic [ref=e285]: High
+          - generic [ref=e286]: "195"
+          - generic [ref=e287]: Review needed
+        - generic [ref=e288]:
+          - generic [ref=e289]: Total Violations
+          - generic [ref=e290]: "1634"
+          - generic [ref=e291]: Across all severity levels
+        - generic [ref=e292]:
+          - generic [ref=e293]: Flagged Amount
+          - generic [ref=e294]: $2,409,612
+          - generic [ref=e295]: Combined value at risk
+      - button "Generate Policy Brief" [ref=e296] [cursor=pointer]:
+        - img [ref=e297]
+        - text: Generate Policy Brief
+      - generic [ref=e299]:
+        - generic [ref=e300]: Policy analysis unavailable — check that the backend is running.
+        - button "Retry" [ref=e301] [cursor=pointer]
+      - generic [ref=e302]:
+        - generic [ref=e303]:
+          - generic [ref=e304]:
+            - generic [ref=e305]:
+              - heading "Split-Transaction Spotlight" [level=3] [ref=e306]:
+                - img [ref=e307]
+                - text: Split-Transaction Spotlight
+              - generic [ref=e310]: Critical
+            - generic [ref=e311]: 2 charges split to dodge $500 approval
+            - generic [ref=e312]: Daniel Taylor ran 2 charges at Office Depot on 2026-01-13 totaling $723 — each under the $500 approval threshold.
+          - generic [ref=e313]:
+            - generic [ref=e314]:
+              - heading "Flagged Transactions" [level=3] [ref=e315]
+              - generic [ref=e316]: 1634 shown
+            - generic [ref=e317]:
+              - button "All 1634" [ref=e318] [cursor=pointer]:
+                - text: All
+                - generic [ref=e319]: "1634"
+              - button "Critical 1" [ref=e320] [cursor=pointer]:
+                - text: Critical
+                - generic [ref=e321]: "1"
+              - button "High 195" [ref=e322] [cursor=pointer]:
+                - text: High
+                - generic [ref=e323]: "195"
+              - button "Medium 747" [ref=e324] [cursor=pointer]:
+                - text: Medium
+                - generic [ref=e325]: "747"
+              - button "Low 691" [ref=e326] [cursor=pointer]:
+                - text: Low
+                - generic [ref=e327]: "691"
+            - generic [ref=e328]:
+              - generic [ref=e330] [cursor=pointer]:
+                - generic [ref=e331]: ✂
+                - generic [ref=e332]:
+                  - generic [ref=e333]: 2 charges split to dodge $500 approval
+                  - generic [ref=e334]:
+                    - generic [ref=e335]: Daniel Taylor
+                    - generic [ref=e336]: Finance
+                - generic [ref=e337]:
+                  - generic [ref=e338]: $723
+                  - generic [ref=e339]: Critical
+              - generic [ref=e341] [cursor=pointer]:
+                - generic [ref=e342]: 🚫
+                - generic [ref=e343]:
+                  - generic [ref=e344]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e345]:
+                    - generic [ref=e346]: Leo Lee
+                    - generic [ref=e347]: Engineering
+                - generic [ref=e348]:
+                  - generic [ref=e349]: $7,782
+                  - generic [ref=e350]: High
+              - generic [ref=e352] [cursor=pointer]:
+                - generic [ref=e353]: 🚫
+                - generic [ref=e354]:
+                  - generic [ref=e355]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e356]:
+                    - generic [ref=e357]: Zoey Lee
+                    - generic [ref=e358]: Sales
+                - generic [ref=e359]:
+                  - generic [ref=e360]: $7,103
+                  - generic [ref=e361]: High
+              - generic [ref=e363] [cursor=pointer]:
+                - generic [ref=e364]: 🚫
+                - generic [ref=e365]:
+                  - generic [ref=e366]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e367]:
+                    - generic [ref=e368]: Victoria Brown
+                    - generic [ref=e369]: R&D
+                - generic [ref=e370]:
+                  - generic [ref=e371]: $7,094
+                  - generic [ref=e372]: High
+              - generic [ref=e374] [cursor=pointer]:
+                - generic [ref=e375]: 🚫
+                - generic [ref=e376]:
+                  - generic [ref=e377]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e378]:
+                    - generic [ref=e379]: Evelyn Thompson
+                    - generic [ref=e380]: Legal
+                - generic [ref=e381]:
+                  - generic [ref=e382]: $6,701
+                  - generic [ref=e383]: High
+              - generic [ref=e385] [cursor=pointer]:
+                - generic [ref=e386]: 🚫
+                - generic [ref=e387]:
+                  - generic [ref=e388]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e389]:
+                    - generic [ref=e390]: Owen Taylor
+                    - generic [ref=e391]: Engineering
+                - generic [ref=e392]:
+                  - generic [ref=e393]: $6,698
+                  - generic [ref=e394]: High
+              - generic [ref=e396] [cursor=pointer]:
+                - generic [ref=e397]: 🚫
+                - generic [ref=e398]:
+                  - generic [ref=e399]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e400]:
+                    - generic [ref=e401]: Mason Hall
+                    - generic [ref=e402]: Finance
+                - generic [ref=e403]:
+                  - generic [ref=e404]: $6,020
+                  - generic [ref=e405]: High
+              - generic [ref=e407] [cursor=pointer]:
+                - generic [ref=e408]: 🚫
+                - generic [ref=e409]:
+                  - generic [ref=e410]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e411]:
+                    - generic [ref=e412]: Scarlett Adams
+                    - generic [ref=e413]: R&D
+                - generic [ref=e414]:
+                  - generic [ref=e415]: $5,980
+                  - generic [ref=e416]: High
+              - generic [ref=e418] [cursor=pointer]:
+                - generic [ref=e419]: 🚫
+                - generic [ref=e420]:
+                  - generic [ref=e421]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e422]:
+                    - generic [ref=e423]: Lily Santos
+                    - generic [ref=e424]: R&D
+                - generic [ref=e425]:
+                  - generic [ref=e426]: $5,952
+                  - generic [ref=e427]: High
+              - generic [ref=e429] [cursor=pointer]:
+                - generic [ref=e430]: 🚫
+                - generic [ref=e431]:
+                  - generic [ref=e432]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e433]:
+                    - generic [ref=e434]: Jack Adams
+                    - generic [ref=e435]: Sales
+                - generic [ref=e436]:
+                  - generic [ref=e437]: $4,924
+                  - generic [ref=e438]: High
+              - generic [ref=e440] [cursor=pointer]:
+                - generic [ref=e441]: 🚫
+                - generic [ref=e442]:
+                  - generic [ref=e443]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e444]:
+                    - generic [ref=e445]: Owen Martinez
+                    - generic [ref=e446]: Marketing
+                - generic [ref=e447]:
+                  - generic [ref=e448]: $4,368
+                  - generic [ref=e449]: High
+              - generic [ref=e451] [cursor=pointer]:
+                - generic [ref=e452]: 🚫
+                - generic [ref=e453]:
+                  - generic [ref=e454]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e455]:
+                    - generic [ref=e456]: Grace Santos
+                    - generic [ref=e457]: Sales
+                - generic [ref=e458]:
+                  - generic [ref=e459]: $4,358
+                  - generic [ref=e460]: High
+              - generic [ref=e462] [cursor=pointer]:
+                - generic [ref=e463]: 🚫
+                - generic [ref=e464]:
+                  - generic [ref=e465]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e466]:
+                    - generic [ref=e467]: Isabella Clark
+                    - generic [ref=e468]: Legal
+                - generic [ref=e469]:
+                  - generic [ref=e470]: $4,177
+                  - generic [ref=e471]: High
+              - generic [ref=e473] [cursor=pointer]:
+                - generic [ref=e474]: 🚫
+                - generic [ref=e475]:
+                  - generic [ref=e476]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e477]:
+                    - generic [ref=e478]: Penelope Taylor
+                    - generic [ref=e479]: HR
+                - generic [ref=e480]:
+                  - generic [ref=e481]: $4,012
+                  - generic [ref=e482]: High
+              - generic [ref=e484] [cursor=pointer]:
+                - generic [ref=e485]: 🚫
+                - generic [ref=e486]:
+                  - generic [ref=e487]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e488]:
+                    - generic [ref=e489]: Sebastian Garcia
+                    - generic [ref=e490]: Engineering
+                - generic [ref=e491]:
+                  - generic [ref=e492]: $3,942
+                  - generic [ref=e493]: High
+              - generic [ref=e495] [cursor=pointer]:
+                - generic [ref=e496]: 🚫
+                - generic [ref=e497]:
+                  - generic [ref=e498]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e499]:
+                    - generic [ref=e500]: Ian Baker
+                    - generic [ref=e501]: Customer Service
+                - generic [ref=e502]:
+                  - generic [ref=e503]: $3,705
+                  - generic [ref=e504]: High
+              - generic [ref=e506] [cursor=pointer]:
+                - generic [ref=e507]: 🚫
+                - generic [ref=e508]:
+                  - generic [ref=e509]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e510]:
+                    - generic [ref=e511]: Lucas Evans
+                    - generic [ref=e512]: R&D
+                - generic [ref=e513]:
+                  - generic [ref=e514]: $3,703
+                  - generic [ref=e515]: High
+              - generic [ref=e517] [cursor=pointer]:
+                - generic [ref=e518]: 🚫
+                - generic [ref=e519]:
+                  - generic [ref=e520]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e521]:
+                    - generic [ref=e522]: Ava Baker
+                    - generic [ref=e523]: Marketing
+                - generic [ref=e524]:
+                  - generic [ref=e525]: $3,494
+                  - generic [ref=e526]: High
+              - generic [ref=e528] [cursor=pointer]:
+                - generic [ref=e529]: 🚫
+                - generic [ref=e530]:
+                  - generic [ref=e531]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e532]:
+                    - generic [ref=e533]: Lily Santos
+                    - generic [ref=e534]: R&D
+                - generic [ref=e535]:
+                  - generic [ref=e536]: $3,360
+                  - generic [ref=e537]: High
+              - generic [ref=e539] [cursor=pointer]:
+                - generic [ref=e540]: 🚫
+                - generic [ref=e541]:
+                  - generic [ref=e542]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e543]:
+                    - generic [ref=e544]: Amelia O'Brien
+                    - generic [ref=e545]: Legal
+                - generic [ref=e546]:
+                  - generic [ref=e547]: $3,288
+                  - generic [ref=e548]: High
+              - generic [ref=e550] [cursor=pointer]:
+                - generic [ref=e551]: 🚫
+                - generic [ref=e552]:
+                  - generic [ref=e553]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e554]:
+                    - generic [ref=e555]: Grace Santos
+                    - generic [ref=e556]: Sales
+                - generic [ref=e557]:
+                  - generic [ref=e558]: $3,274
+                  - generic [ref=e559]: High
+              - generic [ref=e561] [cursor=pointer]:
+                - generic [ref=e562]: 🚫
+                - generic [ref=e563]:
+                  - generic [ref=e564]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e565]:
+                    - generic [ref=e566]: Leo Lee
+                    - generic [ref=e567]: Engineering
+                - generic [ref=e568]:
+                  - generic [ref=e569]: $3,095
+                  - generic [ref=e570]: High
+              - generic [ref=e572] [cursor=pointer]:
+                - generic [ref=e573]: 🚫
+                - generic [ref=e574]:
+                  - generic [ref=e575]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e576]:
+                    - generic [ref=e577]: Daniel Taylor
+                    - generic [ref=e578]: Finance
+                - generic [ref=e579]:
+                  - generic [ref=e580]: $3,089
+                  - generic [ref=e581]: High
+              - generic [ref=e583] [cursor=pointer]:
+                - generic [ref=e584]: 🚫
+                - generic [ref=e585]:
+                  - generic [ref=e586]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e587]:
+                    - generic [ref=e588]: Sophia Patel
+                    - generic [ref=e589]: Supply Chain
+                - generic [ref=e590]:
+                  - generic [ref=e591]: $2,982
+                  - generic [ref=e592]: High
+              - generic [ref=e594] [cursor=pointer]:
+                - generic [ref=e595]: 🚫
+                - generic [ref=e596]:
+                  - generic [ref=e597]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e598]:
+                    - generic [ref=e599]: Benjamin Clark
+                    - generic [ref=e600]: Supply Chain
+                - generic [ref=e601]:
+                  - generic [ref=e602]: $2,967
+                  - generic [ref=e603]: High
+              - generic [ref=e605] [cursor=pointer]:
+                - generic [ref=e606]: 🚫
+                - generic [ref=e607]:
+                  - generic [ref=e608]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e609]:
+                    - generic [ref=e610]: Penelope Taylor
+                    - generic [ref=e611]: HR
+                - generic [ref=e612]:
+                  - generic [ref=e613]: $2,747
+                  - generic [ref=e614]: High
+              - generic [ref=e616] [cursor=pointer]:
+                - generic [ref=e617]: 🚫
+                - generic [ref=e618]:
+                  - generic [ref=e619]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e620]:
+                    - generic [ref=e621]: Sebastian Adams
+                    - generic [ref=e622]: Marketing
+                - generic [ref=e623]:
+                  - generic [ref=e624]: $2,691
+                  - generic [ref=e625]: High
+              - generic [ref=e627] [cursor=pointer]:
+                - generic [ref=e628]: 🚫
+                - generic [ref=e629]:
+                  - generic [ref=e630]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e631]:
+                    - generic [ref=e632]: Sophia Patel
+                    - generic [ref=e633]: Supply Chain
+                - generic [ref=e634]:
+                  - generic [ref=e635]: $2,661
+                  - generic [ref=e636]: High
+              - generic [ref=e638] [cursor=pointer]:
+                - generic [ref=e639]: 🚫
+                - generic [ref=e640]:
+                  - generic [ref=e641]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e642]:
+                    - generic [ref=e643]: Olivia Thompson
+                    - generic [ref=e644]: Finance
+                - generic [ref=e645]:
+                  - generic [ref=e646]: $2,628
+                  - generic [ref=e647]: High
+              - generic [ref=e649] [cursor=pointer]:
+                - generic [ref=e650]: 🚫
+                - generic [ref=e651]:
+                  - generic [ref=e652]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e653]:
+                    - generic [ref=e654]: Scarlett Adams
+                    - generic [ref=e655]: R&D
+                - generic [ref=e656]:
+                  - generic [ref=e657]: $2,546
+                  - generic [ref=e658]: High
+              - generic [ref=e660] [cursor=pointer]:
+                - generic [ref=e661]: 🚫
+                - generic [ref=e662]:
+                  - generic [ref=e663]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e664]:
+                    - generic [ref=e665]: Owen Taylor
+                    - generic [ref=e666]: Engineering
+                - generic [ref=e667]:
+                  - generic [ref=e668]: $2,466
+                  - generic [ref=e669]: High
+              - generic [ref=e671] [cursor=pointer]:
+                - generic [ref=e672]: 🚫
+                - generic [ref=e673]:
+                  - generic [ref=e674]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e675]:
+                    - generic [ref=e676]: Ethan Young
+                    - generic [ref=e677]: Supply Chain
+                - generic [ref=e678]:
+                  - generic [ref=e679]: $2,373
+                  - generic [ref=e680]: High
+              - generic [ref=e682] [cursor=pointer]:
+                - generic [ref=e683]: 🚫
+                - generic [ref=e684]:
+                  - generic [ref=e685]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e686]:
+                    - generic [ref=e687]: Penelope Taylor
+                    - generic [ref=e688]: HR
+                - generic [ref=e689]:
+                  - generic [ref=e690]: $2,340
+                  - generic [ref=e691]: High
+              - generic [ref=e693] [cursor=pointer]:
+                - generic [ref=e694]: 🚫
+                - generic [ref=e695]:
+                  - generic [ref=e696]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e697]:
+                    - generic [ref=e698]: Amelia Evans
+                    - generic [ref=e699]: Customer Service
+                - generic [ref=e700]:
+                  - generic [ref=e701]: $2,334
+                  - generic [ref=e702]: High
+              - generic [ref=e704] [cursor=pointer]:
+                - generic [ref=e705]: 🚫
+                - generic [ref=e706]:
+                  - generic [ref=e707]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e708]:
+                    - generic [ref=e709]: Lucas Evans
+                    - generic [ref=e710]: R&D
+                - generic [ref=e711]:
+                  - generic [ref=e712]: $2,318
+                  - generic [ref=e713]: High
+              - generic [ref=e715] [cursor=pointer]:
+                - generic [ref=e716]: 🚫
+                - generic [ref=e717]:
+                  - generic [ref=e718]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e719]:
+                    - generic [ref=e720]: Olivia Rodriguez
+                    - generic [ref=e721]: Engineering
+                - generic [ref=e722]:
+                  - generic [ref=e723]: $2,220
+                  - generic [ref=e724]: High
+              - generic [ref=e726] [cursor=pointer]:
+                - generic [ref=e727]: 🚫
+                - generic [ref=e728]:
+                  - generic [ref=e729]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e730]:
+                    - generic [ref=e731]: Benjamin Clark
+                    - generic [ref=e732]: Supply Chain
+                - generic [ref=e733]:
+                  - generic [ref=e734]: $2,205
+                  - generic [ref=e735]: High
+              - generic [ref=e737] [cursor=pointer]:
+                - generic [ref=e738]: 🚫
+                - generic [ref=e739]:
+                  - generic [ref=e740]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e741]:
+                    - generic [ref=e742]: Zoey Lee
+                    - generic [ref=e743]: Sales
+                - generic [ref=e744]:
+                  - generic [ref=e745]: $2,136
+                  - generic [ref=e746]: High
+              - generic [ref=e748] [cursor=pointer]:
+                - generic [ref=e749]: 🚫
+                - generic [ref=e750]:
+                  - generic [ref=e751]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e752]:
+                    - generic [ref=e753]: Nora Wright
+                    - generic [ref=e754]: R&D
+                - generic [ref=e755]:
+                  - generic [ref=e756]: $2,051
+                  - generic [ref=e757]: High
+              - generic [ref=e759] [cursor=pointer]:
+                - generic [ref=e760]: 🚫
+                - generic [ref=e761]:
+                  - generic [ref=e762]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e763]:
+                    - generic [ref=e764]: Nora Wright
+                    - generic [ref=e765]: R&D
+                - generic [ref=e766]:
+                  - generic [ref=e767]: $2,028
+                  - generic [ref=e768]: High
+              - generic [ref=e770] [cursor=pointer]:
+                - generic [ref=e771]: 🚫
+                - generic [ref=e772]:
+                  - generic [ref=e773]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e774]:
+                    - generic [ref=e775]: Mason Hall
+                    - generic [ref=e776]: Finance
+                - generic [ref=e777]:
+                  - generic [ref=e778]: $1,982
+                  - generic [ref=e779]: High
+              - generic [ref=e781] [cursor=pointer]:
+                - generic [ref=e782]: 🚫
+                - generic [ref=e783]:
+                  - generic [ref=e784]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e785]:
+                    - generic [ref=e786]: Mason Clark
+                    - generic [ref=e787]: Marketing
+                - generic [ref=e788]:
+                  - generic [ref=e789]: $1,874
+                  - generic [ref=e790]: High
+              - generic [ref=e792] [cursor=pointer]:
+                - generic [ref=e793]: 🚫
+                - generic [ref=e794]:
+                  - generic [ref=e795]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e796]:
+                    - generic [ref=e797]: Daniel Taylor
+                    - generic [ref=e798]: Finance
+                - generic [ref=e799]:
+                  - generic [ref=e800]: $1,862
+                  - generic [ref=e801]: High
+              - generic [ref=e803] [cursor=pointer]:
+                - generic [ref=e804]: 🚫
+                - generic [ref=e805]:
+                  - generic [ref=e806]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e807]:
+                    - generic [ref=e808]: Ethan Young
+                    - generic [ref=e809]: Supply Chain
+                - generic [ref=e810]:
+                  - generic [ref=e811]: $1,807
+                  - generic [ref=e812]: High
+              - generic [ref=e814] [cursor=pointer]:
+                - generic [ref=e815]: 🚫
+                - generic [ref=e816]:
+                  - generic [ref=e817]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e818]:
+                    - generic [ref=e819]: Evelyn Thompson
+                    - generic [ref=e820]: Legal
+                - generic [ref=e821]:
+                  - generic [ref=e822]: $1,777
+                  - generic [ref=e823]: High
+              - generic [ref=e825] [cursor=pointer]:
+                - generic [ref=e826]: 🚫
+                - generic [ref=e827]:
+                  - generic [ref=e828]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e829]:
+                    - generic [ref=e830]: Chloe Green
+                    - generic [ref=e831]: Supply Chain
+                - generic [ref=e832]:
+                  - generic [ref=e833]: $1,667
+                  - generic [ref=e834]: High
+              - generic [ref=e836] [cursor=pointer]:
+                - generic [ref=e837]: 🚫
+                - generic [ref=e838]:
+                  - generic [ref=e839]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e840]:
+                    - generic [ref=e841]: Owen Martinez
+                    - generic [ref=e842]: Marketing
+                - generic [ref=e843]:
+                  - generic [ref=e844]: $1,606
+                  - generic [ref=e845]: High
+              - generic [ref=e847] [cursor=pointer]:
+                - generic [ref=e848]: 🚫
+                - generic [ref=e849]:
+                  - generic [ref=e850]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e851]:
+                    - generic [ref=e852]: Grace Santos
+                    - generic [ref=e853]: Sales
+                - generic [ref=e854]:
+                  - generic [ref=e855]: $1,476
+                  - generic [ref=e856]: High
+              - generic [ref=e858] [cursor=pointer]:
+                - generic [ref=e859]: 🚫
+                - generic [ref=e860]:
+                  - generic [ref=e861]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e862]:
+                    - generic [ref=e863]: Henry Moore
+                    - generic [ref=e864]: Customer Service
+                - generic [ref=e865]:
+                  - generic [ref=e866]: $1,449
+                  - generic [ref=e867]: High
+              - generic [ref=e869] [cursor=pointer]:
+                - generic [ref=e870]: 🚫
+                - generic [ref=e871]:
+                  - generic [ref=e872]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e873]:
+                    - generic [ref=e874]: Ella Baker
+                    - generic [ref=e875]: HR
+                - generic [ref=e876]:
+                  - generic [ref=e877]: $1,414
+                  - generic [ref=e878]: High
+              - generic [ref=e880] [cursor=pointer]:
+                - generic [ref=e881]: 🚫
+                - generic [ref=e882]:
+                  - generic [ref=e883]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e884]:
+                    - generic [ref=e885]: Nora Wright
+                    - generic [ref=e886]: R&D
+                - generic [ref=e887]:
+                  - generic [ref=e888]: $1,326
+                  - generic [ref=e889]: High
+              - generic [ref=e891] [cursor=pointer]:
+                - generic [ref=e892]: 🚫
+                - generic [ref=e893]:
+                  - generic [ref=e894]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e895]:
+                    - generic [ref=e896]: Daniel Taylor
+                    - generic [ref=e897]: Finance
+                - generic [ref=e898]:
+                  - generic [ref=e899]: $1,320
+                  - generic [ref=e900]: High
+              - generic [ref=e902] [cursor=pointer]:
+                - generic [ref=e903]: 🚫
+                - generic [ref=e904]:
+                  - generic [ref=e905]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e906]:
+                    - generic [ref=e907]: Penelope Taylor
+                    - generic [ref=e908]: HR
+                - generic [ref=e909]:
+                  - generic [ref=e910]: $1,213
+                  - generic [ref=e911]: High
+              - generic [ref=e913] [cursor=pointer]:
+                - generic [ref=e914]: 🚫
+                - generic [ref=e915]:
+                  - generic [ref=e916]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e917]:
+                    - generic [ref=e918]: Amelia Evans
+                    - generic [ref=e919]: Customer Service
+                - generic [ref=e920]:
+                  - generic [ref=e921]: $1,187
+                  - generic [ref=e922]: High
+              - generic [ref=e924] [cursor=pointer]:
+                - generic [ref=e925]: 🚫
+                - generic [ref=e926]:
+                  - generic [ref=e927]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e928]:
+                    - generic [ref=e929]: Owen Taylor
+                    - generic [ref=e930]: Engineering
+                - generic [ref=e931]:
+                  - generic [ref=e932]: $1,146
+                  - generic [ref=e933]: High
+              - generic [ref=e935] [cursor=pointer]:
+                - generic [ref=e936]: 🚫
+                - generic [ref=e937]:
+                  - generic [ref=e938]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e939]:
+                    - generic [ref=e940]: Scarlett Adams
+                    - generic [ref=e941]: R&D
+                - generic [ref=e942]:
+                  - generic [ref=e943]: $1,130
+                  - generic [ref=e944]: High
+              - generic [ref=e946] [cursor=pointer]:
+                - generic [ref=e947]: 🚫
+                - generic [ref=e948]:
+                  - generic [ref=e949]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e950]:
+                    - generic [ref=e951]: Christian Anderson
+                    - generic [ref=e952]: Customer Service
+                - generic [ref=e953]:
+                  - generic [ref=e954]: $1,073
+                  - generic [ref=e955]: High
+              - generic [ref=e957] [cursor=pointer]:
+                - generic [ref=e958]: 🚫
+                - generic [ref=e959]:
+                  - generic [ref=e960]: Charge at restricted merchant Hilton Hotels
+                  - generic [ref=e961]:
+                    - generic [ref=e962]: Nora Wright
+                    - generic [ref=e963]: R&D
+                - generic [ref=e964]:
+                  - generic [ref=e965]: $1,000
+                  - generic [ref=e966]: High
+              - generic [ref=e968] [cursor=pointer]:
+                - generic [ref=e969]: 🚫
+                - generic [ref=e970]:
+                  - generic [ref=e971]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e972]:
+                    - generic [ref=e973]: Chloe Green
+                    - generic [ref=e974]: Supply Chain
+                - generic [ref=e975]:
+                  - generic [ref=e976]: $890
+                  - generic [ref=e977]: High
+              - generic [ref=e979] [cursor=pointer]:
+                - generic [ref=e980]: 🚫
+                - generic [ref=e981]:
+                  - generic [ref=e982]: Charge at restricted merchant Slack Technologies
+                  - generic [ref=e983]:
+                    - generic [ref=e984]: Zoey Green
+                    - generic [ref=e985]: Customer Service
+                - generic [ref=e986]:
+                  - generic [ref=e987]: $866
+                  - generic [ref=e988]: High
+        - generic [ref=e990]:
+          - generic [ref=e991]:
+            - heading "Repeat Offenders" [level=3] [ref=e992]
+            - generic [ref=e993]: Ranked by risk
+          - generic [ref=e994]:
+            - generic [ref=e995]:
+              - generic [ref=e996]:
+                - generic [ref=e997]: "1"
+                - generic [ref=e998]:
+                  - generic [ref=e999]: Scarlett Adams
+                  - generic [ref=e1000]: R&D
+                - generic [ref=e1001]: "81"
+              - generic [ref=e1002]:
+                - generic [ref=e1003]: 47 flags
+                - generic [ref=e1004]: ·
+                - generic [ref=e1005]: Missing approval
+            - generic [ref=e1008]:
+              - generic [ref=e1009]:
+                - generic [ref=e1010]: "2"
+                - generic [ref=e1011]:
+                  - generic [ref=e1012]: James Martinez
+                  - generic [ref=e1013]: Engineering
+                - generic [ref=e1014]: "78"
+              - generic [ref=e1015]:
+                - generic [ref=e1016]: 46 flags
+                - generic [ref=e1017]: ·
+                - generic [ref=e1018]: Missing receipt
+            - generic [ref=e1021]:
+              - generic [ref=e1022]:
+                - generic [ref=e1023]: "3"
+                - generic [ref=e1024]:
+                  - generic [ref=e1025]: Henry Brown
+                  - generic [ref=e1026]: Marketing
+                - generic [ref=e1027]: "77"
+              - generic [ref=e1028]:
+                - generic [ref=e1029]: 47 flags
+                - generic [ref=e1030]: ·
+                - generic [ref=e1031]: Over category limit
+            - generic [ref=e1034]:
+              - generic [ref=e1035]:
+                - generic [ref=e1036]: "4"
+                - generic [ref=e1037]:
+                  - generic [ref=e1038]: Mason Hall
+                  - generic [ref=e1039]: Finance
+                - generic [ref=e1040]: "76"
+              - generic [ref=e1041]:
+                - generic [ref=e1042]: 45 flags
+                - generic [ref=e1043]: ·
+                - generic [ref=e1044]: Missing approval
+            - generic [ref=e1047]:
+              - generic [ref=e1048]:
+                - generic [ref=e1049]: "5"
+                - generic [ref=e1050]:
+                  - generic [ref=e1051]: Zoey Lee
+                  - generic [ref=e1052]: Sales
+                - generic [ref=e1053]: "75"
+              - generic [ref=e1054]:
+                - generic [ref=e1055]: 39 flags
+                - generic [ref=e1056]: ·
+                - generic [ref=e1057]: Missing approval
+            - generic [ref=e1060]:
+              - generic [ref=e1061]:
+                - generic [ref=e1062]: "6"
+                - generic [ref=e1063]:
+                  - generic [ref=e1064]: Sophia Patel
+                  - generic [ref=e1065]: Supply Chain
+                - generic [ref=e1066]: "71"
+              - generic [ref=e1067]:
+                - generic [ref=e1068]: 44 flags
+                - generic [ref=e1069]: ·
+                - generic [ref=e1070]: Over category limit
+            - generic [ref=e1073]:
+              - generic [ref=e1074]:
+                - generic [ref=e1075]: "7"
+                - generic [ref=e1076]:
+                  - generic [ref=e1077]: Benjamin Clark
+                  - generic [ref=e1078]: Supply Chain
+                - generic [ref=e1079]: "70"
+              - generic [ref=e1080]:
+                - generic [ref=e1081]: 40 flags
+                - generic [ref=e1082]: ·
+                - generic [ref=e1083]: Missing approval
+            - generic [ref=e1086]:
+              - generic [ref=e1087]:
+                - generic [ref=e1088]: "8"
+                - generic [ref=e1089]:
+                  - generic [ref=e1090]: James Patel
+                  - generic [ref=e1091]: HR
+                - generic [ref=e1092]: "70"
+              - generic [ref=e1093]:
+                - generic [ref=e1094]: 43 flags
+                - generic [ref=e1095]: ·
+                - generic [ref=e1096]: Over category limit
+            - generic [ref=e1099]:
+              - generic [ref=e1100]:
+                - generic [ref=e1101]: "9"
+                - generic [ref=e1102]:
+                  - generic [ref=e1103]: Henry Moore
+                  - generic [ref=e1104]: Customer Service
+                - generic [ref=e1105]: "69"
+              - generic [ref=e1106]:
+                - generic [ref=e1107]: 40 flags
+                - generic [ref=e1108]: ·
+                - generic [ref=e1109]: Missing approval
+            - generic [ref=e1112]:
+              - generic [ref=e1113]:
+                - generic [ref=e1114]: "10"
+                - generic [ref=e1115]:
+                  - generic [ref=e1116]: Daniel Taylor
+                  - generic [ref=e1117]: Finance
+                - generic [ref=e1118]: "68"
+              - generic [ref=e1119]:
+                - generic [ref=e1120]: 39 flags
+                - generic [ref=e1121]: ·
+                - generic [ref=e1122]: Missing receipt
+            - generic [ref=e1125]:
+              - generic [ref=e1126]:
+                - generic [ref=e1127]: "11"
+                - generic [ref=e1128]:
+                  - generic [ref=e1129]: Jack Adams
+                  - generic [ref=e1130]: Sales
+                - generic [ref=e1131]: "68"
+              - generic [ref=e1132]:
+                - generic [ref=e1133]: 38 flags
+                - generic [ref=e1134]: ·
+                - generic [ref=e1135]: Missing approval
+            - generic [ref=e1138]:
+              - generic [ref=e1139]:
+                - generic [ref=e1140]: "12"
+                - generic [ref=e1141]:
+                  - generic [ref=e1142]: Owen Martinez
+                  - generic [ref=e1143]: Marketing
+                - generic [ref=e1144]: "68"
+              - generic [ref=e1145]:
+                - generic [ref=e1146]: 36 flags
+                - generic [ref=e1147]: ·
+                - generic [ref=e1148]: Over category limit
+  - button [ref=e261] [cursor=pointer]:
+    - img [ref=e262]
