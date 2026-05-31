@@ -19,6 +19,6 @@
     { "src": "/ingest", "dest": "app/main.py" },
     { "src": "/query", "dest": "app/main.py" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
 }
