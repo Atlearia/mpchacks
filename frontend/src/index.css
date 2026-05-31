@@ -2160,3 +2160,275 @@ input[type="range"] {
   color: var(--text);
 }
 
+/* ===========================================================================
+   FLOATING AI ASSISTANT — FAB + pick mode + chat panel
+   =========================================================================== */
+
+/* ---- FAB button ---- */
+.ask-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), #5b3fe0);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 14px rgba(109, 94, 252, 0.4),
+    0 0 0 0 rgba(109, 94, 252, 0);
+  transition: box-shadow 0.3s ease;
+}
+.ask-fab:hover {
+  box-shadow:
+    0 6px 20px rgba(109, 94, 252, 0.5),
+    0 0 0 6px rgba(109, 94, 252, 0.12);
+}
+.ask-fab.picking {
+  animation: fab-pulse 1.6s ease-in-out infinite;
+  box-shadow:
+    0 4px 14px rgba(109, 94, 252, 0.4),
+    0 0 0 8px rgba(109, 94, 252, 0.18);
+}
+.ask-fab.active {
+  background: var(--text);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+}
+
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(109,94,252,0.4), 0 0 0 4px rgba(109,94,252,0.15); }
+  50% { box-shadow: 0 4px 14px rgba(109,94,252,0.4), 0 0 0 14px rgba(109,94,252,0.06); }
+}
+
+/* ---- Pick mode — body-level cursor + element highlight ---- */
+body.ai-pick-mode,
+body.ai-pick-mode * {
+  cursor: crosshair !important;
+}
+body.ai-pick-mode .main-content *:hover {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px;
+  border-radius: 8px;
+  background: rgba(109, 94, 252, 0.04);
+  transition: outline 0.1s ease, background 0.1s ease;
+}
+body.ai-pick-mode .ask-fab,
+body.ai-pick-mode .ask-fab * {
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+.pick-hint {
+  position: fixed;
+  bottom: 96px;
+  right: 28px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(109, 94, 252, 0.2);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 360px;
+  pointer-events: none;
+}
+
+/* ---- Chat panel ---- */
+.ask-panel {
+  position: fixed;
+  bottom: 96px;
+  right: 28px;
+  z-index: 999;
+  width: 420px;
+  max-height: 560px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow:
+    0 12px 48px rgba(28, 38, 80, 0.18),
+    0 0 0 1px rgba(109, 94, 252, 0.08);
+  overflow: hidden;
+}
+
+.ask-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(109, 94, 252, 0.04);
+}
+.ask-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.ask-panel-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(28, 38, 80, 0.06);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.ask-panel-close:hover {
+  background: rgba(28, 38, 80, 0.12);
+  color: var(--text);
+}
+
+.ask-panel-context {
+  padding: 8px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+  background: rgba(109, 94, 252, 0.06);
+  border-bottom: 1px solid var(--border);
+}
+
+.ask-panel-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.ask-panel-empty {
+  text-align: center;
+  padding: 20px 10px;
+}
+.ask-panel-empty p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.ask-panel-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.ask-suggestion {
+  border: 1px solid var(--border-strong);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11.5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ask-suggestion:hover {
+  border-color: var(--accent);
+  background: rgba(109, 94, 252, 0.06);
+  color: var(--accent);
+}
+
+/* ---- Messages ---- */
+.ask-msg {
+  margin-bottom: 10px;
+}
+.ask-msg.user {
+  display: flex;
+  justify-content: flex-end;
+}
+.ask-msg.user .ask-bubble {
+  background: var(--accent);
+  color: #ffffff;
+  border-radius: 14px 14px 4px 14px;
+  max-width: 80%;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.ask-msg.ai .ask-bubble {
+  background: rgba(28, 38, 80, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 14px 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.ask-result {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.ask-followups {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ---- Composer ---- */
+.ask-panel-composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.5);
+}
+.ask-panel-composer input {
+  flex: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  background: var(--panel);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.ask-panel-composer input:focus {
+  border-color: var(--accent);
+}
+.ask-send {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.ask-send:hover {
+  background: #5b3fe0;
+}
+.ask-send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+

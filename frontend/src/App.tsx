@@ -7,7 +7,6 @@ import { fmtUSD } from "./theme";
 import { Avatar } from "./components/charts";
 import {
   AlertIcon,
-  ChatIcon,
   CheckCircleIcon,
   CubeIcon,
   DocIcon,
@@ -15,10 +14,10 @@ import {
 } from "./components/icons";
 import ExploreView from "./views/ExploreView";
 import OverviewDashboard from "./views/OverviewDashboard";
-import AskView from "./views/AskView";
 import PolicyView from "./views/PolicyView";
 import ApprovalsView from "./views/ApprovalsView";
 import ReportsView from "./views/ReportsView";
+import AskFAB from "./components/AskFAB";
 
 const SECTION_META: Record<Section, { title: string; sub: string }> = {
   overview: { title: "Executive Overview", sub: "Company-wide spend health at a glance" },
@@ -55,13 +54,12 @@ export default function App() {
   const navItems: NavDef[] = [
     { id: "overview", label: "Overview", icon: <GridIcon /> },
     { id: "explore", label: "Explore", icon: <CubeIcon /> },
-    { id: "ask", label: "Ask Your Data", icon: <ChatIcon /> },
     { id: "policy", label: "Policy", icon: <AlertIcon /> },
     { id: "approvals", label: "Approvals", icon: <CheckCircleIcon /> },
     { id: "reports", label: "Reports", icon: <DocIcon /> },
   ];
 
-  const meta = SECTION_META[section];
+  const meta = SECTION_META[section] ?? SECTION_META.overview;
 
   return (
     <div className="shell">
@@ -140,12 +138,14 @@ export default function App() {
           </div>
 
           {section === "overview" && <OverviewDashboard />}
-          {section === "ask" && <AskView />}
           {section === "policy" && <PolicyView />}
           {section === "approvals" && <ApprovalsView />}
           {section === "reports" && <ReportsView />}
         </div>
       </div>
+
+      {/* Contextual AI assistant — floating button + chat panel */}
+      <AskFAB />
     </div>
   );
 }
