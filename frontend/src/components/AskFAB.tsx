@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { askGemini, answerQuestion, SUGGESTED_PROMPTS, type AiAnswer, type ChartSpec } from "../data/ai";
-import { BarChart, DataTable, DonutChart, Avatar } from "./charts";
+import { askGemini, SUGGESTED_PROMPTS, type AiAnswer, type ChartSpec } from "../data/ai";
+import { BarChart, DataTable, DonutChart } from "./charts";
 import { SendIcon, SparkIcon } from "./icons";
 import { useNav } from "../state/store";
 
@@ -159,7 +159,7 @@ export default function AskFAB() {
   const idRef = useRef(0);
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const focusRef = useRef<{}>({});
+
 
   // Auto-scroll chat thread
   useEffect(() => {
@@ -243,13 +243,17 @@ export default function AskFAB() {
           msg.id === aiId ? { ...msg, pending: false, text: answer.summary, answer } : msg
         )
       );
-    } catch {
-      setIsLive(false);
-      const answer = answerQuestion(q, focusRef.current);
-      focusRef.current = answer.focus;
+    } catch (err) {
+      console.error("[AskFAB] AI error:", err);
+      setIsLive(true); // still show Gemini badge — it was attempted
+      const errorAnswer: AiAnswer = {
+        summary: "I'm having trouble connecting to Gemini right now. Please try again in a moment.",
+        followups: ["Try again"],
+        focus: {},
+      };
       setMessages((m) =>
         m.map((msg) =>
-          msg.id === aiId ? { ...msg, pending: false, text: answer.summary, answer } : msg
+          msg.id === aiId ? { ...msg, pending: false, text: errorAnswer.summary, answer: errorAnswer } : msg
         )
       );
     }
@@ -302,11 +306,7 @@ export default function AskFAB() {
               <div className="ask-panel-title">
                 <SparkIcon size={15} />
                 <span>Brim AI</span>
-                {isLive !== null && (
-                  <span className="ai-model-tag">
-                    {isLive ? "Gemini 3.5 Flash" : "Local"}
-                  </span>
-                )}
+                <span className="ai-model-tag">Gemini 2.5 Flash</span>
               </div>
               <button className="ask-panel-close" onClick={() => { setMode("idle"); setContext(null); setMessages([]); }}>
                 ✕

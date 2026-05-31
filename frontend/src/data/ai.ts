@@ -13,7 +13,7 @@ import { deptColor } from "../theme";
 // In production this should be server-side only; for the hackathon demo this
 // lets the AI work without the Python backend running.
 const GEMINI_API_KEY = "REDACTED_KEY";
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `You are Brim AI, an expert CFO assistant for a mid-size company.
