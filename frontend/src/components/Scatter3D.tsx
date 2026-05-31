@@ -3,7 +3,7 @@ import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { deptDatePoints, maxDeptMonthTotal } from "../data/selectors";
-import { DEPARTMENTS, MONTH_LABELS, MONTH_STARTS } from "../data/dataset";
+import { DEPARTMENTS, MONTH_LABELS, MONTH_STARTS } from "../data/generate";
 import { deptColor, fmtUSD } from "../theme";
 import { useNav } from "../state/store";
 

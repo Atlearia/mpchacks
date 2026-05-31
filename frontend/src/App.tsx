@@ -3,11 +3,12 @@ import Scatter3D from "./components/Scatter3D";
 import DepartmentBars from "./components/DepartmentBars";
 import EmployeeBreakdown from "./components/EmployeeBreakdown";
 import EmployeeProfile from "./components/EmployeeProfile";
-import { useMemo } from "react";
 import { useNav } from "./state/store";
 import { companyKpis, employeeById } from "./data/selectors";
-import { MONTH_LABELS, MONTH_STARTS } from "./data/dataset";
+import { MONTH_LABELS, MONTH_STARTS } from "./data/generate";
 import { fmtUSD } from "./theme";
+
+const kpis = companyKpis();
 
 function Breadcrumb() {
   const { view, monthStart, department, employeeId, backToGalaxy, backToMonth, backToDept } = useNav();
@@ -55,7 +56,6 @@ const HINTS: Record<string, string> = {
 export default function App() {
   const view = useNav((s) => s.view);
   const goBack = useNav((s) => s.goBack);
-  const kpis = useMemo(() => companyKpis(), []);
 
   return (
     <div className="app">

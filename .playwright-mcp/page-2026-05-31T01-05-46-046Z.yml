@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - generic [ref=e8]: Brim · Expense Intelligence
+      - generic [ref=e9]: CFO Cockpit
+    - generic [ref=e11] [cursor=pointer]: All Departments
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e14]: $1,462,550
+        - generic [ref=e15]: 6-mo spend
+      - generic [ref=e16]:
+        - generic [ref=e17]: 2,336
+        - generic [ref=e18]: Transactions
+      - generic [ref=e19]:
+        - generic [ref=e20]: "53"
+        - generic [ref=e21]: Employees
+      - generic [ref=e22]:
+        - generic [ref=e23]: "8"
+        - generic [ref=e24]: Departments
+  - generic [ref=e30]: Drag to orbit · scroll to zoom · click a point to open that month
