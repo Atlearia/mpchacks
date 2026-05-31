@@ -18,8 +18,7 @@
     { "src": "/health", "dest": "app/main.py" },
     { "src": "/ingest", "dest": "app/main.py" },
     { "src": "/query", "dest": "app/main.py" },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
-    { "src": "/index.html", "dest": "/index.html" },
+    { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
