@@ -13,10 +13,13 @@ function Breadcrumb() {
   const monthLabel = monthStart ? MONTH_LABELS[MONTH_STARTS.indexOf(monthStart)] : null;
   const emp = employeeId ? employeeById(employeeId) : null;
 
+  // Don't show breadcrumb in galaxy view — it's just the 3D scene
+  if (view === "galaxy") return null;
+
   return (
     <div className="breadcrumb">
-      <span className={`crumb ${view === "galaxy" ? "active" : ""}`} onClick={backToGalaxy}>
-        All Departments
+      <span className="crumb" onClick={backToGalaxy}>
+        ← Galaxy
       </span>
       {monthLabel && (
         <>
@@ -45,7 +48,6 @@ function Breadcrumb() {
 }
 
 const HINTS: Record<string, string> = {
-  galaxy: "Drag to orbit · scroll to zoom · click a point to open that month",
   month: "Click a department bar to break it down by employee",
   dept: "Click an employee card to open their full profile",
   employee: "This person's spend profile · use the breadcrumb to zoom back out",
@@ -57,9 +59,12 @@ export default function ExploreView() {
 
   return (
     <div className="layer" style={{ position: "absolute", inset: 0 }}>
-      <div style={{ position: "absolute", top: 16, left: 22, zIndex: 16 }}>
-        <Breadcrumb />
-      </div>
+      {/* Breadcrumb — only shows when drilled in past galaxy */}
+      {view !== "galaxy" && (
+        <div style={{ position: "absolute", top: 16, left: 22, zIndex: 16 }}>
+          <Breadcrumb />
+        </div>
+      )}
 
       {view !== "galaxy" && (
         <button className="back-btn" style={{ top: 54 }} onClick={goBack}>
@@ -67,8 +72,42 @@ export default function ExploreView() {
         </button>
       )}
 
-      {/* The 3D galaxy stays mounted so orbit state is preserved; it fades
-          under the 2D layers as the CFO zooms in. */}
+      {/* Subtle floating interaction hint for galaxy view */}
+      <AnimatePresence>
+        {view === "galaxy" && (
+          <motion.div
+            className="explore-hint-float"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4, delay: 0.8 }}
+          >
+            <div className="explore-hint-inner">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                <circle cx="8" cy="8" r="7" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                <circle cx="8" cy="8" r="2" fill="rgba(255,255,255,0.5)" />
+                <path d="M8 1v3M8 12v3M1 8h3M12 8h3" stroke="rgba(255,255,255,0.25)" strokeWidth="0.8" />
+              </svg>
+              <span>Orbit</span>
+              <span className="explore-hint-sep">·</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                <rect x="5" y="1" width="6" height="10" rx="3" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                <line x1="8" y1="3" x2="8" y2="5" stroke="rgba(255,255,255,0.5)" strokeWidth="1" strokeLinecap="round" />
+                <path d="M4 13l4 2 4-2" stroke="rgba(255,255,255,0.25)" strokeWidth="0.8" strokeLinejoin="round" />
+              </svg>
+              <span>Zoom</span>
+              <span className="explore-hint-sep">·</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                <circle cx="8" cy="8" r="4" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                <circle cx="8" cy="8" r="1.5" fill="rgba(77,166,255,0.6)" />
+              </svg>
+              <span>Select a point to explore</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* The 3D galaxy stays mounted so orbit state is preserved */}
       <motion.div
         className="layer"
         animate={{ opacity: view === "galaxy" ? 1 : 0 }}
@@ -117,7 +156,10 @@ export default function ExploreView() {
         )}
       </AnimatePresence>
 
-      <div className="hint">{HINTS[view]}</div>
+      {/* Hint bar for non-galaxy views */}
+      {view !== "galaxy" && HINTS[view] && (
+        <div className="hint">{HINTS[view]}</div>
+      )}
     </div>
   );
 }

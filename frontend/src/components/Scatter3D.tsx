@@ -1,5 +1,5 @@
-import { Suspense, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
+import { Suspense, useMemo, useRef, useState, useCallback } from "react";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { deptDatePoints, maxDeptMonthTotal } from "../data/selectors";
@@ -13,39 +13,38 @@ import { usePolicy } from "../data/policy";
 const EXTENT = { x: 14, y: 10, z: 10 };
 
 /**
- * Deep, luxurious jewel-tone palette for each department.
- * Each color is rich and saturated — think polished gemstones.
- * Over-budget nodes get a subtle warm shift to distinguish them.
+ * Finance-grade metallic palette — think Bloomberg terminal meets
+ * premium data viz. Deep metallics with subtle luminous glow.
  */
-const JEWEL_TONES = [
-  "#0d4f4f", // deep teal
-  "#1a237e", // midnight indigo
-  "#4a148c", // deep purple
-  "#1b5e20", // dark emerald
-  "#b71c1c", // deep crimson
-  "#0d47a1", // royal blue
-  "#4e342e", // dark bronze
-  "#006064", // dark cyan
-  "#311b92", // deep violet
+const FINANCE_TONES = [
+  "#1a3a5c", // deep steel blue
+  "#2c4a3e", // dark jade
+  "#3d2e5c", // midnight plum
+  "#1e4d4d", // dark teal
+  "#4a3520", // dark bronze
+  "#1c3d6e", // navy sapphire
+  "#3a2a2a", // dark garnet
+  "#1a4050", // deep petrol
+  "#2d2850", // dark amethyst
 ];
 
-const JEWEL_EMISSIVES = [
-  "#1de9b6", // teal glow
-  "#536dfe", // indigo glow
-  "#e040fb", // purple glow
-  "#69f0ae", // emerald glow
-  "#ff5252", // crimson glow
-  "#448aff", // blue glow
-  "#d7ccc8", // bronze glow
-  "#84ffff", // cyan glow
-  "#b388ff", // violet glow
+const FINANCE_EMISSIVES = [
+  "#4da6ff", // steel glow
+  "#50d4a0", // jade glow
+  "#9b7aff", // plum glow
+  "#5ce0d0", // teal glow
+  "#e8a54d", // bronze glow
+  "#5f9aff", // sapphire glow
+  "#ff7070", // garnet glow
+  "#60c8e0", // petrol glow
+  "#8a6fff", // amethyst glow
 ];
 
 const _hc = new THREE.Color();
 function nodeColor(deptIdx: number, ratio: number): { base: string; emissive: string } {
-  const idx = deptIdx % JEWEL_TONES.length;
-  const base = JEWEL_TONES[idx];
-  const emissive = JEWEL_EMISSIVES[idx];
+  const idx = deptIdx % FINANCE_TONES.length;
+  const base = FINANCE_TONES[idx];
+  const emissive = FINANCE_EMISSIVES[idx];
   // If over budget, shift towards a warmer/hotter variant
   if (ratio > 1.0) {
     _hc.set(base);
@@ -63,7 +62,7 @@ function nodeColor(deptIdx: number, ratio: number): { base: string; emissive: st
  */
 function pos(deptIdx: number, monthIdx: number, value: number, maxVal: number) {
   const x = (deptIdx / (DEPARTMENTS.length - 1) - 0.5) * 2 * EXTENT.x;
-  const y = (value / maxVal) * EXTENT.y;                              // 0 at floor, EXTENT.y at ceiling
+  const y = (value / maxVal) * EXTENT.y;
   const z = (monthIdx / (MONTH_STARTS.length - 1) - 0.5) * 2 * EXTENT.z;
   return [x, y, z] as const;
 }
@@ -76,13 +75,17 @@ function Dot({
   baseColor,
   emissiveColor,
   label,
+  department,
+  amount,
   onClick,
 }: {
   position: readonly [number, number, number];
-  color: string;          // department identity (drop line, floor dot, tooltip rim)
-  baseColor: string;      // deep jewel-tone fill
-  emissiveColor: string;  // inner glow color
+  color: string;
+  baseColor: string;
+  emissiveColor: string;
   label: string;
+  department: string;
+  amount: number;
   onClick: () => void;
 }) {
   const ref = useRef<THREE.Mesh>(null);
@@ -114,10 +117,10 @@ function Dot({
         <meshStandardMaterial
           color={baseColor}
           emissive={emissiveColor}
-          emissiveIntensity={hover ? 0.9 : 0.35}
-          roughness={0.12}
-          metalness={0.7}
-          envMapIntensity={1.5}
+          emissiveIntensity={hover ? 1.1 : 0.45}
+          roughness={0.08}
+          metalness={0.85}
+          envMapIntensity={2.0}
         />
       </mesh>
       {/* Vertical drop line to the Y=0 floor for depth perception */}
@@ -128,18 +131,19 @@ function Dot({
         ]}
         color={color}
         transparent
-        opacity={0.15}
+        opacity={0.12}
         lineWidth={1}
       />
       {/* Small dot on the floor where the drop line lands */}
       <mesh position={[0, -position[1], 0]}>
-        <sphereGeometry args={[0.12, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.3} />
+        <sphereGeometry args={[0.10, 12, 12]} />
+        <meshBasicMaterial color={color} transparent opacity={0.25} />
       </mesh>
       {hover && (
         <Html position={[0, 1.2, 0]} center distanceFactor={26} zIndexRange={[40, 0]}>
-          <div className="dot-tip" style={{ borderColor: color }}>
-            {label}
+          <div className="dot-tip-finance" style={{ borderColor: color }}>
+            <div className="dot-tip-dept" style={{ color }}>{department}</div>
+            <div className="dot-tip-amount">{fmtUSD(amount)}</div>
           </div>
         </Html>
       )}
@@ -149,15 +153,9 @@ function Dot({
 
 /* ───────────────── Continuous budget boundary plane ────────────────────── */
 
-/**
- * A single continuous translucent plane spanning the full plot width at the
- * average budget height. Replaces per-department rectangles with a smooth,
- * gossamer-thin sheet that reads as a budget "ceiling" the nodes push through.
- */
 function BudgetPlane({ y }: { y: number }) {
   return (
     <group position={[0, y, 0]}>
-      {/* Continuous translucent sheet */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[2 * EXTENT.x + 2, 2 * EXTENT.z + 2]} />
         <meshStandardMaterial
@@ -171,7 +169,6 @@ function BudgetPlane({ y }: { y: number }) {
           depthWrite={false}
         />
       </mesh>
-      {/* Subtle glowing border line along the edge */}
       <Line
         points={[
           [-(EXTENT.x + 1), 0.02, -(EXTENT.z + 1)],
@@ -226,10 +223,7 @@ function AxisLabels() {
         );
       })}
 
-      {/* Y-axis title: spending (height) */}
-      <Html position={[-EXTENT.x - 2, EXTENT.y * 0.55, -EXTENT.z]} center distanceFactor={30}>
-        <div className="axis-z">spend ($) ↑</div>
-      </Html>
+      {/* Y-axis: removed "spend ($)" text per requirements */}
     </>
   );
 }
@@ -239,12 +233,10 @@ function AxisLabels() {
 function FloorGrid() {
   const lines: [number, number, number][][] = [];
 
-  // Grid lines along X for each month
   for (let mi = 0; mi < MONTH_STARTS.length; mi++) {
     const z = (mi / (MONTH_STARTS.length - 1) - 0.5) * 2 * EXTENT.z;
     lines.push([[-EXTENT.x, 0, z], [EXTENT.x, 0, z]]);
   }
-  // Grid lines along Z for each department
   for (let di = 0; di < DEPARTMENTS.length; di++) {
     const x = (di / (DEPARTMENTS.length - 1) - 0.5) * 2 * EXTENT.x;
     lines.push([[x, 0, -EXTENT.z], [x, 0, EXTENT.z]]);
@@ -253,7 +245,7 @@ function FloorGrid() {
   return (
     <>
       {lines.map((pts, i) => (
-        <Line key={i} points={pts} color="#34538f" lineWidth={1} transparent opacity={0.5} />
+        <Line key={i} points={pts} color="#1a3a6a" lineWidth={1} transparent opacity={0.4} />
       ))}
     </>
   );
@@ -264,20 +256,17 @@ function FloorGrid() {
 function BoxFrame() {
   const lines: [number, number, number][][] = [];
   const xs = [-EXTENT.x, EXTENT.x];
-  const ys = [0, EXTENT.y]; // floor at 0, ceiling at EXTENT.y
+  const ys = [0, EXTENT.y];
   const zs = [-EXTENT.z, EXTENT.z];
 
-  // Horizontal edges (X direction)
   for (const y of ys) for (const z of zs) lines.push([[xs[0], y, z], [xs[1], y, z]]);
-  // Depth edges (Z direction)
   for (const x of xs) for (const y of ys) lines.push([[x, y, zs[0]], [x, y, zs[1]]]);
-  // Vertical edges (Y direction)
   for (const x of xs) for (const z of zs) lines.push([[x, ys[0], z], [x, ys[1], z]]);
 
   return (
     <>
       {lines.map((pts, i) => (
-        <Line key={i} points={pts} color="#456bab" lineWidth={1} transparent opacity={0.45} />
+        <Line key={i} points={pts} color="#1e3f72" lineWidth={1} transparent opacity={0.35} />
       ))}
     </>
   );
@@ -301,10 +290,10 @@ function YAxisTicks({ maxVal }: { maxVal: number }) {
         <group key={t.label}>
           <Line
             points={[[-EXTENT.x, t.y, -EXTENT.z], [EXTENT.x, t.y, -EXTENT.z]]}
-            color="#34538f"
+            color="#1a3a6a"
             lineWidth={1}
             transparent
-            opacity={0.25}
+            opacity={0.2}
           />
           <Html position={[-EXTENT.x - 2.2, t.y, -EXTENT.z]} center distanceFactor={30}>
             <div className="axis-tick">{t.label}</div>
@@ -315,6 +304,60 @@ function YAxisTicks({ maxVal }: { maxVal: number }) {
   );
 }
 
+/* ────────────────────── Camera zoom animator ──────────────────────────── */
+
+/**
+ * When a point is clicked, smoothly fly the camera toward the clicked data
+ * point at a 90% offset from both price (Y) and department (X), creating a
+ * "cinematic zoom" before transitioning to the bar chart view.
+ */
+function CameraAnimator({
+  target,
+  onComplete,
+}: {
+  target: { x: number; y: number; z: number } | null;
+  onComplete: () => void;
+}) {
+  const { camera } = useThree();
+  const progressRef = useRef(0);
+  const startPosRef = useRef(new THREE.Vector3());
+  const targetPosRef = useRef(new THREE.Vector3());
+  const animatingRef = useRef(false);
+  const prevTarget = useRef<{ x: number; y: number; z: number } | null>(null);
+
+  if (target && target !== prevTarget.current) {
+    prevTarget.current = target;
+    startPosRef.current.copy(camera.position);
+    // Position camera at 90% from the data point — looking at it from
+    // a close, elevated angle that shows price and department context
+    targetPosRef.current.set(
+      target.x + 6,
+      target.y + 4,
+      target.z + 8
+    );
+    progressRef.current = 0;
+    animatingRef.current = true;
+  }
+
+  useFrame((_, delta) => {
+    if (!animatingRef.current) return;
+    progressRef.current += delta * 1.5; // ~0.67s total animation
+    const t = Math.min(progressRef.current, 1);
+    // Smooth ease-in-out
+    const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+    camera.position.lerpVectors(startPosRef.current, targetPosRef.current, ease);
+    camera.lookAt(target!.x, target!.y * 0.7, target!.z);
+
+    if (t >= 1) {
+      animatingRef.current = false;
+      onComplete();
+    }
+  });
+
+  return null;
+}
+
 /* ────────────────────────────── Scene ───────────────────────────────────── */
 
 function Scene() {
@@ -323,12 +366,45 @@ function Scene() {
   const points = useMemo(() => deptDatePoints(), []);
   const maxVal = useMemo(() => maxDeptMonthTotal() * 1.05, []);
 
+  const [zoomTarget, setZoomTarget] = useState<{
+    x: number;
+    y: number;
+    z: number;
+    monthStart: string;
+  } | null>(null);
+
+  const handleDotClick = useCallback(
+    (monthStart: string, dotPos: readonly [number, number, number]) => {
+      setZoomTarget({
+        x: dotPos[0],
+        y: dotPos[1],
+        z: dotPos[2],
+        monthStart,
+      });
+    },
+    []
+  );
+
+  const handleZoomComplete = useCallback(() => {
+    if (zoomTarget) {
+      selectMonth(zoomTarget.monthStart);
+      setZoomTarget(null);
+    }
+  }, [zoomTarget, selectMonth]);
+
   return (
     <>
-      <ambientLight intensity={0.78} />
-      <pointLight position={[20, 25, 20]} intensity={1.5} />
-      <pointLight position={[-15, 5, -15]} intensity={0.55} color="#8fc4ff" />
-      <directionalLight position={[0, 30, 0]} intensity={0.4} />
+      <ambientLight intensity={0.6} />
+      <pointLight position={[20, 25, 20]} intensity={1.8} />
+      <pointLight position={[-15, 5, -15]} intensity={0.4} color="#4da6ff" />
+      <directionalLight position={[0, 30, 0]} intensity={0.3} />
+      {/* Subtle rim light for metallic feel */}
+      <pointLight position={[0, -5, 20]} intensity={0.25} color="#e8a54d" />
+
+      <CameraAnimator
+        target={zoomTarget}
+        onComplete={handleZoomComplete}
+      />
 
       {/* Center the plot so it orbits around its visual center (half height) */}
       <group position={[0, -EXTENT.y * 0.45, 0]}>
@@ -351,17 +427,19 @@ function Scene() {
           const mi = MONTH_STARTS.indexOf(p.date);
           const budget = budgets[p.department] ?? 0;
           const ratio = budget > 0 ? p.total / budget : 0;
-          const pctLabel = budget > 0 ? ` · ${Math.round(ratio * 100)}% of budget` : "";
           const { base, emissive } = nodeColor(di, ratio);
+          const dotPos = pos(di, mi, p.total, maxVal);
           return (
             <Dot
               key={`${p.department}-${p.date}`}
-              position={pos(di, mi, p.total, maxVal)}
+              position={dotPos}
               color={deptColor(p.department)}
               baseColor={base}
               emissiveColor={emissive}
-              label={`${p.department} · ${p.monthLabel} · ${fmtUSD(p.total)}${pctLabel}`}
-              onClick={() => selectMonth(p.date)}
+              label={`${p.department} · ${p.monthLabel} · ${fmtUSD(p.total)}`}
+              department={p.department}
+              amount={p.total}
+              onClick={() => handleDotClick(p.date, dotPos)}
             />
           );
         })}
@@ -372,9 +450,9 @@ function Scene() {
         minDistance={18}
         maxDistance={70}
         dampingFactor={0.08}
-        // Constrain vertical orbit so user can't flip under the floor
         minPolarAngle={Math.PI * 0.1}
         maxPolarAngle={Math.PI * 0.48}
+        enabled={!zoomTarget}
       />
     </>
   );
@@ -386,17 +464,14 @@ export default function Scatter3D() {
   return (
     <Canvas
       camera={{
-        // Elevated 3/4 view: slightly right, well above, looking down at ~35-40°.
-        // This angle immediately reveals the X=department, Z=date base grid
-        // with Y=spending pillars rising from it.
         position: [28, 22, 28],
         fov: 48,
       }}
       dpr={[1, 2]}
       gl={{ preserveDrawingBuffer: true, antialias: true }}
     >
-      <color attach="background" args={["#0c2150"]} />
-      <fog attach="fog" args={["#0c2150", 70, 130]} />
+      <color attach="background" args={["#0a1628"]} />
+      <fog attach="fog" args={["#0a1628", 70, 130]} />
       <Suspense fallback={null}>
         <Scene />
       </Suspense>

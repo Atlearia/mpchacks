@@ -105,6 +105,7 @@ export default function App() {
       </nav>
 
       <div className="main">
+        {section !== "explore" && (
         <header className="main-top">
           <div className="sec-title">
             <h1>{meta.title}</h1>
@@ -129,6 +130,7 @@ export default function App() {
             </div>
           </div>
         </header>
+        )}
 
         <div className="main-content">
           {/* Explore stays mounted so the 3D orbit state survives section
