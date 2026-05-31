@@ -6,10 +6,26 @@ import { deptDatePoints, maxDeptMonthTotal } from "../data/selectors";
 import { DEPARTMENTS, MONTH_LABELS, MONTH_STARTS } from "../data/dataset";
 import { deptColor, fmtUSD } from "../theme";
 import { useNav } from "../state/store";
+import { usePolicy } from "../data/policy";
 
 // Half-extents of the 3D plot volume.
 // X = department spread, Y = spending (height), Z = date (depth).
 const EXTENT = { x: 14, y: 10, z: 10 };
+
+/**
+ * Budget-health color: green when a node sits well under its department's
+ * monthly budget, sliding through amber to red as it approaches and exceeds
+ * the budget. Because the ratio is per-department, a high-spend node under a
+ * large budget can read greener than a low-spend node over a small budget.
+ */
+const _hc = new THREE.Color();
+function healthColor(ratio: number): string {
+  const r = Math.max(0, Math.min(ratio, 1.3));
+  // ratio 0 -> 145deg (green), 1 -> 0deg (red), capped red beyond.
+  const hue = Math.max(0, 145 - 145 * r);
+  _hc.setHSL(hue / 360, 0.72, 0.56);
+  return `#${_hc.getHexString()}`;
+}
 
 /**
  * Map a data point to scene coordinates.
@@ -29,11 +45,13 @@ function pos(deptIdx: number, monthIdx: number, value: number, maxVal: number) {
 function Dot({
   position,
   color,
+  coreColor,
   label,
   onClick,
 }: {
   position: readonly [number, number, number];
-  color: string;
+  color: string; // department identity (drop line, floor, tooltip rim)
+  coreColor: string; // budget-health (sphere fill)
   label: string;
   onClick: () => void;
 }) {
@@ -64,12 +82,18 @@ function Dot({
       >
         <sphereGeometry args={[0.42, 24, 24]} />
         <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={hover ? 1.1 : 0.55}
-          roughness={0.3}
+          color={coreColor}
+          emissive={coreColor}
+          emissiveIntensity={hover ? 1.2 : 0.7}
+          roughness={0.25}
           metalness={0.1}
         />
+      </mesh>
+      {/* Thin department-colored ring so each node still carries its
+          department identity on top of the budget-health fill. */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.6, 0.045, 8, 32]} />
+        <meshBasicMaterial color={color} transparent opacity={0.85} />
       </mesh>
       {/* Vertical drop line to the Y=0 floor for depth perception */}
       <Line
@@ -79,13 +103,13 @@ function Dot({
         ]}
         color={color}
         transparent
-        opacity={0.18}
+        opacity={0.2}
         lineWidth={1}
       />
       {/* Small dot on the floor where the drop line lands */}
       <mesh position={[0, -position[1], 0]}>
         <sphereGeometry args={[0.14, 12, 12]} />
-        <meshBasicMaterial color={color} transparent opacity={0.35} />
+        <meshBasicMaterial color={color} transparent opacity={0.4} />
       </mesh>
       {hover && (
         <Html position={[0, 1.2, 0]} center distanceFactor={26} zIndexRange={[40, 0]}>
@@ -94,6 +118,56 @@ function Dot({
           </div>
         </Html>
       )}
+    </group>
+  );
+}
+
+/* ───────────────── Per-department budget "sheet" (allowance plane) ────────── */
+
+function BudgetSheet({
+  x,
+  y,
+  width,
+  depth,
+  color,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  depth: number;
+  color: string;
+}) {
+  const half = depth / 2;
+  const hw = width / 2;
+  return (
+    <group position={[x, y, 0]}>
+      {/* Thin translucent paper-like sheet at the department's budget height */}
+      <mesh>
+        <boxGeometry args={[width, 0.07, depth]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.25}
+          transparent
+          opacity={0.16}
+          roughness={0.4}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* Glowing perimeter so the sheet edge reads as a crisp "page" */}
+      <Line
+        points={[
+          [-hw, 0.05, -half],
+          [hw, 0.05, -half],
+          [hw, 0.05, half],
+          [-hw, 0.05, half],
+          [-hw, 0.05, -half],
+        ]}
+        color={color}
+        lineWidth={1.5}
+        transparent
+        opacity={0.6}
+      />
     </group>
   );
 }
@@ -162,7 +236,7 @@ function FloorGrid() {
   return (
     <>
       {lines.map((pts, i) => (
-        <Line key={i} points={pts} color="#1e2742" lineWidth={1} transparent opacity={0.45} />
+        <Line key={i} points={pts} color="#34538f" lineWidth={1} transparent opacity={0.5} />
       ))}
     </>
   );
@@ -186,7 +260,7 @@ function BoxFrame() {
   return (
     <>
       {lines.map((pts, i) => (
-        <Line key={i} points={pts} color="#2a3357" lineWidth={1} transparent opacity={0.4} />
+        <Line key={i} points={pts} color="#456bab" lineWidth={1} transparent opacity={0.45} />
       ))}
     </>
   );
@@ -210,10 +284,10 @@ function YAxisTicks({ maxVal }: { maxVal: number }) {
         <group key={t.label}>
           <Line
             points={[[-EXTENT.x, t.y, -EXTENT.z], [EXTENT.x, t.y, -EXTENT.z]]}
-            color="#1e2742"
+            color="#34538f"
             lineWidth={1}
             transparent
-            opacity={0.2}
+            opacity={0.25}
           />
           <Html position={[-EXTENT.x - 2.2, t.y, -EXTENT.z]} center distanceFactor={30}>
             <div className="axis-tick">{t.label}</div>
@@ -228,15 +302,18 @@ function YAxisTicks({ maxVal }: { maxVal: number }) {
 
 function Scene() {
   const selectMonth = useNav((s) => s.selectMonth);
+  const budgets = usePolicy((s) => s.config.departmentBudgets);
   const points = useMemo(() => deptDatePoints(), []);
   const maxVal = useMemo(() => maxDeptMonthTotal() * 1.05, []);
 
+  const laneWidth = ((2 * EXTENT.x) / Math.max(DEPARTMENTS.length - 1, 1)) * 0.6;
+
   return (
     <>
-      <ambientLight intensity={0.55} />
-      <pointLight position={[20, 25, 20]} intensity={1.3} />
-      <pointLight position={[-15, 5, -15]} intensity={0.4} color="#7eb3ff" />
-      <directionalLight position={[0, 30, 0]} intensity={0.3} />
+      <ambientLight intensity={0.78} />
+      <pointLight position={[20, 25, 20]} intensity={1.5} />
+      <pointLight position={[-15, 5, -15]} intensity={0.55} color="#8fc4ff" />
+      <directionalLight position={[0, 30, 0]} intensity={0.4} />
 
       {/* Center the plot so it orbits around its visual center (half height) */}
       <group position={[0, -EXTENT.y * 0.45, 0]}>
@@ -244,15 +321,38 @@ function Scene() {
         <FloorGrid />
         <AxisLabels />
         <YAxisTicks maxVal={maxVal} />
+
+        {/* Per-department budget allowance sheets */}
+        {DEPARTMENTS.map((dept, di) => {
+          const budget = budgets[dept] ?? 0;
+          if (!budget) return null;
+          const x = (di / (DEPARTMENTS.length - 1) - 0.5) * 2 * EXTENT.x;
+          const y = Math.min(budget / maxVal, 1.12) * EXTENT.y;
+          return (
+            <BudgetSheet
+              key={`sheet-${dept}`}
+              x={x}
+              y={y}
+              width={laneWidth}
+              depth={2 * EXTENT.z}
+              color={deptColor(dept)}
+            />
+          );
+        })}
+
         {points.map((p) => {
           const di = DEPARTMENTS.indexOf(p.department);
           const mi = MONTH_STARTS.indexOf(p.date);
+          const budget = budgets[p.department] ?? 0;
+          const ratio = budget > 0 ? p.total / budget : 0;
+          const pctLabel = budget > 0 ? ` · ${Math.round(ratio * 100)}% of budget` : "";
           return (
             <Dot
               key={`${p.department}-${p.date}`}
               position={pos(di, mi, p.total, maxVal)}
               color={deptColor(p.department)}
-              label={`${p.department} · ${p.monthLabel} · ${fmtUSD(p.total)}`}
+              coreColor={healthColor(ratio)}
+              label={`${p.department} · ${p.monthLabel} · ${fmtUSD(p.total)}${pctLabel}`}
               onClick={() => selectMonth(p.date)}
             />
           );
@@ -287,8 +387,8 @@ export default function Scatter3D() {
       dpr={[1, 2]}
       gl={{ preserveDrawingBuffer: true, antialias: true }}
     >
-      <color attach="background" args={["#061027"]} />
-      <fog attach="fog" args={["#061027", 65, 120]} />
+      <color attach="background" args={["#0c2150"]} />
+      <fog attach="fog" args={["#0c2150", 70, 130]} />
       <Suspense fallback={null}>
         <Scene />
       </Suspense>

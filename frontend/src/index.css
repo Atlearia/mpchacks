@@ -2,21 +2,21 @@
   /* Brim — institutional finance palette: deep navy surfaces, a confident
      trust-blue primary, and white type. Color psychology: blue = trust,
      stability, security; reserved warm hues only for risk signaling. */
-  --bg: #061027;
-  --bg-soft: #0b1a3a;
-  --panel: rgba(16, 32, 64, 0.66);
-  --panel-solid: #0f1f42;
-  --border: rgba(128, 162, 224, 0.16);
-  --border-strong: rgba(128, 162, 224, 0.32);
-  --text: #f3f7ff;
-  --text-dim: #a6b8dd;
-  --text-faint: #6076a0;
-  --navy: #0a1f47;
-  --accent: #2f6bff;
-  --accent-2: #7eb3ff;
-  --good: #34c79a;
-  --warn: #f0b64e;
-  --bad: #f4708a;
+  --bg: #102a5e;
+  --bg-soft: #1a3a76;
+  --panel: rgba(255, 255, 255, 0.08);
+  --panel-solid: #1d3f7e;
+  --border: rgba(168, 196, 245, 0.22);
+  --border-strong: rgba(168, 196, 245, 0.42);
+  --text: #f7faff;
+  --text-dim: #c6d6f4;
+  --text-faint: #93a9d6;
+  --navy: #0c245a;
+  --accent: #3d82ff;
+  --accent-2: #8fc4ff;
+  --good: #3ad7a0;
+  --warn: #ffc04d;
+  --bad: #ff7d93;
   --radius: 16px;
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -58,7 +58,7 @@ body {
   gap: 16px;
   padding: 14px 22px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(13, 16, 32, 0.9), rgba(13, 16, 32, 0.5));
+  background: linear-gradient(180deg, rgba(22, 52, 112, 0.9), rgba(20, 46, 102, 0.5));
   backdrop-filter: blur(14px);
   z-index: 20;
 }
@@ -171,7 +171,7 @@ body {
   font-size: 12px;
   font-weight: 600;
   color: #fff;
-  background: rgba(8, 10, 22, 0.92);
+  background: rgba(14, 34, 78, 0.95);
   border: 1px solid var(--accent);
   padding: 5px 10px;
   border-radius: 8px;
@@ -582,7 +582,7 @@ body {
   gap: 4px;
   padding: 16px 12px;
   border-right: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(13, 16, 32, 0.96), rgba(9, 11, 24, 0.92));
+  background: linear-gradient(180deg, rgba(24, 56, 120, 0.96), rgba(18, 44, 98, 0.92));
   backdrop-filter: blur(14px);
   z-index: 30;
   min-height: 0;
@@ -704,7 +704,7 @@ body {
   gap: 16px;
   padding: 14px 26px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(13, 16, 32, 0.8), rgba(13, 16, 32, 0.4));
+  background: linear-gradient(180deg, rgba(24, 56, 120, 0.78), rgba(20, 46, 102, 0.42));
   backdrop-filter: blur(10px);
   z-index: 20;
 }
@@ -1300,7 +1300,7 @@ body {
 .ask-composer {
   padding: 14px 30px 22px;
   border-top: 1px solid var(--border);
-  background: rgba(13, 16, 32, 0.6);
+  background: rgba(20, 46, 102, 0.6);
   backdrop-filter: blur(10px);
 }
 .ask-composer-inner {
