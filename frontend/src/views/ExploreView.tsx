@@ -72,12 +72,6 @@ export default function ExploreView() {
                 <path d="M4 13l4 2 4-2" stroke="rgba(255,255,255,0.25)" strokeWidth="0.8" strokeLinejoin="round" />
               </svg>
               <span>Zoom</span>
-              <span className="explore-hint-sep">·</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                <circle cx="8" cy="8" r="4" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-                <circle cx="8" cy="8" r="1.5" fill="rgba(77,166,255,0.6)" />
-              </svg>
-              <span>Select a point to explore</span>
             </div>
           </motion.div>
         )}
