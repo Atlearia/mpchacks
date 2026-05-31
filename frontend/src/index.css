@@ -152,6 +152,15 @@ body {
 .axis-z {
   color: var(--text-dim);
 }
+.axis-tick {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
 .dot-tip {
   pointer-events: none;
   white-space: nowrap;
